@@ -1,0 +1,308 @@
+<div class="mx-auto w-full max-w-sm">
+  <div>
+    <div>
+      <app-logo></app-logo>
+    </div>
+    <h2 class="mt-6 text-3xl leading-9 font-extrabold text-gray-900">
+      Региструј своје предузеће на систем
+    </h2>
+  </div>
+
+  <div class="mt-8">
+    <div>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <div class="flex -mx-4">
+          <div class="px-4 w-full lg:w/1-2">
+            <label
+              for="username"
+              class="block text-sm font-medium leading-5 text-gray-700"
+            >
+              Корисничко име
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <input
+                id="username"
+                type="text"
+                placeholder="korisnik1"
+                required
+                formControlName="username"
+                class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+              />
+            </div>
+            <div
+              class="text-xs text-red-500 mt-1"
+              *ngIf="username.invalid && (username.dirty || username.touched)"
+            >
+              <span *ngIf="username.errors.required">
+                Мораш да попуниш ово поље.
+              </span>
+            </div>
+          </div>
+          <div class="px-4 w-full lg:w/1-2">
+            <label
+              for="email"
+              class="block text-sm font-medium leading-5 text-gray-700"
+            >
+              Електронска адреса
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <input
+                id="email"
+                type="email"
+                placeholder="email@example.com"
+                required
+                formControlName="email"
+                class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+              />
+            </div>
+            <div
+              class="text-xs text-red-500 mt-1"
+              *ngIf="email.invalid && (email.dirty || email.touched)"
+            >
+              <span *ngIf="email.errors.required">
+                Мораш да попуниш ово поље.
+              </span>
+              <span *ngIf="email.errors.pattern">
+                Унесите валидну електронску пошту.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex -mx-4">
+          <div class="mt-6 px-4 w-full lg:w/1-2">
+            <label
+              for="firstName"
+              class="block text-sm font-medium leading-5 text-gray-700"
+            >
+              Име
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <input
+                id="firstName"
+                type="text"
+                placeholder="Бојан"
+                required
+                formControlName="firstName"
+                class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+              />
+            </div>
+            <div
+              class="text-xs text-red-500 mt-1"
+              *ngIf="
+                firstName.invalid && (firstName.dirty || firstName.touched)
+              "
+            >
+              <span *ngIf="firstName.errors.required">
+                Мораш да попуниш ово поље.
+              </span>
+            </div>
+          </div>
+          <div class="mt-6 px-4 w-full lg:w/1-2">
+            <label
+              for="lastName"
+              class="block text-sm font-medium leading-5 text-gray-700"
+            >
+              Прежиме
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <input
+                id="lastName"
+                type="text"
+                placeholder="Анђелкоски"
+                required
+                formControlName="lastName"
+                class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+              />
+            </div>
+            <div
+              class="text-xs text-red-500 mt-1"
+              *ngIf="lastName.invalid && (lastName.dirty || lastName.touched)"
+            >
+              <span *ngIf="lastName.errors.required">
+                Мораш да попуниш ово поље.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex -mx-4">
+          <div class="mt-6 px-4 w-full lg:w-1/2">
+            <label
+              for="dateOfBirth"
+              class="block text-sm font-medium leading-5 text-gray-700"
+            >
+              Датум рађања
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <input
+                id="dateOfBirth"
+                type="date"
+                required
+                formControlName="dateOfBirth"
+                class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+              />
+            </div>
+            <div
+              class="text-xs text-red-500 mt-1"
+              *ngIf="
+                dateOfBirth.invalid &&
+                (dateOfBirth.dirty || dateOfBirth.touched)
+              "
+            >
+              <span *ngIf="dateOfBirth.errors.required">
+                Мораш да попуниш ово поље.
+              </span>
+            </div>
+          </div>
+          <div class="mt-6 px-4 w-full lg:w-1/2">
+            <label
+              for="placeOfBirth"
+              class="block text-sm font-medium leading-5 text-gray-700"
+            >
+              Место рађања
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <input
+                id="placeOfBirth"
+                type="text"
+                required
+                formControlName="placeOfBirth"
+                class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+              />
+            </div>
+            <div
+              class="text-xs text-red-500 mt-1"
+              *ngIf="
+                placeOfBirth.invalid &&
+                (placeOfBirth.dirty || placeOfBirth.touched)
+              "
+            >
+              <span *ngIf="placeOfBirth.errors.required">
+                Мораш да попуниш ово поље.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 w-full">
+          <label
+            for="phone"
+            class="block text-sm font-medium leading-5 text-gray-700"
+          >
+            Телефонски број
+          </label>
+          <div class="mt-1 rounded-md shadow-sm">
+            <input
+              id="phone"
+              type="text"
+              required
+              formControlName="phone"
+              class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+            />
+          </div>
+          <div
+            class="text-xs text-red-500 mt-1"
+            *ngIf="phone.invalid && (phone.dirty || phone.touched)"
+          >
+            <span *ngIf="phone.errors.required">
+              Мораш да попуниш ово поље.
+            </span>
+            <span *ngIf="phone.errors.pattern">
+              Телефон мора бити у формату +3816xxxxxxxx
+            </span>
+          </div>
+        </div>
+
+        <div class="flex -mx-4">
+          <div class="mt-6 px-4 w-full lg:w/1-2">
+            <label
+              for="password"
+              class="block text-sm font-medium leading-5 text-gray-700"
+            >
+              Лозинка
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <input
+                id="password"
+                type="text"
+                formControlName="password"
+                required
+                class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+              />
+            </div>
+            <div
+              class="text-xs text-red-500 mt-1"
+              *ngIf="password.invalid && (password.dirty || password.touched)"
+            >
+              <span *ngIf="password.errors.required">
+                Мораш да попуниш ово поље.
+              </span>
+              <span *ngIf="password.errors.pattern">
+                Лозинка мора да садржи минимално 7 карактера, од тога бар једно
+                велико слово, један број и један специјални карактер, и мора
+                почињати словом.
+              </span>
+            </div>
+          </div>
+
+          <div class="mt-6 px-4 w-full lg:w/1-2">
+            <label
+              for="passwordConfirmation"
+              class="block text-sm font-medium leading-5 text-gray-700"
+            >
+              Потврди нову лозинку
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <input
+                id="passwordConfirmation"
+                type="text"
+                formControlName="passwordConfirmation"
+                required
+                class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+              />
+            </div>
+            <div
+              class="text-xs text-red-500 mt-1"
+              *ngIf="
+                passwordConfirmation.invalid &&
+                (passwordConfirmation.dirty || passwordConfirmation.touched)
+              "
+            >
+              <span *ngIf="passwordConfirmation.errors.required">
+                Мораш да попуниш ово поље.
+              </span>
+              <span *ngIf="passwordConfirmation.errors.mustMatch">
+                Лозинке нису исте.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 flex items-center justify-end">
+          <div class="text-sm leading-5">
+            <button
+              type="button"
+              (click)="onGoToLogin()"
+              class="font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:underline transition ease-in-out duration-150"
+            >
+              Повратак на почетну страну
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <span class="block w-full rounded-md shadow-sm">
+            <button
+              type="submit"
+              [disabled]="!registerForm.valid"
+              class="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:border-blue-700 focus:shadow-outline-blue active:bg-blue-700 transition duration-150 ease-in-out"
+            >
+              Региструј се
+            </button>
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

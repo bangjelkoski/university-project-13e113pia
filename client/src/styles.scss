@@ -1,0 +1,11 @@
+.ng-invalid.ng-touched {
+  @apply border-red-500;
+}
+
+.ng-valid.ng-touched {
+  @apply border-green-500;
+}
+
+[disabled] {
+  @apply pointer-events-none cursor-not-allowed opacity-50;
+}
