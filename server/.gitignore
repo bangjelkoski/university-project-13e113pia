@@ -1,15 +1,24 @@
-# Dependencies
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependency directories
 node_modules
 
-# package-lock.json (use yarn.lock instead)
+# Optional npm cache directory
+.npm
+
+# Editors
+.idea
+.vscode
+
+# npm package lock
 package-lock.json
+yarn.lock
 
-# yarn error logs
-yarn-error.log
+# others
+.DS_Store
 
-# Environment varibales
-.env*
-!.env*.example
-
-# Code coverage
-coverage
+# Env
+.env
