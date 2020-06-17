@@ -27,8 +27,8 @@ const server = http.createServer(app);
 
 server.listen(PORT, () => {
   console.log('==========**********==========');
-  console.log('========SERVER RUNNING========');
-  console.log(`==========PORT ${PORT}===========`);
+  console.log('======= SERVER RUNNING =======');
+  console.log(`========= PORT ${PORT} ==========`);
   console.log('==========**********==========');
 });
 server.on('error', onError);

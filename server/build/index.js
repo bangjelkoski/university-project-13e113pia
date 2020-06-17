@@ -1,282 +1,725 @@
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/server.js");
-/******/ })
-/************************************************************************/
-/******/ ({
+'use strict';
 
-/***/ "./src/app.js":
-/*!********************!*\
-  !*** ./src/app.js ***!
-  \********************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! express */ \"express\");\n/* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(express__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var compression__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! compression */ \"compression\");\n/* harmony import */ var compression__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(compression__WEBPACK_IMPORTED_MODULE_1__);\n/* harmony import */ var cors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! cors */ \"cors\");\n/* harmony import */ var cors__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(cors__WEBPACK_IMPORTED_MODULE_2__);\n/* harmony import */ var method_override__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! method-override */ \"method-override\");\n/* harmony import */ var method_override__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(method_override__WEBPACK_IMPORTED_MODULE_3__);\n/* harmony import */ var debug__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! debug */ \"debug\");\n/* harmony import */ var debug__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(debug__WEBPACK_IMPORTED_MODULE_4__);\n/* harmony import */ var body_parser__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! body-parser */ \"body-parser\");\n/* harmony import */ var body_parser__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(body_parser__WEBPACK_IMPORTED_MODULE_5__);\n/* harmony import */ var helmet__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! helmet */ \"helmet\");\n/* harmony import */ var helmet__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(helmet__WEBPACK_IMPORTED_MODULE_6__);\n/* harmony import */ var express_validation__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! express-validation */ \"express-validation\");\n/* harmony import */ var express_validation__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(express_validation__WEBPACK_IMPORTED_MODULE_7__);\n/* harmony import */ var _classes_APIClientError__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ~/classes/APIClientError */ \"./src/classes/APIClientError.js\");\n/* harmony import */ var _routes__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./routes */ \"./src/routes/index.js\");\n/* harmony import */ var _database__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./database */ \"./src/database/index.js\");\n\n\n\n\n\n\n\n\n\n\n\n\n\nconst app = express__WEBPACK_IMPORTED_MODULE_0___default()();\nconst log = debug__WEBPACK_IMPORTED_MODULE_4___default()('app');\n\n/**\n * App Middleware\n */\napp.use(cors__WEBPACK_IMPORTED_MODULE_2___default()());\napp.use(method_override__WEBPACK_IMPORTED_MODULE_3___default()());\napp.use(body_parser__WEBPACK_IMPORTED_MODULE_5___default.a.urlencoded({ extended: false }));\napp.use(body_parser__WEBPACK_IMPORTED_MODULE_5___default.a.json());\napp.use(compression__WEBPACK_IMPORTED_MODULE_1___default()());\napp.use(helmet__WEBPACK_IMPORTED_MODULE_6___default()());\n\n/**\n * Database Setup\n */\n_database__WEBPACK_IMPORTED_MODULE_10__[\"default\"].sequelize\n  .authenticate()\n  .then(() => {\n    log('Connected to the database');\n  })\n  .catch((err) => {\n    log('Unable to connect to the database: ', err);\n  });\n\n_database__WEBPACK_IMPORTED_MODULE_10__[\"default\"].sequelize.sync({ force: false });\n\n/**\n * API Routes\n */\napp.use(_routes__WEBPACK_IMPORTED_MODULE_9__[\"default\"]);\n\n/**\n * Validation Errors\n */\napp.use((err, req, res, next) => {\n  if (err instanceof express_validation__WEBPACK_IMPORTED_MODULE_7__[\"ValidationError\"]) {\n    return res.status(err.status).json(err);\n  }\n\n  return next(err);\n});\n\n/**\n * API Errors\n */\napp.use((err, req, res, next) => {\n  if (err instanceof _classes_APIClientError__WEBPACK_IMPORTED_MODULE_8__[\"default\"]) {\n    return res.status(err.status).json(err.toJson());\n  }\n\n  return next(err);\n});\n\n/**\n * Unhandled Errors\n */\nprocess.on('unhandledRejection', (error) => {\n  console.error('Uncaught Error', error);\n});\n\n/* harmony default export */ __webpack_exports__[\"default\"] = (app);\n\n\n//# sourceURL=webpack:///./src/app.js?");
+var http = _interopDefault(require('http'));
+var express = require('express');
+var express__default = _interopDefault(express);
+var compression = _interopDefault(require('compression'));
+var cors = _interopDefault(require('cors'));
+var methodOverride = _interopDefault(require('method-override'));
+var debug = _interopDefault(require('debug'));
+var bodyParser = _interopDefault(require('body-parser'));
+var helmet = _interopDefault(require('helmet'));
+var expressValidation = require('express-validation');
+var HTTPStatus = _interopDefault(require('http-status'));
+var Sequelize = require('sequelize');
+var Sequelize__default = _interopDefault(Sequelize);
+var bcrypt = _interopDefault(require('bcrypt'));
 
-/***/ }),
+class APIClientError {//
+}
 
-/***/ "./src/classes/APIClientError.js":
-/*!***************************************!*\
-  !*** ./src/classes/APIClientError.js ***!
-  \***************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+  try {
+    var info = gen[key](arg);
+    var value = info.value;
+  } catch (error) {
+    reject(error);
+    return;
+  }
 
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return APIClientError; });\nclass APIClientError {\n  //\n}\n\n\n//# sourceURL=webpack:///./src/classes/APIClientError.js?");
+  if (info.done) {
+    resolve(value);
+  } else {
+    Promise.resolve(value).then(_next, _throw);
+  }
+}
 
-/***/ }),
+function _asyncToGenerator(fn) {
+  return function () {
+    var self = this,
+        args = arguments;
+    return new Promise(function (resolve, reject) {
+      var gen = fn.apply(self, args);
 
-/***/ "./src/config.js":
-/*!***********************!*\
-  !*** ./src/config.js ***!
-  \***********************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+      function _next(value) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+      }
 
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\nconst config = {\n  PORT: \"3000\" || false,\n\n  DB_DIALECT: \"mysql\" || false,\n  DB_HOST: \"localhost\",\n  DB_PORT: \"3306\",\n  DB_NAME: \"pia\",\n  DB_USER: \"root\",\n  DB_PASSWORD: \"\",\n};\n\n/* harmony default export */ __webpack_exports__[\"default\"] = (config);\n\n\n//# sourceURL=webpack:///./src/config.js?");
+      function _throw(err) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+      }
 
-/***/ }),
+      _next(undefined);
+    });
+  };
+}
 
-/***/ "./src/database/index.js":
-/*!*******************************!*\
-  !*** ./src/database/index.js ***!
-  \*******************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
 
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var sequelize__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! sequelize */ \"sequelize\");\n/* harmony import */ var sequelize__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(sequelize__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/config */ \"./src/config.js\");\n\n\n\nconst { DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_DIALECT, DB_PORT } = _config__WEBPACK_IMPORTED_MODULE_1__[\"default\"];\n\nconst sequelize = new sequelize__WEBPACK_IMPORTED_MODULE_0___default.a(DB_NAME, DB_USER, DB_PASSWORD, {\n  host: DB_HOST,\n  dialect: DB_DIALECT,\n  port: DB_PORT,\n  // eslint-disable-next-line no-console\n  logging: console.log,\n  timezone: '+02:00',\n});\n\nconst db = {\n  sequelize,\n  Sequelize: (sequelize__WEBPACK_IMPORTED_MODULE_0___default()),\n};\n\n/* harmony default export */ __webpack_exports__[\"default\"] = (db);\n\n\n//# sourceURL=webpack:///./src/database/index.js?");
+  return obj;
+}
 
-/***/ }),
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
 
-/***/ "./src/routes/index.js":
-/*!*****************************!*\
-  !*** ./src/routes/index.js ***!
-  \*****************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+    if (enumerableOnly) symbols = symbols.filter(function (sym) {
+      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+    });
+    keys.push.apply(keys, symbols);
+  }
 
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var http_status__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! http-status */ \"http-status\");\n/* harmony import */ var http_status__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(http_status__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var express__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! express */ \"express\");\n/* harmony import */ var express__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(express__WEBPACK_IMPORTED_MODULE_1__);\n\n\n\nconst router = Object(express__WEBPACK_IMPORTED_MODULE_1__[\"Router\"])();\n\nrouter.get('/', (req, res) => {\n  res.json({\n    statusCode: http_status__WEBPACK_IMPORTED_MODULE_0___default.a.OK,\n    message: 'Welcome to 13e113pia project API',\n  });\n});\n\nrouter.all('*', async (req, res) => {\n  res.json({\n    message: http_status__WEBPACK_IMPORTED_MODULE_0___default.a[404],\n    statusCode: http_status__WEBPACK_IMPORTED_MODULE_0___default.a.NOT_FOUND,\n  });\n});\n\n/* harmony default export */ __webpack_exports__[\"default\"] = (router);\n\n\n//# sourceURL=webpack:///./src/routes/index.js?");
+  return keys;
+}
 
-/***/ }),
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
 
-/***/ "./src/server.js":
-/*!***********************!*\
-  !*** ./src/server.js ***!
-  \***********************/
-/*! no exports provided */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
 
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var http__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! http */ \"http\");\n/* harmony import */ var http__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(http__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/app */ \"./src/app.js\");\n/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ~/config */ \"./src/config.js\");\n\n\n\n\nconst { PORT } = _config__WEBPACK_IMPORTED_MODULE_2__[\"default\"];\n\nconst onError = (error) => {\n  if (error.syscall !== 'listen') {\n    throw error;\n  }\n\n  switch (error.code) {\n    case 'EACCES':\n      console.error(`Port ${PORT} requires elevated privileges`);\n      process.exit(1);\n      break;\n    case 'EADDRINUSE':\n      console.error(`Port ${PORT} is already in use`);\n      process.exit(1);\n      break;\n    default:\n      throw error;\n  }\n};\n\nconst server = http__WEBPACK_IMPORTED_MODULE_0___default.a.createServer(_app__WEBPACK_IMPORTED_MODULE_1__[\"default\"]);\n\nserver.listen(PORT, () => {\n  console.log('==========**********==========');\n  console.log('========SERVER RUNNING========');\n  console.log(`==========PORT ${PORT}===========`);\n  console.log('==========**********==========');\n});\nserver.on('error', onError);\n\n\n//# sourceURL=webpack:///./src/server.js?");
+  return target;
+}
 
-/***/ }),
+var router = express.Router();
+router.get('/', (req, res) => {
+  res.json({
+    statusCode: HTTPStatus.OK,
+    message: 'Welcome to 13e113pia project API'
+  });
+});
+router.all('*', /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (req, res) {
+    res.json({
+      message: HTTPStatus[404],
+      statusCode: HTTPStatus.NOT_FOUND
+    });
+  });
 
-/***/ "body-parser":
-/*!******************************!*\
-  !*** external "body-parser" ***!
-  \******************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
+  return function (_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}());
 
-eval("module.exports = require(\"body-parser\");\n\n//# sourceURL=webpack:///external_%22body-parser%22?");
+var config = {
+  PORT: process.env.PORT || '3000',
+  DB_DIALECT: process.env.DB_DIALECT || 'mysql',
+  DB_HOST: process.env.DB_HOST,
+  DB_PORT: process.env.DB_PORT,
+  DB_NAME: process.env.DB_NAME,
+  DB_USER: process.env.DB_USER,
+  DB_PASSWORD: process.env.DB_PASSWORD
+};
 
-/***/ }),
+var ROLES = {
+  admin: 'admin',
+  poljoprivrednik: 'poljoprivrednik',
+  preduzece: 'preduzece'
+};
 
-/***/ "compression":
-/*!******************************!*\
-  !*** external "compression" ***!
-  \******************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
+var STATUS = {
+  naCekanju: 'naCekanju',
+  odobren: 'odobren',
+  odbijen: 'odbijen'
+};
 
-eval("module.exports = require(\"compression\");\n\n//# sourceURL=webpack:///external_%22compression%22?");
+function init(sequelize) {
+  var _this = this;
 
-/***/ }),
+  var Korisnik = sequelize.define('Korisnik', {
+    id: {
+      allowNull: false,
+      primaryKey: true,
+      type: Sequelize.DataTypes.UUID,
+      defaultValue: Sequelize.DataTypes.UUIDV4
+    },
+    email: {
+      allowNull: false,
+      type: Sequelize.DataTypes.STRING
+    },
+    phone: {
+      allowNull: false,
+      type: Sequelize.DataTypes.STRING
+    },
+    password: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false
+    },
+    role: {
+      type: Sequelize.DataTypes.ENUM([ROLES.admin, ROLES.poljoprivrednik, ROLES.preduzece]),
+      allowNull: false
+    },
+    status: {
+      type: Sequelize.DataTypes.ENUM([STATUS.naCekanju, STATUS.odobren, STATUS.odbijen]),
+      allowNull: false
+    },
+    username: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    }
+  }, {
+    freezeTableName: true
+  });
 
-/***/ "cors":
-/*!***********************!*\
-  !*** external "cors" ***!
-  \***********************/
-/*! no static exports found */
-/***/ (function(module, exports) {
+  Korisnik.associate = function associate(models) {
+    switch (this.role) {
+      case ROLES.admin:
+        this.admin = this.hasOne(models.Admin, {
+          onDelete: 'CASCADE',
+          foreignKey: 'korisnikId'
+        });
+        break;
 
-eval("module.exports = require(\"cors\");\n\n//# sourceURL=webpack:///external_%22cors%22?");
+      case ROLES.preduzece:
+        this.preduzece = this.hasOne(models.Preduzece, {
+          onDelete: 'CASCADE',
+          foreignKey: 'korisnikId'
+        });
+        break;
 
-/***/ }),
+      case ROLES.poljoprivrednik:
+        this.poljoprivrednik = this.hasOne(models.Poljoprivrednik, {
+          onDelete: 'CASCADE',
+          foreignKey: 'korisnikId'
+        });
+        break;
+    }
+  }; // eslint-disable-next-line no-shadow
 
-/***/ "debug":
-/*!************************!*\
-  !*** external "debug" ***!
-  \************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
 
-eval("module.exports = require(\"debug\");\n\n//# sourceURL=webpack:///external_%22debug%22?");
+  Korisnik.beforeSave( /*#__PURE__*/function () {
+    var _ref = _asyncToGenerator(function* (user) {
+      try {
+        if (user.changed('password')) {
+          var salt = yield bcrypt.genSalt(10);
+          var hash = yield bcrypt.hash(user.password, salt); // eslint-disable-next-line no-param-reassign
 
-/***/ }),
+          user.password = hash;
+        }
+      } catch (err) {
+        throw new Error(err);
+      }
+    });
 
-/***/ "express":
-/*!**************************!*\
-  !*** external "express" ***!
-  \**************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
+    return function (_x) {
+      return _ref.apply(this, arguments);
+    };
+  }()); // eslint-disable-next-line func-names
 
-eval("module.exports = require(\"express\");\n\n//# sourceURL=webpack:///external_%22express%22?");
+  Korisnik.prototype.isValidPassword = /*#__PURE__*/function () {
+    var _ref2 = _asyncToGenerator(function* (pw) {
+      try {
+        return yield bcrypt.compare(pw, _this.password);
+      } catch (err) {
+        throw new Error(err);
+      }
+    });
 
-/***/ }),
+    return function (_x2) {
+      return _ref2.apply(this, arguments);
+    };
+  }();
 
-/***/ "express-validation":
-/*!*************************************!*\
-  !*** external "express-validation" ***!
-  \*************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
+  Korisnik.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
+    var values = _objectSpread2({}, _this.get());
 
-eval("module.exports = require(\"express-validation\");\n\n//# sourceURL=webpack:///external_%22express-validation%22?");
+    delete values.password;
+    return values;
+  });
+  return Korisnik;
+}
 
-/***/ }),
+function init$1(sequelize) {
+  var _this = this;
 
-/***/ "helmet":
-/*!*************************!*\
-  !*** external "helmet" ***!
-  \*************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
+  var Preduzece = sequelize.define('Preduzece', {
+    name: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false
+    },
+    location: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false
+    },
+    dateOfCreation: {
+      type: Sequelize.DataTypes.DATE,
+      allowNull: false
+    }
+  }, {
+    freezeTableName: true,
+    timestamps: false
+  });
 
-eval("module.exports = require(\"helmet\");\n\n//# sourceURL=webpack:///external_%22helmet%22?");
+  Preduzece.associate = function associate(models) {
+    this.korisnik = this.belongsTo(models.Korisnik);
+    this.kuriri = this.hasMany(models.Kurir);
+  };
 
-/***/ }),
+  Preduzece.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
+    return _objectSpread2({}, _this.get());
+  });
+  return Preduzece;
+}
 
-/***/ "http":
-/*!***********************!*\
-  !*** external "http" ***!
-  \***********************/
-/*! no static exports found */
-/***/ (function(module, exports) {
+function init$2(sequelize) {
+  var _this = this;
 
-eval("module.exports = require(\"http\");\n\n//# sourceURL=webpack:///external_%22http%22?");
+  var Admin = sequelize.define('Admin', {
+    firstName: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false
+    },
+    lastName: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false
+    }
+  }, {
+    freezeTableName: true,
+    timestamps: false
+  });
 
-/***/ }),
+  Admin.associate = function associate(models) {
+    this.korisnik = this.belongsTo(models.Korisnik);
+  };
 
-/***/ "http-status":
-/*!******************************!*\
-  !*** external "http-status" ***!
-  \******************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
+  Admin.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
+    return _objectSpread2({}, _this.get());
+  });
+  return Admin;
+}
 
-eval("module.exports = require(\"http-status\");\n\n//# sourceURL=webpack:///external_%22http-status%22?");
+function init$3(sequelize) {
+  var _this = this;
 
-/***/ }),
+  var Poljoprivrednik = sequelize.define('Poljoprivrednik', {
+    firstName: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false
+    },
+    lastName: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false
+    },
+    birthPlace: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false
+    },
+    birthDate: {
+      type: Sequelize.DataTypes.DATE,
+      allowNull: false
+    }
+  }, {
+    freezeTableName: true,
+    timestamps: false
+  });
 
-/***/ "method-override":
-/*!**********************************!*\
-  !*** external "method-override" ***!
-  \**********************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
+  Poljoprivrednik.associate = function associate(models) {
+    this.korisnik = this.belongsTo(models.Korisnik);
+  };
 
-eval("module.exports = require(\"method-override\");\n\n//# sourceURL=webpack:///external_%22method-override%22?");
+  Poljoprivrednik.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
+    return _objectSpread2({}, _this.get());
+  });
+  return Poljoprivrednik;
+}
 
-/***/ }),
+function init$4(sequelize) {
+  var _this = this;
 
-/***/ "sequelize":
-/*!****************************!*\
-  !*** external "sequelize" ***!
-  \****************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
+  var Magacin = sequelize.define('Magacin', {}, {
+    freezeTableName: true
+  });
 
-eval("module.exports = require(\"sequelize\");\n\n//# sourceURL=webpack:///external_%22sequelize%22?");
+  Magacin.associate = function associate(models) {
+    this.rasadnik = this.belongsTo(models.Rasadnik);
+    this.narudzbine = this.hasMany(models.Narudzbina);
+  };
 
-/***/ })
+  Magacin.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
+    return _objectSpread2({}, _this.get());
+  });
+  return Magacin;
+}
 
-/******/ });
+function init$5(sequelize) {
+  var _this = this;
+
+  var Ocena = sequelize.define('Ocena', {
+    ocena: {
+      type: Sequelize.DataTypes.INTEGER,
+      allowNull: false
+    }
+  }, {
+    freezeTableName: true
+  });
+
+  Ocena.associate = function associate(models) {
+    this.korisnik = this.belongsTo(models.Korisnik);
+    this.proizvod = this.belongsTo(models.Proizvod);
+  };
+
+  Ocena.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
+    return _objectSpread2({}, _this.get());
+  });
+  return Ocena;
+}
+
+var PRODUCT_TYPE = {
+  sadnica: 'sadnica',
+  preparat: 'preparat'
+};
+
+function init$6(sequelize) {
+  var _this = this;
+
+  var schema = {
+    name: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false
+    },
+    description: {
+      type: Sequelize.DataTypes.TEXT,
+      allowNull: false
+    },
+    manufacturer: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false
+    },
+    image: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false
+    },
+    price: {
+      type: Sequelize.DataTypes.DECIMAL,
+      allowNull: false
+    },
+    quantity: {
+      type: Sequelize.DataTypes.INTEGER,
+      allowNull: false
+    },
+    type: {
+      type: Sequelize.DataTypes.ENUM([PRODUCT_TYPE.sadnica, PRODUCT_TYPE.preparat]),
+      allowNull: false
+    },
+    value: {
+      // Ili vreme ubrzanja ili vreme razvoja zavisi za tip
+      type: Sequelize.DataTypes.DATE,
+      allowNull: false
+    }
+  };
+  var tableParams = {
+    freezeTableName: true
+  };
+  var Proizvod = sequelize.define('Proizvod', schema, tableParams);
+  var KupljeniProizvod = sequelize.define('KupljeniProizvod', schema, tableParams);
+
+  Proizvod.associate = function associate(models) {
+    this.preduzece = this.belongsTo(models.Preduzece);
+  };
+
+  KupljeniProizvod.associate = function associate(models) {
+    this.narudzbina = this.belongsTo(models.Narudzbina);
+  };
+
+  Proizvod.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
+    return _objectSpread2({}, _this.get());
+  });
+  Proizvod.prototype.toNarudzbinu = /*#__PURE__*/_asyncToGenerator(function* () {//
+  });
+  KupljeniProizvod.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
+    return _objectSpread2({}, _this.get());
+  });
+  return [Proizvod, KupljeniProizvod];
+}
+
+function init$7(sequelize) {
+  var _this = this;
+
+  var Narudzbina = sequelize.define('Narudzbina', {
+    total: {
+      type: Sequelize.DataTypes.DECIMAL,
+      allowNull: false
+    }
+  }, {
+    freezeTableName: true
+  });
+
+  Narudzbina.associate = function associate(models) {
+    this.preduzece = this.hasOne(models.Preduzece);
+    this.kurir = this.hasOne(models.Kurir);
+    this.magacin = this.hasOne(models.Magacin);
+  };
+
+  Narudzbina.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
+    return _objectSpread2({}, _this.get());
+  });
+  return Narudzbina;
+}
+
+function init$8(sequelize) {
+  var _this = this;
+
+  var Komentar = sequelize.define('Komentar', {
+    komentar: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false
+    }
+  }, {
+    freezeTableName: true
+  });
+
+  Komentar.associate = function associate(models) {
+    this.korisnik = this.belongsTo(models.Korisnik);
+    this.proizvod = this.belongsTo(models.Proizvod);
+  };
+
+  Komentar.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
+    return _objectSpread2({}, _this.get());
+  });
+  return Komentar;
+}
+
+function init$9(sequelize) {
+  var _this = this;
+
+  var Rasadnik = sequelize.define('Rasadnik', {
+    name: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false
+    },
+    location: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false
+    },
+    width: {
+      type: Sequelize.DataTypes.INTEGER,
+      allowNull: false
+    },
+    length: {
+      type: Sequelize.DataTypes.INTEGER,
+      allowNull: false
+    },
+    temperature: {
+      type: Sequelize.DataTypes.INTEGER,
+      defaultValue: 18
+    },
+    waterLevel: {
+      type: Sequelize.DataTypes.INTEGER,
+      defaultValue: 200
+    }
+  }, {
+    freezeTableName: true,
+    timestamps: false
+  });
+
+  Rasadnik.associate = function associate(models) {
+    this.poljoprivrednik = this.belongsTo(models.Poljoprivrednik);
+    this.magacin = this.hasOne(models.Magacin);
+  };
+
+  Rasadnik.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
+    return _objectSpread2({}, _this.get());
+  });
+  return Rasadnik;
+}
+
+function init$a(sequelize) {
+  var _this = this;
+
+  var Kurir = sequelize.define('Kurir', {
+    firstName: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false
+    },
+    lastName: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false
+    },
+    zauzetDo: {
+      type: Sequelize.DataTypes.DATE,
+      defaultValue: new Date(),
+      allowNull: false
+    }
+  }, {
+    freezeTableName: true,
+    timestamps: false
+  });
+
+  Kurir.associate = function associate(models) {
+    this.preduzece = this.belongsTo(models.Preduzece);
+    this.narudzbina = this.belongsTo(models.Narudzbina);
+  };
+
+  Kurir.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
+    return _objectSpread2({}, _this.get());
+  });
+  return Kurir;
+}
+
+var {
+  DB_NAME,
+  DB_USER,
+  DB_PASSWORD,
+  DB_HOST,
+  DB_DIALECT,
+  DB_PORT
+} = config;
+var sequelize = new Sequelize__default(DB_NAME, DB_USER, DB_PASSWORD, {
+  host: DB_HOST,
+  dialect: DB_DIALECT,
+  port: DB_PORT,
+  // eslint-disable-next-line no-console
+  logging: console.log,
+  timezone: '+02:00'
+});
+/**
+ * Define all models
+ */
+
+var Korisnik = init(sequelize);
+var Preduzece = init$1(sequelize);
+var Admin = init$2(sequelize);
+var Poljoprivrednik = init$3(sequelize);
+var Komentar = init$8(sequelize);
+var Ocena = init$5(sequelize);
+var Kurir = init$a(sequelize);
+var Rasadnik = init$9(sequelize);
+var Magacin = init$4(sequelize);
+var Narudzbina = init$7(sequelize);
+var [Proizvod, KupljeniProizvod] = init$6(sequelize);
+var db = {
+  sequelize,
+  Sequelize: Sequelize__default,
+  Korisnik,
+  Admin,
+  Preduzece,
+  Komentar,
+  Poljoprivrednik,
+  Ocena,
+  Kurir,
+  Rasadnik,
+  Magacin,
+  Narudzbina,
+  Proizvod,
+  KupljeniProizvod
+};
+
+var app = express__default();
+var log = debug('app');
+/**
+ * App Middleware
+ */
+
+app.use(cors());
+app.use(methodOverride());
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
+app.use(bodyParser.json());
+app.use(compression());
+app.use(helmet());
+/**
+ * Database Setup
+ */
+
+db.sequelize.authenticate().then(() => {
+  log('Connected to the database');
+}).catch(err => {
+  log('Unable to connect to the database: ', err);
+});
+db.sequelize.sync({
+  force: false
+});
+/**
+ * API Routes
+ */
+
+app.use(router);
+/**
+ * Validation Errors
+ */
+
+app.use((err, req, res, next) => {
+  if (err instanceof expressValidation.ValidationError) {
+    return res.status(err.status).json(err);
+  }
+
+  return next(err);
+});
+/**
+ * API Errors
+ */
+
+app.use((err, req, res, next) => {
+  if (err instanceof APIClientError) {
+    return res.status(err.status).json(err.toJson());
+  }
+
+  return next(err);
+});
+/**
+ * Unhandled Errors
+ */
+
+process.on('unhandledRejection', error => {
+  console.error('Uncaught Error', error);
+});
+
+var {
+  PORT
+} = config;
+
+var onError = error => {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  switch (error.code) {
+    case 'EACCES':
+      console.error("Port ".concat(PORT, " requires elevated privileges"));
+      process.exit(1);
+      break;
+
+    case 'EADDRINUSE':
+      console.error("Port ".concat(PORT, " is already in use"));
+      process.exit(1);
+      break;
+
+    default:
+      throw error;
+  }
+};
+
+var server = http.createServer(app);
+server.listen(PORT, () => {
+  console.log('==========**********==========');
+  console.log('======= SERVER RUNNING =======');
+  console.log("========= PORT ".concat(PORT, " =========="));
+  console.log('==========**********==========');
+});
+server.on('error', onError);
