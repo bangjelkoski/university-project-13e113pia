@@ -1,13 +1,14 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { LoginComponent } from './auth/login/login.component';
-import { GuestService } from './services/guest/guest.service';
+import { GuestGuardService } from './services/guards/guest/guest.service';
 import { AdminComponent } from './admin/admin.component';
-import { AuthGuardService } from './services/auth-guard/auth-guard.service';
+import { AuthGuardService } from './services/guards/auth/auth.service';
 import { RegisterComponent as RegisterPoljoprivrednikComponent } from './poljoprivrednik/auth/register/register.component';
 import { RegisterComponent as RegisterPreduzetnikComponent } from './preduzece/auth/register/register.component';
 import { AuthComponent } from './auth/auth.component';
 import { PasswordComponent } from './auth/password/password.component';
+import { NotFoundComponent } from './not-found/not-found.component';
 
 const routes: Routes = [
   {
@@ -18,7 +19,7 @@ const routes: Routes = [
   {
     path: 'auth',
     component: AuthComponent,
-    canActivate: [GuestService],
+    canActivate: [GuestGuardService],
     children: [
       {
         path: 'login',
@@ -53,6 +54,10 @@ const routes: Routes = [
     children: [
       //
     ],
+  },
+  {
+    path: '**',
+    component: NotFoundComponent,
   },
 ];
 

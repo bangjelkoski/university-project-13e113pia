@@ -20,13 +20,14 @@ export interface Administrator extends Korisnik {
 }
 
 export interface Poljoprivrednik extends Korisnik {
+  firstName: string;
+  lastName: string;
   birthPlace: string;
   birthDate: Date;
-  role: Role.poljoprivrednik;
 }
 
 export interface Preduzece extends Korisnik {
+  name: string;
   location: string;
   dateOfCreation: Date;
-  role: Role.preduzece;
 }

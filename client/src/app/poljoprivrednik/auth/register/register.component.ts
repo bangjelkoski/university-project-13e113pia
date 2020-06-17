@@ -7,8 +7,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { MustMatch } from 'src/utils/validators/MustMatch';
-import { PASSWORD_REGEX } from 'src/utils/password';
-import { PHONE_REGEX } from 'src/utils/phone';
+import { PASSWORD_REGEX } from 'src/utils/validators/password';
+import { PHONE_REGEX } from 'src/utils/validators/phone';
 
 @Component({
   selector: 'app-register',

@@ -6,7 +6,7 @@ import {
   Validators,
   FormBuilder,
 } from '@angular/forms';
-import { PASSWORD_REGEX } from 'src/utils/password';
+import { PASSWORD_REGEX } from 'src/utils/validators/password';
 import { MustMatch } from 'src/utils/validators/MustMatch';
 
 @Component({

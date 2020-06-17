@@ -2,7 +2,7 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { DemoService } from '../../services/demo/demo.service';
 import { Router } from '@angular/router';
-import { PASSWORD_REGEX } from 'src/utils/password';
+import { PASSWORD_REGEX } from 'src/utils/validators/password';
 
 @Component({
   selector: 'div[app-login]',

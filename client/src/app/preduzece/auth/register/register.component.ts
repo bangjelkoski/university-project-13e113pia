@@ -7,7 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MustMatch } from 'src/utils/validators/MustMatch';
-import { PASSWORD_REGEX } from 'src/utils/password';
+import { PASSWORD_REGEX } from 'src/utils/validators/password';
 
 @Component({
   selector: 'app-register',
