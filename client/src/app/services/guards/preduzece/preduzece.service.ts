@@ -6,9 +6,10 @@ import {
   RouterStateSnapshot,
 } from '@angular/router';
 import { AuthService } from './../../auth/auth.service';
+import { Role } from 'src/types';
 
 @Injectable()
-export class GuestGuardService implements CanActivate {
+export class PreduzeceGuardService implements CanActivate {
   constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
@@ -18,11 +19,13 @@ export class GuestGuardService implements CanActivate {
 
     const korisnik = this.authService.korisnik();
 
-    this.router.navigate([`/${korisnik.role}`], {
-      queryParams: {
-        return: state.url,
-      },
-    });
+    if (korisnik.role !== Role.preduzece) {
+      return this.router.navigate([`/${korisnik.role}`], {
+        queryParams: {
+          return: state.url,
+        },
+      });
+    }
 
     return false;
   }

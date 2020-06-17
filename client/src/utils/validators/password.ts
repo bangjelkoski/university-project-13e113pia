@@ -1,2 +1,1 @@
-export const PASSWORD_REGEX: string =
-  '^(?=.*[A-Za-z])(?=.*d)(?=.*[@$!%*#?&])[A-Za-zd@$!%*#?&]{7,}$';
+export const PASSWORD_REGEX: string = '((?=.*d)(?=.*[a-z])(?=.*[A-Z]).{8,})';

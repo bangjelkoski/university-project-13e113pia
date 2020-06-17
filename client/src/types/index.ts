@@ -1,15 +1,20 @@
-export enum Role {
-  administrator,
-  poljoprivrednik,
-  preduzece,
-}
+export const Role = {
+  admin: 'admin',
+  poljoprivrednik: 'poljoprivrednik',
+  preduzece: 'preduzece',
+};
+
+export const Status = {
+  naCekanju: 'na-cekanju',
+  odbijen: 'odbijen',
+  odobren: 'odobren',
+};
 
 export interface Korisnik {
   email: string;
   phone: string;
   username: string;
   password: string;
-  role: Role;
 }
 
 export interface Administrator extends Korisnik {
@@ -17,6 +22,7 @@ export interface Administrator extends Korisnik {
   lastName: string;
   birthPlace: string;
   birthDate: Date;
+  role: string;
 }
 
 export interface Poljoprivrednik extends Korisnik {
@@ -24,10 +30,12 @@ export interface Poljoprivrednik extends Korisnik {
   lastName: string;
   birthPlace: string;
   birthDate: Date;
+  role: string;
 }
 
 export interface Preduzece extends Korisnik {
   name: string;
   location: string;
   dateOfCreation: Date;
+  role: string;
 }

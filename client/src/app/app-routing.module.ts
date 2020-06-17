@@ -9,6 +9,8 @@ import { RegisterComponent as RegisterPreduzetnikComponent } from './preduzece/a
 import { AuthComponent } from './auth/auth.component';
 import { PasswordComponent } from './auth/password/password.component';
 import { NotFoundComponent } from './not-found/not-found.component';
+import { AdminGuardService } from './services/guards/admin/admin.service';
+import { DashboardComponent as AdminDashboardComponent } from './admin/dashboard/dashboard.component';
 
 const routes: Routes = [
   {
@@ -50,9 +52,12 @@ const routes: Routes = [
   {
     path: 'admin',
     component: AdminComponent,
-    canActivate: [AuthGuardService],
+    canActivate: [AuthGuardService, AdminGuardService],
     children: [
-      //
+      {
+        path: '',
+        component: AdminDashboardComponent,
+      },
     ],
   },
   {

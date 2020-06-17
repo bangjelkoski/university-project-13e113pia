@@ -27,7 +27,8 @@
             "styles": [
               "src/tailwind.scss",
               "src/styles.scss",
-              "src/assets/fonts/style.css"
+              "src/assets/fonts/style.css",
+              "node_modules/ngx-toastr/toastr.css"
             ],
             "scripts": [],
             "customWebpackConfig": {

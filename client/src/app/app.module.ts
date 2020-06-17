@@ -18,6 +18,14 @@ import { PasswordComponent } from './auth/password/password.component';
 import { RegisterComponent as RegisterPoljoprivrednikComponent } from './poljoprivrednik/auth/register/register.component';
 import { RegisterComponent as RegisterPreduzetnikComponent } from './preduzece/auth/register/register.component';
 import { NotFoundComponent } from './not-found/not-found.component';
+import { DashboardComponent } from './admin/dashboard/dashboard.component';
+import { AdminGuardService } from './services/guards/admin/admin.service';
+import { PoljoprivrednikGuardService } from './services/guards/poljoprivrednik/poljoprivrednik.service';
+import { PreduzeceGuardService } from './services/guards/preduzece/preduzece.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
+import { AdminService } from './services/admin/admin.service';
+import { HttpService } from './services/http/http.service';
 
 @NgModule({
   declarations: [
@@ -32,14 +40,29 @@ import { NotFoundComponent } from './not-found/not-found.component';
     RegisterPoljoprivrednikComponent,
     RegisterPreduzetnikComponent,
     NotFoundComponent,
+    DashboardComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    FormsModule,
+    ReactiveFormsModule,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot({
+      positionClass: 'toast-bottom-right',
+    }),
+  ],
   providers: [
+    AdminGuardService,
+    PoljoprivrednikGuardService,
+    PreduzeceGuardService,
     AuthService,
     AuthGuardService,
     StorageService,
     GuestGuardService,
     DemoService,
+    AdminService,
+    HttpService,
   ],
   bootstrap: [AppComponent],
 })

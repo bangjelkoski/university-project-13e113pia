@@ -3,6 +3,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { DemoService } from '../../services/demo/demo.service';
 import { Router } from '@angular/router';
 import { PASSWORD_REGEX } from 'src/utils/validators/password';
+import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
   selector: 'div[app-login]',
@@ -17,7 +18,11 @@ export class LoginComponent {
   password: FormControl;
   rememberMe: FormControl;
 
-  constructor(public demoService: DemoService, private router: Router) {
+  constructor(
+    public demoService: DemoService,
+    private authService: AuthService,
+    private router: Router
+  ) {
     this.username = new FormControl('', Validators.required);
     this.password = new FormControl('', [
       Validators.required,
@@ -45,6 +50,10 @@ export class LoginComponent {
   }
 
   onSubmit() {
-    //
+    this.authService.login({
+      username: this.username,
+      password: this.password,
+      rememberMe: this.rememberMe,
+    });
   }
 }

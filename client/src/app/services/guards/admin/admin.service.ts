@@ -6,24 +6,29 @@ import {
   RouterStateSnapshot,
 } from '@angular/router';
 import { AuthService } from './../../auth/auth.service';
+import { Role } from 'src/types';
 
 @Injectable()
-export class GuestGuardService implements CanActivate {
+export class AdminGuardService implements CanActivate {
   constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     if (!this.authService.loggedIn()) {
-      return true;
+      return false;
     }
 
     const korisnik = this.authService.korisnik();
 
-    this.router.navigate([`/${korisnik.role}`], {
-      queryParams: {
-        return: state.url,
-      },
-    });
+    if (korisnik.role !== Role.admin) {
+      this.router.navigate([`/${korisnik.role}`], {
+        queryParams: {
+          return: state.url,
+        },
+      });
 
-    return false;
+      return false;
+    }
+
+    return true;
   }
 }
