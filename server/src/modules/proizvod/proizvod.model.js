@@ -50,24 +50,12 @@ export default function init(sequelize) {
     tableParams
   );
 
-  Proizvod.associate = function associate(models) {
-    this.preduzece = this.belongsTo(models.Preduzece);
-  };
-
-  KupljeniProizvod.associate = function associate(models) {
-    this.narudzbina = this.belongsTo(models.Narudzbina);
-  };
-
   Proizvod.prototype.toJson = async () => {
     return { ...this.get() };
   };
 
   Proizvod.prototype.toNarudzbinu = async () => {
     //
-  };
-
-  KupljeniProizvod.prototype.toJson = async () => {
-    return { ...this.get() };
   };
 
   return [Proizvod, KupljeniProizvod];

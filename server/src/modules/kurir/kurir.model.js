@@ -24,14 +24,5 @@ export default function init(sequelize) {
     }
   );
 
-  Kurir.associate = function associate(models) {
-    this.preduzece = this.belongsTo(models.Preduzece);
-    this.narudzbina = this.belongsTo(models.Narudzbina);
-  };
-
-  Kurir.prototype.toJson = async () => {
-    return { ...this.get() };
-  };
-
   return Kurir;
 }

@@ -6,7 +6,6 @@ import debug from 'debug';
 import bodyParser from 'body-parser';
 import helmet from 'helmet';
 import { ValidationError } from 'express-validation';
-import APIClientError from '~/classes/APIClientError';
 
 import routes from './routes';
 import database from './database';
@@ -36,7 +35,11 @@ database.sequelize
     log('Unable to connect to the database: ', err);
   });
 
-database.sequelize.sync({ force: false });
+/**
+ * Database migrations
+ *
+ database.sequelize.sync({ force: true });
+ */
 
 /**
  * API Routes
@@ -69,6 +72,7 @@ app.use((err, req, res, next) => {
  * Unhandled Errors
  */
 process.on('unhandledRejection', (error) => {
+  // eslint-disable-next-line no-console
   console.error('Uncaught Error', error);
 });
 

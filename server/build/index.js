@@ -13,12 +13,12 @@ var bodyParser = _interopDefault(require('body-parser'));
 var helmet = _interopDefault(require('helmet'));
 var expressValidation = require('express-validation');
 var HTTPStatus = _interopDefault(require('http-status'));
+var expressJoiValidation = require('express-joi-validation');
+var Joi = _interopDefault(require('@hapi/joi'));
 var Sequelize = require('sequelize');
 var Sequelize__default = _interopDefault(Sequelize);
 var bcrypt = _interopDefault(require('bcrypt'));
-
-class APIClientError {//
-}
+var listEndpoints = _interopDefault(require('express-list-endpoints'));
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
   try {
@@ -105,25 +105,31 @@ function _objectSpread2(target) {
   return target;
 }
 
-var router = express.Router();
-router.get('/', (req, res) => {
-  res.json({
-    statusCode: HTTPStatus.OK,
-    message: 'Welcome to 13e113pia project API'
-  });
-});
-router.all('*', /*#__PURE__*/function () {
-  var _ref = _asyncToGenerator(function* (req, res) {
-    res.json({
-      message: HTTPStatus[404],
-      statusCode: HTTPStatus.NOT_FOUND
-    });
-  });
+var validator = expressJoiValidation.createValidator();
 
-  return function (_x, _x2) {
-    return _ref.apply(this, arguments);
-  };
-}());
+var login = Joi.object({
+  username: Joi.string().required(),
+  password: Joi.string().required()
+});
+var registerPoljoprivrednik = Joi.object({
+  username: Joi.string().required(),
+  password: Joi.string().required(),
+  email: Joi.string().email().required(),
+  phone: Joi.string().required(),
+  firstName: Joi.string().required(),
+  lastName: Joi.string().required(),
+  birthPlace: Joi.string().required(),
+  birthDate: Joi.string().required()
+});
+var registerPreduzece = Joi.object({
+  username: Joi.string().required(),
+  password: Joi.string().required(),
+  email: Joi.string().email().required(),
+  phone: Joi.string().required(),
+  name: Joi.string().required(),
+  location: Joi.string().required(),
+  dateOfCreation: Joi.string().required()
+});
 
 var config = {
   PORT: process.env.PORT || '3000',
@@ -148,15 +154,7 @@ var STATUS = {
 };
 
 function init(sequelize) {
-  var _this = this;
-
   var Korisnik = sequelize.define('Korisnik', {
-    id: {
-      allowNull: false,
-      primaryKey: true,
-      type: Sequelize.DataTypes.UUID,
-      defaultValue: Sequelize.DataTypes.UUIDV4
-    },
     email: {
       allowNull: false,
       type: Sequelize.DataTypes.STRING
@@ -185,33 +183,6 @@ function init(sequelize) {
   }, {
     freezeTableName: true
   });
-
-  Korisnik.associate = function associate(models) {
-    switch (this.role) {
-      case ROLES.admin:
-        this.admin = this.hasOne(models.Admin, {
-          onDelete: 'CASCADE',
-          foreignKey: 'korisnikId'
-        });
-        break;
-
-      case ROLES.preduzece:
-        this.preduzece = this.hasOne(models.Preduzece, {
-          onDelete: 'CASCADE',
-          foreignKey: 'korisnikId'
-        });
-        break;
-
-      case ROLES.poljoprivrednik:
-        this.poljoprivrednik = this.hasOne(models.Poljoprivrednik, {
-          onDelete: 'CASCADE',
-          foreignKey: 'korisnikId'
-        });
-        break;
-    }
-  }; // eslint-disable-next-line no-shadow
-
-
   Korisnik.beforeSave( /*#__PURE__*/function () {
     var _ref = _asyncToGenerator(function* (user) {
       try {
@@ -229,12 +200,12 @@ function init(sequelize) {
     return function (_x) {
       return _ref.apply(this, arguments);
     };
-  }()); // eslint-disable-next-line func-names
+  }());
 
   Korisnik.prototype.isValidPassword = /*#__PURE__*/function () {
     var _ref2 = _asyncToGenerator(function* (pw) {
       try {
-        return yield bcrypt.compare(pw, _this.password);
+        return yield bcrypt.compare(pw, this.password);
       } catch (err) {
         throw new Error(err);
       }
@@ -245,18 +216,39 @@ function init(sequelize) {
     };
   }();
 
-  Korisnik.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
-    var values = _objectSpread2({}, _this.get());
+  Korisnik.prototype.toResponse = function (pw) {
+    var obj = _objectSpread2({}, this.toJSON());
 
-    delete values.password;
-    return values;
-  });
+    delete obj.password;
+    return obj;
+  };
+
+  Korisnik.authenticate = /*#__PURE__*/function () {
+    var _ref3 = _asyncToGenerator(function* (username, password) {
+      try {
+        var user = yield Korisnik.findOne({
+          where: {
+            username
+          }
+        });
+
+        if (yield user.isValidPassword(password)) {
+          return user;
+        }
+      } catch (error) {
+        throw new Error('Лозинке нису исте.');
+      }
+    });
+
+    return function (_x3, _x4) {
+      return _ref3.apply(this, arguments);
+    };
+  }();
+
   return Korisnik;
 }
 
 function init$1(sequelize) {
-  var _this = this;
-
   var Preduzece = sequelize.define('Preduzece', {
     name: {
       type: Sequelize.DataTypes.STRING,
@@ -274,21 +266,10 @@ function init$1(sequelize) {
     freezeTableName: true,
     timestamps: false
   });
-
-  Preduzece.associate = function associate(models) {
-    this.korisnik = this.belongsTo(models.Korisnik);
-    this.kuriri = this.hasMany(models.Kurir);
-  };
-
-  Preduzece.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
-    return _objectSpread2({}, _this.get());
-  });
   return Preduzece;
 }
 
 function init$2(sequelize) {
-  var _this = this;
-
   var Admin = sequelize.define('Admin', {
     firstName: {
       type: Sequelize.DataTypes.STRING,
@@ -302,20 +283,10 @@ function init$2(sequelize) {
     freezeTableName: true,
     timestamps: false
   });
-
-  Admin.associate = function associate(models) {
-    this.korisnik = this.belongsTo(models.Korisnik);
-  };
-
-  Admin.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
-    return _objectSpread2({}, _this.get());
-  });
   return Admin;
 }
 
 function init$3(sequelize) {
-  var _this = this;
-
   var Poljoprivrednik = sequelize.define('Poljoprivrednik', {
     firstName: {
       type: Sequelize.DataTypes.STRING,
@@ -337,38 +308,17 @@ function init$3(sequelize) {
     freezeTableName: true,
     timestamps: false
   });
-
-  Poljoprivrednik.associate = function associate(models) {
-    this.korisnik = this.belongsTo(models.Korisnik);
-  };
-
-  Poljoprivrednik.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
-    return _objectSpread2({}, _this.get());
-  });
   return Poljoprivrednik;
 }
 
 function init$4(sequelize) {
-  var _this = this;
-
   var Magacin = sequelize.define('Magacin', {}, {
     freezeTableName: true
-  });
-
-  Magacin.associate = function associate(models) {
-    this.rasadnik = this.belongsTo(models.Rasadnik);
-    this.narudzbine = this.hasMany(models.Narudzbina);
-  };
-
-  Magacin.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
-    return _objectSpread2({}, _this.get());
   });
   return Magacin;
 }
 
 function init$5(sequelize) {
-  var _this = this;
-
   var Ocena = sequelize.define('Ocena', {
     ocena: {
       type: Sequelize.DataTypes.INTEGER,
@@ -376,15 +326,6 @@ function init$5(sequelize) {
     }
   }, {
     freezeTableName: true
-  });
-
-  Ocena.associate = function associate(models) {
-    this.korisnik = this.belongsTo(models.Korisnik);
-    this.proizvod = this.belongsTo(models.Proizvod);
-  };
-
-  Ocena.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
-    return _objectSpread2({}, _this.get());
   });
   return Ocena;
 }
@@ -437,29 +378,15 @@ function init$6(sequelize) {
   };
   var Proizvod = sequelize.define('Proizvod', schema, tableParams);
   var KupljeniProizvod = sequelize.define('KupljeniProizvod', schema, tableParams);
-
-  Proizvod.associate = function associate(models) {
-    this.preduzece = this.belongsTo(models.Preduzece);
-  };
-
-  KupljeniProizvod.associate = function associate(models) {
-    this.narudzbina = this.belongsTo(models.Narudzbina);
-  };
-
   Proizvod.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
     return _objectSpread2({}, _this.get());
   });
   Proizvod.prototype.toNarudzbinu = /*#__PURE__*/_asyncToGenerator(function* () {//
   });
-  KupljeniProizvod.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
-    return _objectSpread2({}, _this.get());
-  });
   return [Proizvod, KupljeniProizvod];
 }
 
 function init$7(sequelize) {
-  var _this = this;
-
   var Narudzbina = sequelize.define('Narudzbina', {
     total: {
       type: Sequelize.DataTypes.DECIMAL,
@@ -468,22 +395,10 @@ function init$7(sequelize) {
   }, {
     freezeTableName: true
   });
-
-  Narudzbina.associate = function associate(models) {
-    this.preduzece = this.hasOne(models.Preduzece);
-    this.kurir = this.hasOne(models.Kurir);
-    this.magacin = this.hasOne(models.Magacin);
-  };
-
-  Narudzbina.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
-    return _objectSpread2({}, _this.get());
-  });
   return Narudzbina;
 }
 
 function init$8(sequelize) {
-  var _this = this;
-
   var Komentar = sequelize.define('Komentar', {
     komentar: {
       type: Sequelize.DataTypes.STRING,
@@ -492,21 +407,10 @@ function init$8(sequelize) {
   }, {
     freezeTableName: true
   });
-
-  Komentar.associate = function associate(models) {
-    this.korisnik = this.belongsTo(models.Korisnik);
-    this.proizvod = this.belongsTo(models.Proizvod);
-  };
-
-  Komentar.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
-    return _objectSpread2({}, _this.get());
-  });
   return Komentar;
 }
 
 function init$9(sequelize) {
-  var _this = this;
-
   var Rasadnik = sequelize.define('Rasadnik', {
     name: {
       type: Sequelize.DataTypes.STRING,
@@ -536,21 +440,10 @@ function init$9(sequelize) {
     freezeTableName: true,
     timestamps: false
   });
-
-  Rasadnik.associate = function associate(models) {
-    this.poljoprivrednik = this.belongsTo(models.Poljoprivrednik);
-    this.magacin = this.hasOne(models.Magacin);
-  };
-
-  Rasadnik.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
-    return _objectSpread2({}, _this.get());
-  });
   return Rasadnik;
 }
 
 function init$a(sequelize) {
-  var _this = this;
-
   var Kurir = sequelize.define('Kurir', {
     firstName: {
       type: Sequelize.DataTypes.STRING,
@@ -569,15 +462,6 @@ function init$a(sequelize) {
     freezeTableName: true,
     timestamps: false
   });
-
-  Kurir.associate = function associate(models) {
-    this.preduzece = this.belongsTo(models.Preduzece);
-    this.narudzbina = this.belongsTo(models.Narudzbina);
-  };
-
-  Kurir.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
-    return _objectSpread2({}, _this.get());
-  });
   return Kurir;
 }
 
@@ -593,8 +477,7 @@ var sequelize = new Sequelize__default(DB_NAME, DB_USER, DB_PASSWORD, {
   host: DB_HOST,
   dialect: DB_DIALECT,
   port: DB_PORT,
-  // eslint-disable-next-line no-console
-  logging: console.log,
+  logging: () => {},
   timezone: '+02:00'
 });
 /**
@@ -612,6 +495,38 @@ var Rasadnik = init$9(sequelize);
 var Magacin = init$4(sequelize);
 var Narudzbina = init$7(sequelize);
 var [Proizvod, KupljeniProizvod] = init$6(sequelize);
+/**
+ * Relationships
+ */
+
+Korisnik.hasOne(Admin);
+Korisnik.hasOne(Poljoprivrednik);
+Korisnik.hasOne(Preduzece);
+Korisnik.hasMany(Komentar);
+Korisnik.hasMany(Ocena);
+Proizvod.hasMany(Ocena);
+Proizvod.hasMany(Komentar);
+Preduzece.hasMany(Kurir);
+Rasadnik.hasMany(Magacin);
+Rasadnik.belongsTo(Poljoprivrednik);
+Admin.belongsTo(Korisnik);
+Poljoprivrednik.belongsTo(Korisnik);
+Preduzece.belongsTo(Korisnik);
+Komentar.belongsTo(Korisnik);
+Komentar.belongsTo(Proizvod);
+Ocena.belongsTo(Korisnik);
+Ocena.belongsTo(Proizvod);
+Kurir.belongsTo(Preduzece);
+Kurir.belongsTo(Narudzbina);
+Magacin.hasMany(Narudzbina);
+Magacin.belongsTo(Rasadnik);
+Narudzbina.belongsTo(Preduzece);
+Narudzbina.belongsTo(Magacin);
+Narudzbina.hasOne(Kurir);
+Proizvod.belongsTo(Preduzece);
+Proizvod.hasMany(Komentar);
+KupljeniProizvod.hasMany(Narudzbina);
+KupljeniProizvod.hasMany(Ocena);
 var db = {
   sequelize,
   Sequelize: Sequelize__default,
@@ -628,6 +543,203 @@ var db = {
   Proizvod,
   KupljeniProizvod
 };
+
+var login$1 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (username, password) {
+    try {
+      return yield db.Korisnik.authenticate(username, password);
+    } catch (error) {
+      throw new Error('Корисник са подацима није пронађен.');
+    }
+  });
+
+  return function login(_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
+var registerPoljoprivrednik$1 = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(function* (_ref2) {
+    var {
+      username,
+      password,
+      email,
+      phone,
+      firstName,
+      lastName,
+      birthPlace,
+      birthDate
+    } = _ref2;
+
+    try {
+      var korisnik = yield db.Korisnik.create({
+        username,
+        password,
+        email,
+        phone
+      });
+      var poljoprivrednik = yield korisnik.createPoljoprivrednik({
+        firstName,
+        lastName,
+        birthPlace,
+        birthDate
+      });
+      return [korisnik, poljoprivrednik];
+    } catch (error) {
+      throw new Error('Регистрација корисника није успела.');
+    }
+  });
+
+  return function registerPoljoprivrednik(_x3) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+var registerPreduzece$1 = /*#__PURE__*/function () {
+  var _ref5 = _asyncToGenerator(function* (_ref4) {
+    var {
+      username,
+      password,
+      email,
+      phone,
+      name,
+      location,
+      dateOfCreation
+    } = _ref4;
+
+    try {
+      var korisnik = yield db.Korisnik.create({
+        username,
+        password,
+        email,
+        phone
+      });
+      var preduzetnik = yield korisnik.createPreduzetnik({
+        name,
+        location,
+        dateOfCreation
+      });
+      return [korisnik, preduzetnik];
+    } catch (error) {
+      throw new Error('Регистрација корисника није успела.');
+    }
+  });
+
+  return function registerPreduzece(_x4) {
+    return _ref5.apply(this, arguments);
+  };
+}();
+
+var login$2 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (req, res, next) {
+    var {
+      username,
+      password
+    } = req.body;
+
+    try {
+      var korisnik = yield login$1(username, password);
+      res.json(korisnik.toResponse());
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function login(_x, _x2, _x3) {
+    return _ref.apply(this, arguments);
+  };
+}();
+var registerPoljoprivrednik$2 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (req, res) {
+    var {
+      username,
+      password,
+      email,
+      phone,
+      firstName,
+      lastName,
+      birthPlace,
+      birthDate
+    } = req.body;
+
+    try {
+      var korisnik = yield registerPoljoprivrednik$1({
+        username,
+        password,
+        email,
+        phone,
+        firstName,
+        lastName,
+        birthPlace,
+        birthDate
+      });
+      res.json(korisnik.toJson());
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function registerPoljoprivrednik(_x4, _x5) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var registerPreduzece$2 = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(function* (req, res) {
+    var {
+      username,
+      password,
+      email,
+      phone,
+      name,
+      location,
+      dateOfCreation
+    } = req.body;
+
+    try {
+      var korisnik = yield registerPreduzece$1({
+        username,
+        password,
+        email,
+        phone,
+        name,
+        location,
+        dateOfCreation
+      });
+      res.json(korisnik.toJson());
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function registerPreduzece(_x6, _x7) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+
+var router = express.Router();
+router.post('/login', validator.body(login), login$2);
+router.post('/register/poljoprivrednik', validator.body(registerPoljoprivrednik), registerPoljoprivrednik$2);
+router.post('/register/preduzece', validator.body(registerPreduzece), registerPreduzece$2);
+
+var router$1 = express.Router();
+router$1.get('/', (req, res) => {
+  res.json({
+    statusCode: HTTPStatus.OK,
+    message: 'Welcome to 13e113pia project API'
+  });
+});
+router$1.use('/auth/', router);
+router$1.all('*', /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (req, res) {
+    res.json({
+      message: HTTPStatus[404],
+      statusCode: HTTPStatus.NOT_FOUND
+    });
+  });
+
+  return function (_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}());
+console.log(listEndpoints(router$1));
 
 var app = express__default();
 var log = debug('app');
@@ -652,14 +764,17 @@ db.sequelize.authenticate().then(() => {
 }).catch(err => {
   log('Unable to connect to the database: ', err);
 });
-db.sequelize.sync({
-  force: false
-});
+/**
+ * Database migrations
+ *
+ database.sequelize.sync({ force: true });
+ */
+
 /**
  * API Routes
  */
 
-app.use(router);
+app.use(router$1);
 /**
  * Validation Errors
  */
@@ -687,9 +802,11 @@ app.use((err, req, res, next) => {
  */
 
 process.on('unhandledRejection', error => {
+  // eslint-disable-next-line no-console
   console.error('Uncaught Error', error);
 });
 
+/* eslint-disable no-console */
 var {
   PORT
 } = config;

@@ -35,14 +35,5 @@ export default function init(sequelize) {
     }
   );
 
-  Rasadnik.associate = function associate(models) {
-    this.poljoprivrednik = this.belongsTo(models.Poljoprivrednik);
-    this.magacin = this.hasOne(models.Magacin);
-  };
-
-  Rasadnik.prototype.toJson = async () => {
-    return { ...this.get() };
-  };
-
   return Rasadnik;
 }

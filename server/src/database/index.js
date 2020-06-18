@@ -18,8 +18,7 @@ const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
   host: DB_HOST,
   dialect: DB_DIALECT,
   port: DB_PORT,
-  // eslint-disable-next-line no-console
-  logging: console.log,
+  logging: () => {},
   timezone: '+02:00',
 });
 
@@ -37,6 +36,49 @@ const Rasadnik = rasadnikInit(sequelize);
 const Magacin = magacinInit(sequelize);
 const Narudzbina = narudzbinaInit(sequelize);
 const [Proizvod, KupljeniProizvod] = proizvodInit(sequelize);
+
+/**
+ * Relationships
+ */
+Korisnik.hasOne(Admin);
+Korisnik.hasOne(Poljoprivrednik);
+Korisnik.hasOne(Preduzece);
+Korisnik.hasMany(Komentar);
+Korisnik.hasMany(Ocena);
+
+Proizvod.hasMany(Ocena);
+Proizvod.hasMany(Komentar);
+
+Preduzece.hasMany(Kurir);
+
+Rasadnik.hasMany(Magacin);
+Rasadnik.belongsTo(Poljoprivrednik);
+
+Admin.belongsTo(Korisnik);
+Poljoprivrednik.belongsTo(Korisnik);
+Preduzece.belongsTo(Korisnik);
+
+Komentar.belongsTo(Korisnik);
+Komentar.belongsTo(Proizvod);
+
+Ocena.belongsTo(Korisnik);
+Ocena.belongsTo(Proizvod);
+
+Kurir.belongsTo(Preduzece);
+Kurir.belongsTo(Narudzbina);
+
+Magacin.hasMany(Narudzbina);
+Magacin.belongsTo(Rasadnik);
+
+Narudzbina.belongsTo(Preduzece);
+Narudzbina.belongsTo(Magacin);
+Narudzbina.hasOne(Kurir);
+
+Proizvod.belongsTo(Preduzece);
+Proizvod.hasMany(Komentar);
+
+KupljeniProizvod.hasMany(Narudzbina);
+KupljeniProizvod.hasMany(Ocena);
 
 const db = {
   sequelize,

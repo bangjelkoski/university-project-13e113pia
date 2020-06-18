@@ -23,14 +23,5 @@ export default function init(sequelize) {
     }
   );
 
-  Preduzece.associate = function associate(models) {
-    this.korisnik = this.belongsTo(models.Korisnik);
-    this.kuriri = this.hasMany(models.Kurir);
-  };
-
-  Preduzece.prototype.toJson = async () => {
-    return { ...this.get() };
-  };
-
   return Preduzece;
 }

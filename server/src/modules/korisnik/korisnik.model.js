@@ -7,12 +7,6 @@ export default function init(sequelize) {
   const Korisnik = sequelize.define(
     'Korisnik',
     {
-      id: {
-        allowNull: false,
-        primaryKey: true,
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-      },
       email: {
         allowNull: false,
         type: DataTypes.STRING,
@@ -52,32 +46,6 @@ export default function init(sequelize) {
     }
   );
 
-  Korisnik.associate = function associate(models) {
-    switch (this.role) {
-      case ROLES.admin:
-        this.admin = this.hasOne(models.Admin, {
-          onDelete: 'CASCADE',
-          foreignKey: 'korisnikId',
-        });
-        break;
-      case ROLES.preduzece:
-        this.preduzece = this.hasOne(models.Preduzece, {
-          onDelete: 'CASCADE',
-          foreignKey: 'korisnikId',
-        });
-        break;
-      case ROLES.poljoprivrednik:
-        this.poljoprivrednik = this.hasOne(models.Poljoprivrednik, {
-          onDelete: 'CASCADE',
-          foreignKey: 'korisnikId',
-        });
-        break;
-      default:
-        break;
-    }
-  };
-
-  // eslint-disable-next-line no-shadow
   Korisnik.beforeSave(async (user) => {
     try {
       if (user.changed('password')) {
@@ -91,8 +59,7 @@ export default function init(sequelize) {
     }
   });
 
-  // eslint-disable-next-line func-names
-  Korisnik.prototype.isValidPassword = async (pw) => {
+  Korisnik.prototype.isValidPassword = async function (pw) {
     try {
       return await bcrypt.compare(pw, this.password);
     } catch (err) {
@@ -100,11 +67,24 @@ export default function init(sequelize) {
     }
   };
 
-  Korisnik.prototype.toJson = async () => {
-    const values = { ...this.get() };
+  Korisnik.prototype.toResponse = function (pw) {
+    const obj = { ...this.toJSON() };
 
-    delete values.password;
-    return values;
+    delete obj.password;
+
+    return obj;
+  };
+
+  Korisnik.authenticate = async function (username, password) {
+    try {
+      const user = await Korisnik.findOne({ where: { username } });
+      if (await user.isValidPassword(password)) {
+        return user;
+      }
+    } catch (error) {
+      console.log;
+      throw new Error('Лозинке нису исте.');
+    }
   };
 
   return Korisnik;

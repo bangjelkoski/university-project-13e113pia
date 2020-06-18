@@ -19,13 +19,5 @@ export default function init(sequelize) {
     }
   );
 
-  Admin.associate = function associate(models) {
-    this.korisnik = this.belongsTo(models.Korisnik);
-  };
-
-  Admin.prototype.toJson = async () => {
-    return { ...this.get() };
-  };
-
   return Admin;
 }

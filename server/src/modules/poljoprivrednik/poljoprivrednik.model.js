@@ -27,13 +27,5 @@ export default function init(sequelize) {
     }
   );
 
-  Poljoprivrednik.associate = function associate(models) {
-    this.korisnik = this.belongsTo(models.Korisnik);
-  };
-
-  Poljoprivrednik.prototype.toJson = async () => {
-    return { ...this.get() };
-  };
-
   return Poljoprivrednik;
 }

@@ -14,14 +14,5 @@ export default function init(sequelize) {
     }
   );
 
-  Komentar.associate = function associate(models) {
-    this.korisnik = this.belongsTo(models.Korisnik);
-    this.proizvod = this.belongsTo(models.Proizvod);
-  };
-
-  Komentar.prototype.toJson = async () => {
-    return { ...this.get() };
-  };
-
   return Komentar;
 }
