@@ -67,6 +67,10 @@ export default function init(sequelize) {
     }
   };
 
+  /**
+   * We remove the password from the model
+   * when we send it as a response
+   */
   Korisnik.prototype.toResponse = function (pw) {
     const obj = { ...this.toJSON() };
 
