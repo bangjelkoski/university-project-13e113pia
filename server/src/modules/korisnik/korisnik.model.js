@@ -15,6 +15,11 @@ export default function init(sequelize) {
         allowNull: false,
         type: DataTypes.STRING,
       },
+      avatar: {
+        allowNull: true,
+        defaultValue: '',
+        type: DataTypes.TEXT,
+      },
       password: {
         type: DataTypes.STRING,
         allowNull: false,

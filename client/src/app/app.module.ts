@@ -27,6 +27,10 @@ import { ToastrModule } from 'ngx-toastr';
 import { AdminService } from './services/admin/admin.service';
 import { HttpService } from './services/http/http.service';
 import { NgHcaptchaModule } from 'ng-hcaptcha';
+import { KorisniciComponent as AdminKorisniciComponent } from './admin/dashboard/korisnici/korisnici.component';
+import { PoljoprivredniciComponent as AdminPoljoprivredniciComponent } from './admin/poljoprivrednici/poljoprivrednici.component';
+import { PreduzecaComponent as AdminPreduzecaComponent } from './admin/preduzeca/preduzeca.component';
+import { KorisnikComponent as AdminKorisnikComponent } from './admin/korisnik/korisnik.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +46,10 @@ import { NgHcaptchaModule } from 'ng-hcaptcha';
     RegisterPreduzetnikComponent,
     NotFoundComponent,
     DashboardComponent,
+    AdminKorisniciComponent,
+    AdminPoljoprivredniciComponent,
+    AdminPreduzecaComponent,
+    AdminKorisnikComponent,
   ],
   imports: [
     BrowserModule,

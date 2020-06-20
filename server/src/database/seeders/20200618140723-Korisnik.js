@@ -4,7 +4,7 @@ const Status = require('./../../utils/status');
 const db = require('./../index');
 const Chance = require('chance');
 const bcrypt = require('bcrypt');
-
+const avatar = require('../../utils/avatar');
 const chance = new Chance();
 
 const korisnici = [
@@ -12,7 +12,8 @@ const korisnici = [
     username: 'pia',
     password: 'Pia123!@#',
     email: 'pia@etf.rs',
-    phone: '123456',
+    phone: '+381691231234',
+    avatar: avatar(),
     status: Status.odobren,
     role: Roles.admin,
     createdAt: new Date(),
@@ -22,7 +23,8 @@ const korisnici = [
     username: 'pera',
     password: '123456',
     email: 'pera@example.com',
-    phone: '123456',
+    phone: '+381691231234',
+    avatar: avatar(),
     status: Status.odobren,
     role: Roles.poljoprivrednik,
     createdAt: new Date(),
@@ -32,7 +34,8 @@ const korisnici = [
     username: 'nikola',
     password: '123456',
     email: 'nikola@example.com',
-    phone: '123456',
+    phone: '+381691231234',
+    avatar: avatar(),
     status: Status.odobren,
     role: Roles.preduzece,
     createdAt: new Date(),
@@ -42,7 +45,8 @@ const korisnici = [
     username: 'mladen',
     password: '123456',
     email: 'mladen@example.com',
-    phone: '123456',
+    phone: '+381691231234',
+    avatar: avatar(),
     status: Status.naCekanju,
     role: Roles.poljoprivrednik,
     createdAt: new Date(),
@@ -52,7 +56,8 @@ const korisnici = [
     username: 'nemanja',
     password: '123456',
     email: 'nemanja@example.com',
-    phone: '123456',
+    phone: '+381691231234',
+    avatar: avatar(),
     status: Status.naCekanju,
     role: Roles.preduzece,
     createdAt: new Date(),
@@ -62,7 +67,8 @@ const korisnici = [
     username: 'dragan',
     password: '123456',
     email: 'dragan@example.com',
-    phone: '123456',
+    phone: '+381691231234',
+    avatar: avatar(),
     status: Status.naCekanju,
     role: Roles.poljoprivrednik,
     createdAt: new Date(),
@@ -72,7 +78,8 @@ const korisnici = [
     username: 'milan',
     password: '123456',
     email: 'milan@example.com',
-    phone: '123456',
+    phone: '+381691231234',
+    avatar: avatar(),
     status: Status.naCekanju,
     role: Roles.preduzece,
     createdAt: new Date(),
@@ -107,14 +114,14 @@ module.exports = {
     const admin = await db.Korisnik.findOne({
       where: {
         role: Roles.admin,
-        username: 'bojan',
+        username: 'pia',
       },
     });
 
     await queryInterface.bulkInsert('Admin', [
       {
-        firstName: 'Bojan',
-        lastName: 'Angjelkoski',
+        firstName: 'Admin PIA',
+        lastName: 'Elektrotehnicki Fakultet',
         korisnikId: admin.id,
       },
     ]);

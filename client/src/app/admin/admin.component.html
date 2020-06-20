@@ -1,6 +1,6 @@
-<div class="p-0 lg:p-12 xl:p-16 rounded shadow bg-gray-400 min-h-screen">
-  <div class="bg-gray-800 pb-32 lg:rounded">
-    <nav class="bg-gray-8000 lg:rounded-t">
+<div class="shadow bg-gray-300 min-h-screen">
+  <div class="bg-gray-800 pb-32">
+    <nav class="bg-gray-800">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="border-b border-gray-700">
           <div class="flex items-center justify-between h-16 px-4 sm:px-0">
@@ -11,10 +11,26 @@
               <div class="hidden md:block">
                 <div class="ml-10 flex items-baseline">
                   <a
-                    href="#"
-                    class="px-3 py-2 rounded-md text-sm font-medium text-white bg-gray-900 focus:outline-none focus:text-white focus:bg-gray-700"
+                    [routerLink]="['/admin']"
+                    [routerLinkActive]="['bg-gray-900', 'text-white']"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md text-sm font-medium text-white focus:outline-none focus:text-white"
                   >
                     Почетна
+                  </a>
+                  <a
+                    [routerLink]="['/admin/poljoprivrednici']"
+                    [routerLinkActive]="['bg-gray-900', 'text-white']"
+                    class="ml-4 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md text-sm font-medium text-white focus:outline-none focus:text-white"
+                  >
+                    Пољопривредници
+                  </a>
+                  <a
+                    [routerLink]="['/admin/preduzeca']"
+                    [routerLinkActive]="['bg-gray-900', 'text-white']"
+                    class="ml-4 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md text-sm font-medium text-white focus:outline-none focus:text-white"
+                  >
+                    Предузећа
                   </a>
                 </div>
               </div>
@@ -144,9 +160,7 @@
     <div class="max-w-7xl mx-auto pb-12 px-4 sm:px-6 lg:px-8">
       <!-- Replace with your content -->
       <div class="bg-white rounded-lg shadow px-5 py-6 sm:px-6">
-        <div class="border-4 border-dashed border-gray-200 rounded-lg h-96">
-          <router-outlet></router-outlet>
-        </div>
+        <router-outlet></router-outlet>
       </div>
       <!-- /End replace -->
     </div>

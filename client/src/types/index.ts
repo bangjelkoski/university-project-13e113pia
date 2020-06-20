@@ -11,6 +11,7 @@ export const Status = {
 };
 
 export interface Korisnik {
+  id?: string;
   email: string;
   phone: string;
   username: string;

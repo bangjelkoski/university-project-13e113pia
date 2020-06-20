@@ -2,6 +2,7 @@ import db from '~/database/index';
 import STATUS from '~/utils/status';
 import ROLES from '~/utils/roles';
 import ApiError from '~/handlers/ApiError';
+import bcrypt from 'bcrypt';
 
 export const korisnik = async (id) => {
   try {
@@ -40,25 +41,32 @@ export const odbij = async (id) => {
   }
 };
 
-export const azuriraj = async () => {
+export const azuriraj = async ({ id, username, password, phone, email }) => {
+  if (await db.Korisnik.findOne({ where: { username, id: { $not: id } } })) {
+    throw new Error('Корисничко име је већ заузето.');
+  }
+
   try {
-    //
+    const korisnik = await db.Korisnik.findOne({
+      where: { id },
+    });
+
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+
+    await korisnik.update({ username, password: hash, phone, email });
   } catch (error) {
     return ApiError.throw(error, 'Настала ја грешка');
   }
 };
 
-export const obrisi = async () => {
+export const obrisi = async (id) => {
   try {
-    //
-  } catch (error) {
-    return ApiError.throw(error, 'Настала ја грешка');
-  }
-};
+    const korisnik = await db.Korisnik.findOne({
+      where: { id },
+    });
 
-export const kreiraj = async () => {
-  try {
-    //
+    await korisnik.destroy();
   } catch (error) {
     return ApiError.throw(error, 'Настала ја грешка');
   }
@@ -66,8 +74,19 @@ export const kreiraj = async () => {
 
 export const korisniciNaCekanju = async () => {
   try {
-    const korisnici = db.Korisnik.findAll({
+    const korisnici = await db.Korisnik.findAll({
       where: { status: STATUS.naCekanju },
+      include: [
+        {
+          model: db.Preduzece,
+        },
+        {
+          model: db.Poljoprivrednik,
+        },
+        {
+          model: db.Admin,
+        },
+      ],
     });
 
     return korisnici.map((korisnik) => korisnik.toResponse());

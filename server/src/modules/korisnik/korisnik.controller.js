@@ -14,23 +14,20 @@ export const korisnik = async (req, res) => {
 
 export const azuriraj = async (req, res) => {
   const { id } = req.params;
+  const { username, password, phone, email } = req.body;
 
   try {
-    await korisnikService.azuriraj(id);
+    await korisnikService.azuriraj({
+      id,
+      username,
+      password,
+      phone,
+      email,
+    });
 
     res.json({
       message: 'Успешно ажуриран корисник.',
     });
-  } catch (error) {
-    return res.status(400).send(error.message);
-  }
-};
-
-export const kreiraj = async (req, res) => {
-  try {
-    const korisnik = await korisnikService.kreiraj(id);
-
-    res.json(korisnik.toResponse());
   } catch (error) {
     return res.status(400).send(error.message);
   }

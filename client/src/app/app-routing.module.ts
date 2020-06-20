@@ -11,6 +11,9 @@ import { PasswordComponent } from './auth/password/password.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { AdminGuardService } from './services/guards/admin/admin.service';
 import { DashboardComponent as AdminDashboardComponent } from './admin/dashboard/dashboard.component';
+import { PoljoprivredniciComponent as AdminPoljoprivredniciComponent } from './admin/poljoprivrednici/poljoprivrednici.component';
+import { PreduzecaComponent as AdminPreduzecaComponent } from './admin/preduzeca/preduzeca.component';
+import { KorisnikComponent as AdminKorisnikComponent } from './admin/korisnik/korisnik.component';
 
 const routes: Routes = [
   {
@@ -57,6 +60,18 @@ const routes: Routes = [
       {
         path: '',
         component: AdminDashboardComponent,
+      },
+      {
+        path: 'preduzeca',
+        component: AdminPreduzecaComponent,
+      },
+      {
+        path: 'korisnik/:id',
+        component: AdminKorisnikComponent,
+      },
+      {
+        path: 'poljoprivrednici',
+        component: AdminPoljoprivredniciComponent,
       },
     ],
   },

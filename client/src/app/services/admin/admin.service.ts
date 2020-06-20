@@ -1,61 +1,90 @@
-import { Injectable, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { StorageService } from '../storage/storage.service';
 import { HttpService } from '../http/http.service';
-import { Status } from 'src/types';
+import { Status, Role } from 'src/types';
+import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AdminService implements OnInit {
-  korisnici = [];
-  poljoprivrednici = [];
-  preduzeca = [];
+export class AdminService {
+  constructor(
+    private httpService: HttpService,
+    private toast: ToastrService,
+    private router: Router
+  ) {}
 
-  constructor(private httpService: HttpService) {}
-
-  async ngOnInit() {
-    this.korisnici = await this.getKorisnici();
-    this.preduzeca = await this.getPreduzeca();
-    this.poljoprivrednici = await this.getPoljoprivrednici();
-  }
-
-  async getTotalKorisnici() {
-    const korisnici = await this.httpService.get('korisnici');
-
-    return korisnici.length;
-  }
-
-  getTotalPreduzeca(): number {
-    return this.preduzeca.length;
-  }
-
-  getTotalPoljoprivrednici(): number {
-    return this.poljoprivrednici.length;
-  }
-
-  async getPendingKorisnici() {
-    return this.korisnici.filter(({ status }) => status === Status.naCekanju);
+  async getKorisniciNaCekanju() {
+    return await this.httpService.get('korisnici/korisnici-na-cekanju');
   }
 
   async getPoljoprivrednici() {
-    return this.httpService.get('poljoprivrednici');
-  }
-
-  async getKorisnici() {
-    return this.httpService.get('korisnici');
+    return await this.httpService.get('korisnici/poljoprivrednici');
   }
 
   async getPreduzeca() {
-    return this.httpService.get('preduzeca');
+    return await this.httpService.get('korisnici/preduzeca');
   }
 
-  async addPoljoprivrednik() {}
+  async getKorisnik(id: string) {
+    try {
+      return await this.httpService.get(`korisnici/korisnik/${id}`);
+    } catch (error) {
+      return this.toast.error(error.message);
+    }
+  }
 
-  async addPreduzetnik() {}
+  async updateKorisnik({ id, username, password, phone, email, role }) {
+    try {
+      await this.httpService.post(`korisnici/korisnik/${id}`, {
+        username,
+        password,
+        phone,
+        email,
+      });
+      this.toast.success('Корисник успешно ажуриран.');
 
-  async removeKorisnik(korisnik) {}
+      if (role === Role.poljoprivrednik) {
+        return this.router.navigate(['/admin/poljoprivrednici']);
+      }
 
-  async updatePoljoprivrednik(poljoprivrednik) {}
+      return this.router.navigate(['/admin/preduzeca']);
+    } catch (error) {
+      return this.toast.error(error.message);
+    }
+  }
 
-  async updatePreduzetnik(preduzetnik) {}
+  async odobri(id: string) {
+    try {
+      await this.httpService.post('korisnici/odobri', {
+        id,
+      });
+      this.toast.success('Успешна одобрен корисник.');
+    } catch (error) {
+      return this.toast.error(error.message);
+    }
+  }
+
+  async odbij(id: string) {
+    try {
+      await this.httpService.post('korisnici/odbij', {
+        id,
+      });
+      this.toast.success('Успешна одбијен корисник.');
+    } catch (error) {
+      return this.toast.error(error.message);
+    }
+  }
+
+  async obrisi(id: string) {
+    try {
+      await this.httpService.delete(`korisnici/korisnik/${id}`, {
+        id,
+      });
+      this.toast.success('Успешнo обрисан корисник.');
+    } catch (error) {
+      return this.toast.error(error.message);
+    }
+  }
 }

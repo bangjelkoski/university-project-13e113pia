@@ -15,7 +15,8 @@ router.get(
 );
 router.post(
   '/korisnik/:id',
-  validator.params(validation.azuriraj),
+  validator.params(validation.azurirajParams),
+  validator.body(validation.azuriraj),
   controller.azuriraj
 );
 router.delete(

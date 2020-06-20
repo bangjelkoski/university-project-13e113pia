@@ -3,6 +3,7 @@ import { verify } from 'hcaptcha';
 import STATUS from '~/utils/status';
 import ROLES from '~/utils/roles';
 import ApiError from '~/handlers/ApiError';
+import avatar from '../../utils/avatar';
 
 export const login = async (username, password) => {
   let korisnik;
@@ -53,6 +54,7 @@ export const registerPoljoprivrednik = async ({
       username,
       password,
       email,
+      avatar: avatar(),
       role: ROLES.poljoprivrednik,
       status: STATUS.naCekanju,
       phone,
@@ -90,6 +92,7 @@ export const registerPreduzece = async ({
       username,
       password,
       email,
+      avatar: avatar(),
       role: ROLES.preduzece,
       status: STATUS.naCekanju,
       phone: '',

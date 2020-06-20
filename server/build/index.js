@@ -171,6 +171,11 @@ function init(sequelize) {
       allowNull: false,
       type: Sequelize.DataTypes.STRING
     },
+    avatar: {
+      allowNull: true,
+      defaultValue: '',
+      type: Sequelize.DataTypes.TEXT
+    },
     password: {
       type: Sequelize.DataTypes.STRING,
       allowNull: false
@@ -669,6 +674,37 @@ class ApiError$1 {
 
 }
 
+var tops = ['NoHair', 'Eyepatch', 'Hat', 'Hijab', 'Turban', 'WinterHat1', 'WinterHat2', 'WinterHat3', 'WinterHat4', 'LongHairBigHair', 'LongHairBob', 'LongHairBun', 'LongHairCurly', 'LongHairCurvy', 'LongHairDreads', 'LongHairFrida', 'LongHairFro', 'LongHairFroBand', 'LongHairNotTooLong', 'LongHairShavedSides', 'LongHairMiaWallace', 'LongHairStraight', 'LongHairStraight2', 'LongHairStraightStrand', 'ShortHairDreads01', 'ShortHairDreads02', 'ShortHairFrizzle', 'ShortHairShaggyMullet', 'ShortHairShortCurly', 'ShortHairShortFlat', 'ShortHairShortRound', 'ShortHairShortWaved', 'ShortHairSides', 'ShortHairTheCaesar', 'ShortHairTheCaesarSidePart'];
+var hairColors = ['Black', 'Blue01', 'Blue02', 'Blue03', 'Gray01', 'Gray02', 'Heather', 'PastelBlue', 'PastelGreen', 'PastelOrange', 'PastelRed', 'PastelYellow', 'Pink', 'Red', 'White'];
+var accessories = ['Blank', 'Kurt', 'Prescription01', 'Prescription02', 'Round', 'Sunglasses', 'Wayfarers'];
+var facials = ['Blank', 'BeardMedium', 'BeardLight', 'BeardMagestic', 'MoustacheFancy', 'MoustacheMagnum'];
+var facialColors = ['Auburn', 'Black', 'Blonde', 'BlondeGolden', 'Brown', 'BrownDark', 'Platinum', 'Red'];
+var clothings = ['BlazerShirt', 'BlazerSweater', 'CollarSweater', 'GraphicShirt', 'Hoodie', 'Overall', 'ShirtCrewNeck', 'ShirtScoopNeck', 'ShirtVNeck'];
+var clothingColors = ['Black', 'Blue01', 'Blue02', 'Blue03', 'Gray01', 'Gray02', 'Heather', 'PastelBlue', 'PastelGreen', 'PastelOrange', 'PastelRed', 'PastelYellow', 'Pink', 'Red', 'White'];
+var eyes = ['Close', 'Cry', 'Default', 'Dizzy', 'EyeRoll', 'Happy', 'Hearts', 'Side', 'Squint', 'Surprised', 'Wink', 'WinkWacky'];
+var eyebrows = ['Angry', 'AngryNatural', 'Default', 'DefaultNatural', 'FlatNatural', 'RaisedExcited', 'RaisedExcitedNatural', 'SadConcerned', 'SadConcernedNatural', 'UnibrowNatural', 'UpDown', 'UpDownNatural'];
+var mouths = ['Concerned', 'Default', 'Disbelief', 'Eating', 'Grimace', 'Sad', 'ScreamOpen', 'Serious', 'Smile', 'Tongue', 'Twinkle', 'Vomit'];
+var skins = ['Tanned', 'Yellow', 'Pale', 'Light', 'Brown', 'DarkBrown', 'Black'];
+
+var randomize = array => {
+  return array[Math.floor(Math.random() * array.length)];
+};
+
+function avatar () {
+  var top = randomize(tops);
+  var accessory = randomize(accessories);
+  var hairColor = randomize(hairColors);
+  var facial = randomize(facials);
+  var facialColor = randomize(facialColors);
+  var clothing = randomize(clothings);
+  var clothingColor = randomize(clothingColors);
+  var eye = randomize(eyes);
+  var eyebrow = randomize(eyebrows);
+  var mouth = randomize(mouths);
+  var skin = randomize(skins);
+  return "https://avataaars.io/?avatarStyle=Circle&topType=".concat(top, "&accessoriesType=").concat(accessory, "&hairColor=").concat(hairColor, "&facialHairType=").concat(facial, "&facialHairColor=").concat(facialColor, "&clotheType=").concat(clothing, "&clotheColor=").concat(clothingColor, "&eyeType=").concat(eye, "&eyebrowType=").concat(eyebrow, "&mouthType=").concat(mouth, "&skinColor=").concat(skin);
+}
+
 var login$1 = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (username, password) {
     var korisnik;
@@ -729,6 +765,7 @@ var registerPoljoprivrednik$1 = /*#__PURE__*/function () {
         username,
         password,
         email,
+        avatar: avatar(),
         role: ROLES.poljoprivrednik,
         status: STATUS.naCekanju,
         phone
@@ -775,6 +812,7 @@ var registerPreduzece$1 = /*#__PURE__*/function () {
         username,
         password,
         email,
+        avatar: avatar(),
         role: ROLES.preduzece,
         status: STATUS.naCekanju,
         phone: ''
@@ -974,19 +1012,25 @@ router.post('/reset', validator.body(reset), reset$2);
 router.post('/captcha', validator.body(captcha), captcha$2);
 
 var odbij = Joi.object({
-  id: Joi.string().required()
+  id: Joi.number().required()
+});
+var azurirajParams = Joi.object({
+  id: Joi.number().required()
 });
 var azuriraj = Joi.object({
-  id: Joi.string().required()
+  username: Joi.string().required(),
+  password: Joi.optional(),
+  phone: Joi.string().required(),
+  email: Joi.string().required()
 });
 var obrisi = Joi.object({
-  id: Joi.string().required()
+  id: Joi.number().required()
 });
 var korisnik = Joi.object({
-  id: Joi.string().required()
+  id: Joi.number().required()
 });
 var odobri = Joi.object({
-  id: Joi.string().required()
+  id: Joi.number().required()
 });
 
 var korisnik$1 = /*#__PURE__*/function () {
@@ -1040,28 +1084,83 @@ var odbij$1 = /*#__PURE__*/function () {
   };
 }();
 var azuriraj$1 = /*#__PURE__*/function () {
-  var _ref4 = _asyncToGenerator(function* () {
+  var _ref5 = _asyncToGenerator(function* (_ref4) {
+    var {
+      id,
+      username,
+      password,
+      phone,
+      email
+    } = _ref4;
+
+    if (yield db.Korisnik.findOne({
+      where: {
+        username,
+        id: {
+          $not: id
+        }
+      }
+    })) {
+      throw new Error('Корисничко име је већ заузето.');
+    }
+
+    try {
+      var _korisnik = yield db.Korisnik.findOne({
+        where: {
+          id
+        }
+      });
+
+      var salt = yield bcrypt.genSalt(10);
+      var hash = yield bcrypt.hash(password, salt);
+      yield _korisnik.update({
+        username,
+        password: hash,
+        phone,
+        email
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка');
+    }
   });
 
-  return function azuriraj() {
-    return _ref4.apply(this, arguments);
+  return function azuriraj(_x4) {
+    return _ref5.apply(this, arguments);
   };
 }();
 var obrisi$1 = /*#__PURE__*/function () {
-  var _ref5 = _asyncToGenerator(function* () {
+  var _ref6 = _asyncToGenerator(function* (id) {
+    try {
+      var _korisnik2 = yield db.Korisnik.findOne({
+        where: {
+          id
+        }
+      });
+
+      yield _korisnik2.destroy();
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка');
+    }
   });
 
-  return function obrisi() {
-    return _ref5.apply(this, arguments);
+  return function obrisi(_x5) {
+    return _ref6.apply(this, arguments);
   };
 }();
 var korisniciNaCekanju = /*#__PURE__*/function () {
   var _ref7 = _asyncToGenerator(function* () {
     try {
-      var korisnici = db.Korisnik.findAll({
+      var korisnici = yield db.Korisnik.findAll({
         where: {
           status: STATUS.naCekanju
-        }
+        },
+        include: [{
+          model: db.Preduzece
+        }, {
+          model: db.Poljoprivrednik
+        }, {
+          model: db.Admin
+        }]
       });
       return korisnici.map(korisnik => korisnik.toResponse());
     } catch (error) {
@@ -1090,7 +1189,7 @@ var preduzeca = /*#__PURE__*/function () {
     }
   });
 
-  return function preduzeca(_x4) {
+  return function preduzeca(_x6) {
     return _ref8.apply(this, arguments);
   };
 }();
@@ -1111,7 +1210,7 @@ var poljoprivrednici = /*#__PURE__*/function () {
     }
   });
 
-  return function poljoprivrednici(_x5) {
+  return function poljoprivrednici(_x7) {
     return _ref9.apply(this, arguments);
   };
 }();
@@ -1140,9 +1239,21 @@ var azuriraj$2 = /*#__PURE__*/function () {
     var {
       id
     } = req.params;
+    var {
+      username,
+      password,
+      phone,
+      email
+    } = req.body;
 
     try {
-      yield azuriraj$1(id);
+      yield azuriraj$1({
+        id,
+        username,
+        password,
+        phone,
+        email
+      });
       res.json({
         message: 'Успешно ажуриран корисник.'
       });
@@ -1156,7 +1267,7 @@ var azuriraj$2 = /*#__PURE__*/function () {
   };
 }();
 var korisniciNaCekanju$1 = /*#__PURE__*/function () {
-  var _ref4 = _asyncToGenerator(function* (req, res) {
+  var _ref3 = _asyncToGenerator(function* (req, res) {
     try {
       var korisnici = yield korisniciNaCekanju();
       res.json(korisnici);
@@ -1165,12 +1276,12 @@ var korisniciNaCekanju$1 = /*#__PURE__*/function () {
     }
   });
 
-  return function korisniciNaCekanju(_x7, _x8) {
-    return _ref4.apply(this, arguments);
+  return function korisniciNaCekanju(_x5, _x6) {
+    return _ref3.apply(this, arguments);
   };
 }();
 var poljoprivrednici$1 = /*#__PURE__*/function () {
-  var _ref5 = _asyncToGenerator(function* (req, res) {
+  var _ref4 = _asyncToGenerator(function* (req, res) {
     try {
       var korisnici = yield poljoprivrednici();
       res.json(korisnici);
@@ -1179,12 +1290,12 @@ var poljoprivrednici$1 = /*#__PURE__*/function () {
     }
   });
 
-  return function poljoprivrednici(_x9, _x10) {
-    return _ref5.apply(this, arguments);
+  return function poljoprivrednici(_x7, _x8) {
+    return _ref4.apply(this, arguments);
   };
 }();
 var preduzeca$1 = /*#__PURE__*/function () {
-  var _ref6 = _asyncToGenerator(function* (req, res) {
+  var _ref5 = _asyncToGenerator(function* (req, res) {
     try {
       var korisnici = yield preduzeca();
       res.json(korisnici);
@@ -1193,12 +1304,12 @@ var preduzeca$1 = /*#__PURE__*/function () {
     }
   });
 
-  return function preduzeca(_x11, _x12) {
-    return _ref6.apply(this, arguments);
+  return function preduzeca(_x9, _x10) {
+    return _ref5.apply(this, arguments);
   };
 }();
 var odbij$2 = /*#__PURE__*/function () {
-  var _ref7 = _asyncToGenerator(function* (req, res, next) {
+  var _ref6 = _asyncToGenerator(function* (req, res, next) {
     var {
       id
     } = req.body;
@@ -1213,12 +1324,12 @@ var odbij$2 = /*#__PURE__*/function () {
     }
   });
 
-  return function odbij(_x13, _x14, _x15) {
-    return _ref7.apply(this, arguments);
+  return function odbij(_x11, _x12, _x13) {
+    return _ref6.apply(this, arguments);
   };
 }();
 var odobri$2 = /*#__PURE__*/function () {
-  var _ref8 = _asyncToGenerator(function* (req, res, next) {
+  var _ref7 = _asyncToGenerator(function* (req, res, next) {
     var {
       id
     } = req.body;
@@ -1233,12 +1344,12 @@ var odobri$2 = /*#__PURE__*/function () {
     }
   });
 
-  return function odobri(_x16, _x17, _x18) {
-    return _ref8.apply(this, arguments);
+  return function odobri(_x14, _x15, _x16) {
+    return _ref7.apply(this, arguments);
   };
 }();
 var obrisi$2 = /*#__PURE__*/function () {
-  var _ref9 = _asyncToGenerator(function* (req, res, next) {
+  var _ref8 = _asyncToGenerator(function* (req, res, next) {
     var {
       id
     } = req.body;
@@ -1253,8 +1364,8 @@ var obrisi$2 = /*#__PURE__*/function () {
     }
   });
 
-  return function obrisi(_x19, _x20, _x21) {
-    return _ref9.apply(this, arguments);
+  return function obrisi(_x17, _x18, _x19) {
+    return _ref8.apply(this, arguments);
   };
 }();
 
@@ -1262,7 +1373,7 @@ var router$1 = express.Router();
 router$1.post('/odbij', validator.body(odbij), odbij$2);
 router$1.post('/odobri', validator.body(odobri), odobri$2);
 router$1.get('/korisnik/:id', validator.params(korisnik), korisnik$2);
-router$1.post('/korisnik/:id', validator.params(azuriraj), azuriraj$2);
+router$1.post('/korisnik/:id', validator.params(azurirajParams), validator.body(azuriraj), azuriraj$2);
 router$1.delete('/korisnik/:id', validator.params(obrisi), obrisi$2);
 router$1.get('/korisnici-na-cekanju', korisniciNaCekanju$1);
 router$1.get('/poljoprivrednici', poljoprivrednici$1);
