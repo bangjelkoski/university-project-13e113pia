@@ -16,5 +16,7 @@ router.post(
   validator.body(validation.registerPreduzece),
   controller.registerPreduzece
 );
+router.post('/reset', validator.body(validation.reset), controller.reset);
+router.post('/captcha', validator.body(validation.captcha), controller.captcha);
 
 export default router;

@@ -5813,6 +5813,11 @@ neo-async@^2.5.0, neo-async@^2.6.1:
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.1.tgz#ac27ada66167fa8849a6addd837f6b189ad2081c"
   integrity sha512-iyam8fBuCUpWeKPGpaNMetEocMt364qkCsfL9JuhjXX6dRnguRVOfk2GZaDpPjcOKiiXCPINZC1GczQ7iTq3Zw==
 
+ng-hcaptcha@^1.0.0-beta.1:
+  version "1.0.0-beta.1"
+  resolved "https://registry.yarnpkg.com/ng-hcaptcha/-/ng-hcaptcha-1.0.0-beta.1.tgz#2a488ef45191e297e533d828026a89bf3c45b5c3"
+  integrity sha512-Tso7npJbL9/VIf5lRQcTqn29iLNrJPmG6s1RwAJ3YbrCsLO05dxia+GpROVEUJ2lVcO+UjIcv8ZPwaQmBay+ng==
+
 ngx-toastr@^12.1.0:
   version "12.1.0"
   resolved "https://registry.yarnpkg.com/ngx-toastr/-/ngx-toastr-12.1.0.tgz#50f6eee4262f4ba342918f06f98a657f223194cf"

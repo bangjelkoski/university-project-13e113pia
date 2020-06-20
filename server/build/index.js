@@ -18,6 +18,7 @@ var Joi = _interopDefault(require('@hapi/joi'));
 var Sequelize = require('sequelize');
 var Sequelize__default = _interopDefault(Sequelize);
 var bcrypt = _interopDefault(require('bcrypt'));
+var hcaptcha = require('hcaptcha');
 var listEndpoints = _interopDefault(require('express-list-endpoints'));
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
@@ -125,10 +126,17 @@ var registerPreduzece = Joi.object({
   username: Joi.string().required(),
   password: Joi.string().required(),
   email: Joi.string().email().required(),
-  phone: Joi.string().required(),
   name: Joi.string().required(),
   location: Joi.string().required(),
   dateOfCreation: Joi.string().required()
+});
+var reset = Joi.object({
+  username: Joi.string().required(),
+  password: Joi.string().required(),
+  newPassword: Joi.string().required()
+});
+var captcha = Joi.object({
+  token: Joi.string().required()
 });
 
 var config = {
@@ -173,6 +181,7 @@ function init(sequelize) {
     },
     status: {
       type: Sequelize.DataTypes.ENUM([STATUS.naCekanju, STATUS.odobren, STATUS.odbijen]),
+      defaultValue: STATUS.naCekanju,
       allowNull: false
     },
     username: {
@@ -192,8 +201,8 @@ function init(sequelize) {
 
           user.password = hash;
         }
-      } catch (err) {
-        throw new Error(err);
+      } catch (error) {
+        return ApiError.throw(error, 'Настала ја грешка.');
       }
     });
 
@@ -206,8 +215,8 @@ function init(sequelize) {
     var _ref2 = _asyncToGenerator(function* (pw) {
       try {
         return yield bcrypt.compare(pw, this.password);
-      } catch (err) {
-        throw new Error(err);
+      } catch (error) {
+        return ApiError.throw(error, 'Настала ја грешка.');
       }
     });
 
@@ -215,33 +224,141 @@ function init(sequelize) {
       return _ref2.apply(this, arguments);
     };
   }();
+  /**
+   * We remove the password from the model
+   * when we send it as a response
+   */
+
 
   Korisnik.prototype.toResponse = function (pw) {
-    var obj = _objectSpread2({}, this.toJSON());
+    var korisnik = _objectSpread2({}, this.toJSON());
 
-    delete obj.password;
-    return obj;
+    delete korisnik.password;
+
+    if (korisnik.role === ROLES.admin) {
+      delete korisnik.Poljoprivrednik;
+      delete korisnik.Preduzece;
+    } else if (korisnik.role === ROLES.preduzece) {
+      delete korisnik.Admin;
+      delete korisnik.Poljoprivrednik;
+    } else {
+      delete korisnik.Admin;
+      delete korisnik.Preduzece;
+    }
+
+    return korisnik;
   };
 
-  Korisnik.authenticate = /*#__PURE__*/function () {
-    var _ref3 = _asyncToGenerator(function* (username, password) {
+  Korisnik.odbrisi = /*#__PURE__*/function () {
+    var _ref3 = _asyncToGenerator(function* (id) {
       try {
-        var user = yield Korisnik.findOne({
+        var korisnik = yield Korisnik.findOne({
           where: {
-            username
+            id
           }
         });
 
-        if (yield user.isValidPassword(password)) {
-          return user;
+        if (!korisnik) {
+          throw new Error('Корисник није пронађен');
         }
+
+        return yield korisnik.destroy();
       } catch (error) {
-        throw new Error('Лозинке нису исте.');
+        return ApiError.throw(error, 'Настала ја грешка.');
       }
     });
 
-    return function (_x3, _x4) {
+    return function (_x3) {
       return _ref3.apply(this, arguments);
+    };
+  }();
+
+  Korisnik.odobri = /*#__PURE__*/function () {
+    var _ref4 = _asyncToGenerator(function* (id) {
+      try {
+        var korisnik = yield Korisnik.findOne({
+          where: {
+            id
+          }
+        });
+
+        if (!korisnik) {
+          throw new Error('Корисник није пронађен');
+        }
+
+        return yield korisnik.update({
+          status: STATUS.odobren
+        });
+      } catch (error) {
+        return ApiError.throw(error, 'Настала ја грешка.');
+      }
+    });
+
+    return function (_x4) {
+      return _ref4.apply(this, arguments);
+    };
+  }();
+
+  Korisnik.promeniLozinku = /*#__PURE__*/function () {
+    var _ref6 = _asyncToGenerator(function* (_ref5) {
+      var {
+        username,
+        password,
+        newPassword
+      } = _ref5;
+      var korisnik = yield Korisnik.findOne({
+        where: {
+          username
+        }
+      });
+
+      if (!korisnik) {
+        return ApiError.throw({}, 'Корисник није пронађен');
+      }
+
+      try {
+        if (!(yield korisnik.isValidPassword(password))) {
+          return ApiError.throw({}, 'Корисник није пронађен');
+        }
+
+        var salt = yield bcrypt.genSalt(10);
+        var hash = yield bcrypt.hash(newPassword, salt);
+        return yield korisnik.update({
+          password: hash
+        });
+      } catch (error) {
+        return ApiError.throw(error, 'Лозинке нису усте');
+      }
+    });
+
+    return function (_x5) {
+      return _ref6.apply(this, arguments);
+    };
+  }();
+
+  Korisnik.odbij = /*#__PURE__*/function () {
+    var _ref7 = _asyncToGenerator(function* (id) {
+      try {
+        var korisnik = yield Korisnik.findOne({
+          where: {
+            id
+          }
+        });
+
+        if (!korisnik) {
+          return ApiError.throw({}, 'Корисник није пронађен');
+        }
+
+        return yield korisnik.update({
+          status: STATUS.odbijen
+        });
+      } catch (error) {
+        return ApiError.throw(error, 'Настала ја грешка.');
+      }
+    });
+
+    return function (_x6) {
+      return _ref7.apply(this, arguments);
     };
   }();
 
@@ -544,12 +661,41 @@ var db = {
   KupljeniProizvod
 };
 
+class ApiError$1 {
+  static throw(error, message) {
+    console.log(error);
+    throw new Error(message);
+  }
+
+}
+
 var login$1 = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (username, password) {
+    var korisnik;
+
     try {
-      return yield db.Korisnik.authenticate(username, password);
+      korisnik = yield db.Korisnik.findOne({
+        where: {
+          username
+        },
+        include: [{
+          model: db.Preduzece
+        }, {
+          model: db.Poljoprivrednik
+        }, {
+          model: db.Admin
+        }]
+      });
     } catch (error) {
-      throw new Error('Корисник са подацима није пронађен.');
+      return ApiError$1.throw(error, 'Корисник није пронађен');
+    }
+
+    try {
+      if (yield korisnik.isValidPassword(password)) {
+        return korisnik;
+      }
+    } catch (error) {
+      return ApiError$1.throw(error, 'Лозинке нису исте.');
     }
   });
 
@@ -570,22 +716,33 @@ var registerPoljoprivrednik$1 = /*#__PURE__*/function () {
       birthDate
     } = _ref2;
 
+    if (yield db.Korisnik.findOne({
+      where: {
+        username
+      }
+    })) {
+      throw new Error('Корисничко име је већ заузето.');
+    }
+
     try {
       var korisnik = yield db.Korisnik.create({
         username,
         password,
         email,
+        role: ROLES.poljoprivrednik,
+        status: STATUS.naCekanju,
         phone
       });
-      var poljoprivrednik = yield korisnik.createPoljoprivrednik({
+      var poljoprivrednik = yield db.Poljoprivrednik.create({
         firstName,
         lastName,
         birthPlace,
-        birthDate
+        birthDate,
+        KorisnikId: korisnik.id
       });
       return [korisnik, poljoprivrednik];
     } catch (error) {
-      throw new Error('Регистрација корисника није успела.');
+      return ApiError$1.throw(error, 'Регистрација корисника није успела.');
     }
   });
 
@@ -605,26 +762,75 @@ var registerPreduzece$1 = /*#__PURE__*/function () {
       dateOfCreation
     } = _ref4;
 
+    if (yield db.Korisnik.findOne({
+      where: {
+        username
+      }
+    })) {
+      throw new Error('Корисничко име је већ заузето.');
+    }
+
     try {
       var korisnik = yield db.Korisnik.create({
         username,
         password,
         email,
-        phone
+        role: ROLES.preduzece,
+        status: STATUS.naCekanju,
+        phone: ''
       });
-      var preduzetnik = yield korisnik.createPreduzetnik({
+      var preduzece = yield db.Preduzece.create({
         name,
         location,
-        dateOfCreation
+        dateOfCreation,
+        KorisnikId: korisnik.id
       });
-      return [korisnik, preduzetnik];
+      return [korisnik, preduzece];
     } catch (error) {
-      throw new Error('Регистрација корисника није успела.');
+      return ApiError$1.throw(error, 'Регистрација корисника није успела.');
     }
   });
 
   return function registerPreduzece(_x4) {
     return _ref5.apply(this, arguments);
+  };
+}();
+var reset$1 = /*#__PURE__*/function () {
+  var _ref7 = _asyncToGenerator(function* (_ref6) {
+    var {
+      username,
+      password,
+      newPassword
+    } = _ref6;
+
+    try {
+      yield db.Korisnik.promeniLozinku({
+        username,
+        password,
+        newPassword
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка.');
+    }
+  });
+
+  return function reset(_x5) {
+    return _ref7.apply(this, arguments);
+  };
+}();
+var captcha$1 = /*#__PURE__*/function () {
+  var _ref8 = _asyncToGenerator(function* (token) {
+    var secret = process.env.NO_CAPTCHA_SECRET;
+
+    try {
+      return yield hcaptcha.verify(secret, token);
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка.');
+    }
+  });
+
+  return function captcha(_x6) {
+    return _ref8.apply(this, arguments);
   };
 }();
 
@@ -647,8 +853,54 @@ var login$2 = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
+var captcha$2 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (req, res, next) {
+    var {
+      token
+    } = req.body;
+
+    try {
+      yield captcha$1(token);
+      res.json({
+        message: 'Успешна верификација'
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function captcha(_x4, _x5, _x6) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var reset$2 = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(function* (req, res) {
+    var {
+      username,
+      password,
+      newPassword
+    } = req.body;
+
+    try {
+      yield reset$1({
+        username,
+        password,
+        newPassword
+      });
+      res.json({
+        message: 'Успешна промена лозинке.'
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function reset(_x7, _x8) {
+    return _ref3.apply(this, arguments);
+  };
+}();
 var registerPoljoprivrednik$2 = /*#__PURE__*/function () {
-  var _ref2 = _asyncToGenerator(function* (req, res) {
+  var _ref4 = _asyncToGenerator(function* (req, res) {
     var {
       username,
       password,
@@ -661,7 +913,7 @@ var registerPoljoprivrednik$2 = /*#__PURE__*/function () {
     } = req.body;
 
     try {
-      var korisnik = yield registerPoljoprivrednik$1({
+      var [korisnik] = yield registerPoljoprivrednik$1({
         username,
         password,
         email,
@@ -671,18 +923,18 @@ var registerPoljoprivrednik$2 = /*#__PURE__*/function () {
         birthPlace,
         birthDate
       });
-      res.json(korisnik.toJson());
+      res.json(korisnik.toResponse());
     } catch (error) {
       return res.status(400).send(error.message);
     }
   });
 
-  return function registerPoljoprivrednik(_x4, _x5) {
-    return _ref2.apply(this, arguments);
+  return function registerPoljoprivrednik(_x9, _x10) {
+    return _ref4.apply(this, arguments);
   };
 }();
 var registerPreduzece$2 = /*#__PURE__*/function () {
-  var _ref3 = _asyncToGenerator(function* (req, res) {
+  var _ref5 = _asyncToGenerator(function* (req, res) {
     var {
       username,
       password,
@@ -694,7 +946,7 @@ var registerPreduzece$2 = /*#__PURE__*/function () {
     } = req.body;
 
     try {
-      var korisnik = yield registerPreduzece$1({
+      var [korisnik] = yield registerPreduzece$1({
         username,
         password,
         email,
@@ -703,14 +955,14 @@ var registerPreduzece$2 = /*#__PURE__*/function () {
         location,
         dateOfCreation
       });
-      res.json(korisnik.toJson());
+      res.json(korisnik.toResponse());
     } catch (error) {
       return res.status(400).send(error.message);
     }
   });
 
-  return function registerPreduzece(_x6, _x7) {
-    return _ref3.apply(this, arguments);
+  return function registerPreduzece(_x11, _x12) {
+    return _ref5.apply(this, arguments);
   };
 }();
 
@@ -718,28 +970,323 @@ var router = express.Router();
 router.post('/login', validator.body(login), login$2);
 router.post('/register/poljoprivrednik', validator.body(registerPoljoprivrednik), registerPoljoprivrednik$2);
 router.post('/register/preduzece', validator.body(registerPreduzece), registerPreduzece$2);
+router.post('/reset', validator.body(reset), reset$2);
+router.post('/captcha', validator.body(captcha), captcha$2);
+
+var odbij = Joi.object({
+  id: Joi.string().required()
+});
+var azuriraj = Joi.object({
+  id: Joi.string().required()
+});
+var obrisi = Joi.object({
+  id: Joi.string().required()
+});
+var korisnik = Joi.object({
+  id: Joi.string().required()
+});
+var odobri = Joi.object({
+  id: Joi.string().required()
+});
+
+var korisnik$1 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (id) {
+    try {
+      return yield db.Korisnik.findOne({
+        where: {
+          id
+        },
+        include: [{
+          model: db.Preduzece
+        }, {
+          model: db.Poljoprivrednik
+        }, {
+          model: db.Admin
+        }]
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Корисник није пронађен');
+    }
+  });
+
+  return function korisnik(_x) {
+    return _ref.apply(this, arguments);
+  };
+}();
+var odobri$1 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (id) {
+    try {
+      yield db.Korisnik.odobri(id);
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка');
+    }
+  });
+
+  return function odobri(_x2) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var odbij$1 = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(function* (id) {
+    try {
+      yield db.Korisnik.odbij(id);
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка');
+    }
+  });
+
+  return function odbij(_x3) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+var azuriraj$1 = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(function* () {
+  });
+
+  return function azuriraj() {
+    return _ref4.apply(this, arguments);
+  };
+}();
+var obrisi$1 = /*#__PURE__*/function () {
+  var _ref5 = _asyncToGenerator(function* () {
+  });
+
+  return function obrisi() {
+    return _ref5.apply(this, arguments);
+  };
+}();
+var korisniciNaCekanju = /*#__PURE__*/function () {
+  var _ref7 = _asyncToGenerator(function* () {
+    try {
+      var korisnici = db.Korisnik.findAll({
+        where: {
+          status: STATUS.naCekanju
+        }
+      });
+      return korisnici.map(korisnik => korisnik.toResponse());
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка');
+    }
+  });
+
+  return function korisniciNaCekanju() {
+    return _ref7.apply(this, arguments);
+  };
+}();
+var preduzeca = /*#__PURE__*/function () {
+  var _ref8 = _asyncToGenerator(function* (id) {
+    try {
+      var korisnici = db.Korisnik.findAll({
+        where: {
+          role: ROLES.preduzece
+        },
+        include: [{
+          model: db.Preduzece
+        }]
+      });
+      return korisnici.map(korisnik => korisnik.toResponse());
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка');
+    }
+  });
+
+  return function preduzeca(_x4) {
+    return _ref8.apply(this, arguments);
+  };
+}();
+var poljoprivrednici = /*#__PURE__*/function () {
+  var _ref9 = _asyncToGenerator(function* (id) {
+    try {
+      var korisnici = db.Korisnik.findAll({
+        where: {
+          role: ROLES.poljoprivrednik
+        },
+        include: [{
+          model: db.Poljoprivrednik
+        }]
+      });
+      return korisnici.map(korisnik => korisnik.toResponse());
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка');
+    }
+  });
+
+  return function poljoprivrednici(_x5) {
+    return _ref9.apply(this, arguments);
+  };
+}();
+
+var korisnik$2 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (req, res) {
+    var {
+      id
+    } = req.params;
+
+    try {
+      var _korisnik = yield korisnik$1(id);
+
+      res.json(_korisnik.toResponse());
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function korisnik(_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
+var azuriraj$2 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (req, res) {
+    var {
+      id
+    } = req.params;
+
+    try {
+      yield azuriraj$1(id);
+      res.json({
+        message: 'Успешно ажуриран корисник.'
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function azuriraj(_x3, _x4) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var korisniciNaCekanju$1 = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(function* (req, res) {
+    try {
+      var korisnici = yield korisniciNaCekanju();
+      res.json(korisnici);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function korisniciNaCekanju(_x7, _x8) {
+    return _ref4.apply(this, arguments);
+  };
+}();
+var poljoprivrednici$1 = /*#__PURE__*/function () {
+  var _ref5 = _asyncToGenerator(function* (req, res) {
+    try {
+      var korisnici = yield poljoprivrednici();
+      res.json(korisnici);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function poljoprivrednici(_x9, _x10) {
+    return _ref5.apply(this, arguments);
+  };
+}();
+var preduzeca$1 = /*#__PURE__*/function () {
+  var _ref6 = _asyncToGenerator(function* (req, res) {
+    try {
+      var korisnici = yield preduzeca();
+      res.json(korisnici);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function preduzeca(_x11, _x12) {
+    return _ref6.apply(this, arguments);
+  };
+}();
+var odbij$2 = /*#__PURE__*/function () {
+  var _ref7 = _asyncToGenerator(function* (req, res, next) {
+    var {
+      id
+    } = req.body;
+
+    try {
+      yield odbij$1(id);
+      res.json({
+        message: 'Успешно одбијен корисник.'
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function odbij(_x13, _x14, _x15) {
+    return _ref7.apply(this, arguments);
+  };
+}();
+var odobri$2 = /*#__PURE__*/function () {
+  var _ref8 = _asyncToGenerator(function* (req, res, next) {
+    var {
+      id
+    } = req.body;
+
+    try {
+      yield odobri$1(id);
+      res.json({
+        message: 'Успешно одобрен корисник.'
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function odobri(_x16, _x17, _x18) {
+    return _ref8.apply(this, arguments);
+  };
+}();
+var obrisi$2 = /*#__PURE__*/function () {
+  var _ref9 = _asyncToGenerator(function* (req, res, next) {
+    var {
+      id
+    } = req.body;
+
+    try {
+      yield obrisi$1(id);
+      res.json({
+        message: 'Успешно обрисан корисник.'
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function obrisi(_x19, _x20, _x21) {
+    return _ref9.apply(this, arguments);
+  };
+}();
 
 var router$1 = express.Router();
-router$1.get('/', (req, res) => {
+router$1.post('/odbij', validator.body(odbij), odbij$2);
+router$1.post('/odobri', validator.body(odobri), odobri$2);
+router$1.get('/korisnik/:id', validator.params(korisnik), korisnik$2);
+router$1.post('/korisnik/:id', validator.params(azuriraj), azuriraj$2);
+router$1.delete('/korisnik/:id', validator.params(obrisi), obrisi$2);
+router$1.get('/korisnici-na-cekanju', korisniciNaCekanju$1);
+router$1.get('/poljoprivrednici', poljoprivrednici$1);
+router$1.get('/preduzeca', preduzeca$1);
+
+var router$2 = express.Router();
+router$2.get('/', (req, res) => {
   res.json({
     statusCode: HTTPStatus.OK,
     message: 'Welcome to 13e113pia project API'
   });
 });
-router$1.use('/auth/', router);
-router$1.all('*', /*#__PURE__*/function () {
+router$2.use('/auth/', router);
+router$2.use('/korisnici/', router$1);
+router$2.all('*', /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (req, res) {
-    res.json({
-      message: HTTPStatus[404],
-      statusCode: HTTPStatus.NOT_FOUND
-    });
+    res.status(HTTPStatus.NOT_FOUND).json('Страница није пронађена');
   });
 
   return function (_x, _x2) {
     return _ref.apply(this, arguments);
   };
 }());
-console.log(listEndpoints(router$1));
+console.log(listEndpoints(router$2));
 
 var app = express__default();
 var log = debug('app');
@@ -774,7 +1321,7 @@ db.sequelize.authenticate().then(() => {
  * API Routes
  */
 
-app.use(router$1);
+app.use(router$2);
 /**
  * Validation Errors
  */

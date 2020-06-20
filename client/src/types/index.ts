@@ -5,7 +5,7 @@ export const Role = {
 };
 
 export const Status = {
-  naCekanju: 'na-cekanju',
+  naCekanju: 'naCekanju',
   odbijen: 'odbijen',
   odobren: 'odobren',
 };

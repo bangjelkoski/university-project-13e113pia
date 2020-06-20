@@ -33,6 +33,7 @@ export default function init(sequelize) {
           STATUS.odobren,
           STATUS.odbijen,
         ]),
+        defaultValue: STATUS.naCekanju,
         allowNull: false,
       },
       username: {
@@ -54,16 +55,16 @@ export default function init(sequelize) {
         // eslint-disable-next-line no-param-reassign
         user.password = hash;
       }
-    } catch (err) {
-      throw new Error(err);
+    } catch (error) {
+      return ApiError.throw(error, 'Настала ја грешка.');
     }
   });
 
   Korisnik.prototype.isValidPassword = async function (pw) {
     try {
       return await bcrypt.compare(pw, this.password);
-    } catch (err) {
-      throw new Error(err);
+    } catch (error) {
+      return ApiError.throw(error, 'Настала ја грешка.');
     }
   };
 
@@ -72,22 +73,94 @@ export default function init(sequelize) {
    * when we send it as a response
    */
   Korisnik.prototype.toResponse = function (pw) {
-    const obj = { ...this.toJSON() };
+    const korisnik = { ...this.toJSON() };
 
-    delete obj.password;
+    delete korisnik.password;
 
-    return obj;
+    if (korisnik.role === ROLES.admin) {
+      delete korisnik.Poljoprivrednik;
+      delete korisnik.Preduzece;
+    } else if (korisnik.role === ROLES.preduzece) {
+      delete korisnik.Admin;
+      delete korisnik.Poljoprivrednik;
+    } else {
+      delete korisnik.Admin;
+      delete korisnik.Preduzece;
+    }
+
+    return korisnik;
   };
 
-  Korisnik.authenticate = async function (username, password) {
+  Korisnik.odbrisi = async function (id) {
     try {
-      const user = await Korisnik.findOne({ where: { username } });
-      if (await user.isValidPassword(password)) {
-        return user;
+      const korisnik = await Korisnik.findOne({ where: { id } });
+
+      if (!korisnik) {
+        throw new Error('Корисник није пронађен');
       }
+
+      return await korisnik.destroy();
     } catch (error) {
-      console.log;
-      throw new Error('Лозинке нису исте.');
+      return ApiError.throw(error, 'Настала ја грешка.');
+    }
+  };
+
+  Korisnik.odobri = async function (id) {
+    try {
+      const korisnik = await Korisnik.findOne({ where: { id } });
+
+      if (!korisnik) {
+        throw new Error('Корисник није пронађен');
+      }
+
+      return await korisnik.update({
+        status: STATUS.odobren,
+      });
+    } catch (error) {
+      return ApiError.throw(error, 'Настала ја грешка.');
+    }
+  };
+
+  Korisnik.promeniLozinku = async function ({
+    username,
+    password,
+    newPassword,
+  }) {
+    const korisnik = await Korisnik.findOne({ where: { username } });
+
+    if (!korisnik) {
+      return ApiError.throw({}, 'Корисник није пронађен');
+    }
+
+    try {
+      if (!(await korisnik.isValidPassword(password))) {
+        return ApiError.throw({}, 'Корисник није пронађен');
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const hash = await bcrypt.hash(newPassword, salt);
+
+      return await korisnik.update({
+        password: hash,
+      });
+    } catch (error) {
+      return ApiError.throw(error, 'Лозинке нису усте');
+    }
+  };
+
+  Korisnik.odbij = async function (id) {
+    try {
+      const korisnik = await Korisnik.findOne({ where: { id } });
+
+      if (!korisnik) {
+        return ApiError.throw({}, 'Корисник није пронађен');
+      }
+
+      return await korisnik.update({
+        status: STATUS.odbijen,
+      });
+    } catch (error) {
+      return ApiError.throw(error, 'Настала ја грешка.');
     }
   };
 

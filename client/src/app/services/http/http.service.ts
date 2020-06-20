@@ -7,25 +7,6 @@ import { StorageService } from '../storage/storage.service';
   providedIn: 'root',
 })
 export class HttpService {
-  constructor(private storageService: StorageService) {}
-
-  get(key: string): any {
-    this.storageService.get(key);
-  }
-
-  post(key: string, value: any): void {
-    this.storageService.set(key, value);
-  }
-
-  delete(key: string): void {
-    this.storageService.remove(key);
-  }
-}
-
-/**
- * When Server is ready
-
-export class HttpService {
   private axiosClient: AxiosInstance;
   private errorHandler: ErrorHandler;
 
@@ -33,7 +14,7 @@ export class HttpService {
     this.errorHandler = errorHandler;
 
     this.axiosClient = axios.create({
-      baseURL: '/api',
+      baseURL: 'http://localhost:3000',
       timeout: 3000,
       headers: {
         'X-Initialized-At': Date.now().toString(),
@@ -41,7 +22,7 @@ export class HttpService {
     });
   }
 
-  async get(endpoint, params) {
+  async get(endpoint, params = {}) {
     try {
       const { data } = await this.axiosClient.request({
         method: 'get',
@@ -49,9 +30,9 @@ export class HttpService {
         params,
       });
 
-      return { data };
+      return data;
     } catch (error) {
-      return Promise.reject(this.errorHandler.handleError(error));
+      throw new Error(error.response.data);
     }
   }
 
@@ -63,9 +44,9 @@ export class HttpService {
         data: params,
       });
 
-      return { data };
+      return data;
     } catch (error) {
-      return Promise.reject(this.errorHandler.handleError(error));
+      throw new Error(error.response.data);
     }
   }
 
@@ -77,9 +58,9 @@ export class HttpService {
         data: params,
       });
 
-      return { data };
+      return data;
     } catch (error) {
-      return Promise.reject(this.errorHandler.handleError(error));
+      throw new Error(error.response.data);
     }
   }
 
@@ -91,10 +72,9 @@ export class HttpService {
         data: params,
       });
 
-      return { data };
+      return data;
     } catch (error) {
-      return Promise.reject(this.errorHandler.handleError(error));
+      throw new Error(error.response.data);
     }
   }
 }
- */

@@ -1,10 +1,36 @@
 import db from '~/database/index';
+import { verify } from 'hcaptcha';
+import STATUS from '~/utils/status';
+import ROLES from '~/utils/roles';
+import ApiError from '~/handlers/ApiError';
 
 export const login = async (username, password) => {
+  let korisnik;
   try {
-    return await db.Korisnik.authenticate(username, password);
+    korisnik = await db.Korisnik.findOne({
+      where: { username },
+      include: [
+        {
+          model: db.Preduzece,
+        },
+        {
+          model: db.Poljoprivrednik,
+        },
+        {
+          model: db.Admin,
+        },
+      ],
+    });
   } catch (error) {
-    throw new Error('Корисник са подацима није пронађен.');
+    return ApiError.throw(error, 'Корисник није пронађен');
+  }
+
+  try {
+    if (await korisnik.isValidPassword(password)) {
+      return korisnik;
+    }
+  } catch (error) {
+    return ApiError.throw(error, 'Лозинке нису исте.');
   }
 };
 
@@ -18,24 +44,31 @@ export const registerPoljoprivrednik = async ({
   birthPlace,
   birthDate,
 }) => {
+  if (await db.Korisnik.findOne({ where: { username } })) {
+    throw new Error('Корисничко име је већ заузето.');
+  }
+
   try {
     const korisnik = await db.Korisnik.create({
       username,
       password,
       email,
+      role: ROLES.poljoprivrednik,
+      status: STATUS.naCekanju,
       phone,
     });
 
-    const poljoprivrednik = await korisnik.createPoljoprivrednik({
+    const poljoprivrednik = await db.Poljoprivrednik.create({
       firstName,
       lastName,
       birthPlace,
       birthDate,
+      KorisnikId: korisnik.id,
     });
 
     return [korisnik, poljoprivrednik];
   } catch (error) {
-    throw new Error('Регистрација корисника није успела.');
+    return ApiError.throw(error, 'Регистрација корисника није успела.');
   }
 };
 
@@ -48,22 +81,47 @@ export const registerPreduzece = async ({
   location,
   dateOfCreation,
 }) => {
+  if (await db.Korisnik.findOne({ where: { username } })) {
+    throw new Error('Корисничко име је већ заузето.');
+  }
+
   try {
     const korisnik = await db.Korisnik.create({
       username,
       password,
       email,
-      phone,
+      role: ROLES.preduzece,
+      status: STATUS.naCekanju,
+      phone: '',
     });
 
-    const preduzetnik = await korisnik.createPreduzetnik({
+    const preduzece = await db.Preduzece.create({
       name,
       location,
       dateOfCreation,
+      KorisnikId: korisnik.id,
     });
 
-    return [korisnik, preduzetnik];
+    return [korisnik, preduzece];
   } catch (error) {
-    throw new Error('Регистрација корисника није успела.');
+    return ApiError.throw(error, 'Регистрација корисника није успела.');
+  }
+};
+
+export const reset = async ({ username, password, newPassword }) => {
+  try {
+    await db.Korisnik.promeniLozinku({ username, password, newPassword });
+  } catch (error) {
+    return ApiError.throw(error, 'Настала ја грешка.');
+  }
+};
+
+export const captcha = async (token) => {
+  const secret = process.env.NO_CAPTCHA_SECRET;
+
+  try {
+    return await verify(secret, token);
+  } catch (error) {
+    return ApiError.throw(error, 'Настала ја грешка.');
   }
 };

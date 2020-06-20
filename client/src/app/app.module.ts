@@ -26,6 +26,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 import { AdminService } from './services/admin/admin.service';
 import { HttpService } from './services/http/http.service';
+import { NgHcaptchaModule } from 'ng-hcaptcha';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,9 @@ import { HttpService } from './services/http/http.service';
     BrowserAnimationsModule,
     ToastrModule.forRoot({
       positionClass: 'toast-bottom-right',
+    }),
+    NgHcaptchaModule.forRoot({
+      siteKey: '10000000-ffff-ffff-ffff-000000000001',
     }),
   ],
   providers: [

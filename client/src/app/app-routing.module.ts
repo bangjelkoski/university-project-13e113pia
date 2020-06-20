@@ -5,7 +5,7 @@ import { GuestGuardService } from './services/guards/guest/guest.service';
 import { AdminComponent } from './admin/admin.component';
 import { AuthGuardService } from './services/guards/auth/auth.service';
 import { RegisterComponent as RegisterPoljoprivrednikComponent } from './poljoprivrednik/auth/register/register.component';
-import { RegisterComponent as RegisterPreduzetnikComponent } from './preduzece/auth/register/register.component';
+import { RegisterComponent as RegisterPreduzeceComponent } from './preduzece/auth/register/register.component';
 import { AuthComponent } from './auth/auth.component';
 import { PasswordComponent } from './auth/password/password.component';
 import { NotFoundComponent } from './not-found/not-found.component';
@@ -36,8 +36,8 @@ const routes: Routes = [
         component: RegisterPoljoprivrednikComponent,
       },
       {
-        path: 'preduzetnik/register',
-        component: RegisterPreduzetnikComponent,
+        path: 'preduzece/register',
+        component: RegisterPreduzeceComponent,
       },
     ],
   },

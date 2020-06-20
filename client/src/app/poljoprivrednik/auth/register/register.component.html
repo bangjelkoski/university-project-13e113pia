@@ -4,7 +4,7 @@
       <app-logo></app-logo>
     </div>
     <h2 class="mt-6 text-3xl leading-9 font-extrabold text-gray-900">
-      Региструј своје предузеће на систем
+      Региструј се на систем
     </h2>
   </div>
 
@@ -62,7 +62,7 @@
               <span *ngIf="email.errors.required">
                 Мораш да попуниш ово поље.
               </span>
-              <span *ngIf="email.errors.pattern">
+              <span *ngIf="email.errors.email">
                 Унесите валидну електронску пошту.
               </span>
             </div>
@@ -103,7 +103,7 @@
               for="lastName"
               class="block text-sm font-medium leading-5 text-gray-700"
             >
-              Прежиме
+              Презиме
             </label>
             <div class="mt-1 rounded-md shadow-sm">
               <input
@@ -129,56 +129,54 @@
         <div class="flex -mx-4">
           <div class="mt-6 px-4 w-full lg:w-1/2">
             <label
-              for="dateOfBirth"
+              for="birthDate"
               class="block text-sm font-medium leading-5 text-gray-700"
             >
               Датум рађања
             </label>
             <div class="mt-1 rounded-md shadow-sm">
               <input
-                id="dateOfBirth"
+                id="birthDate"
                 type="date"
                 required
-                formControlName="dateOfBirth"
+                formControlName="birthDate"
                 class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
               />
             </div>
             <div
               class="text-xs text-red-500 mt-1"
               *ngIf="
-                dateOfBirth.invalid &&
-                (dateOfBirth.dirty || dateOfBirth.touched)
+                birthDate.invalid && (birthDate.dirty || birthDate.touched)
               "
             >
-              <span *ngIf="dateOfBirth.errors.required">
+              <span *ngIf="birthDate.errors.required">
                 Мораш да попуниш ово поље.
               </span>
             </div>
           </div>
           <div class="mt-6 px-4 w-full lg:w-1/2">
             <label
-              for="placeOfBirth"
+              for="birthPlace"
               class="block text-sm font-medium leading-5 text-gray-700"
             >
               Место рађања
             </label>
             <div class="mt-1 rounded-md shadow-sm">
               <input
-                id="placeOfBirth"
+                id="birthPlace"
                 type="text"
                 required
-                formControlName="placeOfBirth"
+                formControlName="birthPlace"
                 class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
               />
             </div>
             <div
               class="text-xs text-red-500 mt-1"
               *ngIf="
-                placeOfBirth.invalid &&
-                (placeOfBirth.dirty || placeOfBirth.touched)
+                birthPlace.invalid && (birthPlace.dirty || birthPlace.touched)
               "
             >
-              <span *ngIf="placeOfBirth.errors.required">
+              <span *ngIf="birthPlace.errors.required">
                 Мораш да попуниш ово поље.
               </span>
             </div>
@@ -225,7 +223,7 @@
             <div class="mt-1 rounded-md shadow-sm">
               <input
                 id="password"
-                type="text"
+                type="password"
                 formControlName="password"
                 required
                 class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
@@ -256,7 +254,7 @@
             <div class="mt-1 rounded-md shadow-sm">
               <input
                 id="passwordConfirmation"
-                type="text"
+                type="password"
                 formControlName="passwordConfirmation"
                 required
                 class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
@@ -277,6 +275,10 @@
               </span>
             </div>
           </div>
+        </div>
+
+        <div class="mt-6">
+          <ng-hcaptcha formControlName="captcha"></ng-hcaptcha>
         </div>
 
         <div class="mt-6 flex items-center justify-end">

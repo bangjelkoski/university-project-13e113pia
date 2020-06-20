@@ -41,19 +41,19 @@ export class LoginComponent {
     this.router.navigate(['auth/password']);
   }
 
-  onGoToRegisterAsPreduzetnik() {
-    this.router.navigate(['auth/preduzetnik/register']);
+  onGoToRegisterAsPreduzece() {
+    this.router.navigate(['auth/preduzece/register']);
   }
 
   onGoToRegisterAsPoljoprivrednik() {
     this.router.navigate(['auth/poljoprivrednik/register']);
   }
 
-  onSubmit() {
-    this.authService.login({
-      username: this.username,
-      password: this.password,
-      rememberMe: this.rememberMe,
+  async onSubmit() {
+    await this.authService.login({
+      username: this.username.value,
+      password: this.password.value,
+      rememberMe: this.rememberMe.value,
     });
   }
 }

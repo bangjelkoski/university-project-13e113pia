@@ -9,9 +9,9 @@ const chance = new Chance();
 
 const korisnici = [
   {
-    username: 'bojan',
-    password: '123456',
-    email: 'bangjelkoskii@gmail.com',
+    username: 'pia',
+    password: 'Pia123!@#',
+    email: 'pia@etf.rs',
     phone: '123456',
     status: Status.odobren,
     role: Roles.admin,

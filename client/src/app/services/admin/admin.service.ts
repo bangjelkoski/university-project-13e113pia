@@ -20,7 +20,7 @@ export class AdminService implements OnInit {
   }
 
   async getTotalKorisnici() {
-    const korisnici = this.httpService.get('korisnici');
+    const korisnici = await this.httpService.get('korisnici');
 
     return korisnici.length;
   }
