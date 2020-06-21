@@ -20,7 +20,7 @@ export default function init(sequelize) {
       allowNull: false,
     },
     price: {
-      type: DataTypes.DECIMAL,
+      type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
     },
     quantity: {

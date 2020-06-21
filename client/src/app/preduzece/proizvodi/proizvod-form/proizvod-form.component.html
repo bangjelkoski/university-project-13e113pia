@@ -1,0 +1,270 @@
+<div class="bg-gray-50 pt-12 sm:pt-16">
+  <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto text-center">
+      <h2
+        class="text-3xl leading-9 font-extrabold text-gray-900 sm:text-4xl sm:leading-10"
+      >
+        Креирај нови производ
+      </h2>
+    </div>
+  </div>
+
+  <div class="mt-8">
+    <div class="w-full mx-auto lg:w-2/3">
+      <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+        <div class="flex -mx-4">
+          <div class="px-4 w-full lg:w/1-2">
+            <label
+              for="name"
+              class="block text-sm font-medium leading-5 text-gray-700"
+            >
+              Име производа
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <input
+                id="name"
+                type="text"
+                placeholder="Монголија"
+                required
+                formControlName="name"
+                class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+              />
+            </div>
+            <div
+              class="text-xs text-red-500 mt-1"
+              *ngIf="name.invalid && (name.dirty || name.touched)"
+            >
+              <span *ngIf="name.errors.required">
+                Мораш да попуниш ово поље.
+              </span>
+            </div>
+          </div>
+          <div class="px-4 w-full lg:w/1-2">
+            <label
+              for="manufacturer"
+              class="block text-sm font-medium leading-5 text-gray-700"
+            >
+              Произвођач
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <input
+                id="manufacturer"
+                type="text"
+                placeholder="НГ д.о.о"
+                required
+                formControlName="manufacturer"
+                class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+              />
+            </div>
+            <div
+              class="text-xs text-red-500 mt-1"
+              *ngIf="
+                manufacturer.invalid &&
+                (manufacturer.dirty || manufacturer.touched)
+              "
+            >
+              <span *ngIf="manufacturer.errors.required">
+                Мораш да попуниш ово поље.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex -mx-4">
+          <div class="mt-6 px-4 w-full lg:w/1-2">
+            <label
+              for="image"
+              class="block text-sm font-medium leading-5 text-gray-700"
+            >
+              Слика производа (линк)
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <input
+                id="image"
+                type="text"
+                placeholder="https://"
+                required
+                formControlName="image"
+                class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+              />
+            </div>
+            <div
+              class="text-xs text-red-500 mt-1"
+              *ngIf="image.invalid && (image.dirty || image.touched)"
+            >
+              <span *ngIf="image.errors.required">
+                Мораш да попуниш ово поље.
+              </span>
+            </div>
+          </div>
+          <div class="mt-6 px-4 w-full lg:w/1-2">
+            <label
+              for="type"
+              class="block text-sm font-medium leading-5 text-gray-700"
+            >
+              Тип производа
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <select
+                id="type"
+                formControlName="type"
+                required
+                class="appearance-none bg-white block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+              >
+                <option value="">&mdash;</option>
+                <option value="sadnica">Садница</option>
+                <option value="preparat">Препарат</option>
+              </select>
+            </div>
+            <div
+              class="text-xs text-red-500 mt-1"
+              *ngIf="type.invalid && (type.dirty || type.touched)"
+            >
+              <span *ngIf="type.errors.required">
+                Мораш да попуниш ово поље.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 w-full">
+          <label
+            for="description"
+            class="block text-sm font-medium leading-5 text-gray-700"
+          >
+            Oпис производа
+          </label>
+          <div class="mt-1 rounded-md shadow-sm">
+            <textarea
+              id="description"
+              type="date"
+              required
+              formControlName="description"
+              class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+            ></textarea>
+          </div>
+          <div
+            class="text-xs text-red-500 mt-1"
+            *ngIf="
+              description.invalid && (description.dirty || description.touched)
+            "
+          >
+            <span *ngIf="description.errors.required">
+              Мораш да попуниш ово поље.
+            </span>
+          </div>
+        </div>
+
+        <div class="flex -mx-4">
+          <div class="mt-6 px-4 w-full lg:w/1-2">
+            <label
+              for="price"
+              class="block text-sm font-medium leading-5 text-gray-700"
+            >
+              Цена
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <input
+                id="price"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="10.00"
+                required
+                formControlName="price"
+                class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+              />
+            </div>
+            <div
+              class="text-xs text-red-500 mt-1"
+              *ngIf="price.invalid && (price.dirty || price.touched)"
+            >
+              <span *ngIf="price.errors.required">
+                Мораш да попуниш ово поље.
+              </span>
+              <span *ngIf="price.errors.min">
+                Цена мора бити већа од 0
+              </span>
+            </div>
+          </div>
+          <div class="mt-6 px-4 w-full lg:w/1-2">
+            <label
+              for="quantity"
+              class="block text-sm font-medium leading-5 text-gray-700"
+            >
+              Количина
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <input
+                id="quantity"
+                type="number"
+                min="0"
+                step="1"
+                placeholder="100"
+                required
+                formControlName="quantity"
+                class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+              />
+            </div>
+            <div
+              class="text-xs text-red-500 mt-1"
+              *ngIf="quantity.invalid && (quantity.dirty || quantity.touched)"
+            >
+              <span *ngIf="quantity.errors.required">
+                Мораш да попуниш ово поље.
+              </span>
+              <span *ngIf="quantity.errors.min">
+                Количина мора бити већа од 0
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 w-full">
+          <label
+            for="value"
+            class="block text-sm font-medium leading-5 text-gray-700"
+          >
+            Време развијања за садник | Време убрзање раста за препарат (у
+            милисекундима)
+          </label>
+          <div class="mt-1 rounded-md shadow-sm">
+            <input
+              id="value"
+              type="number"
+              min="0"
+              step="1"
+              placeholder="176000"
+              required
+              formControlName="value"
+              class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+            />
+          </div>
+          <div
+            class="text-xs text-red-500 mt-1"
+            *ngIf="value.invalid && (value.dirty || value.touched)"
+          >
+            <span *ngIf="value.errors.required">
+              Мораш да попуниш ово поље.
+            </span>
+            <span *ngIf="value.errors.min">
+              Вредност мора бити већа од 0
+            </span>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <span class="block w-full rounded-md shadow-sm">
+            <button
+              type="submit"
+              [disabled]="!createForm.valid"
+              class="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:border-blue-700 focus:shadow-outline-blue active:bg-blue-700 transition duration-150 ease-in-out"
+            >
+              Креирај производ
+            </button>
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

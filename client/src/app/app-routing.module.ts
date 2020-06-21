@@ -18,6 +18,8 @@ import { PoljoprivredniciComponent as AdminPoljoprivredniciComponent } from './a
 import { PreduzecaComponent as AdminPreduzecaComponent } from './admin/preduzeca/preduzeca.component';
 import { ProizvodiComponent as PreduzeceProizvodiComponent } from './preduzece/proizvodi/proizvodi.component';
 import { KorisnikComponent as AdminKorisnikComponent } from './admin/korisnik/korisnik.component';
+import { ProizvodComponent as PreduzeceProizvodComponent } from './preduzece/proizvodi/proizvod/proizvod.component';
+import { ProizvodFormComponent as PreduzeceProizvodFormComponent } from './preduzece/proizvodi/proizvod-form/proizvod-form.component';
 
 const routes: Routes = [
   {
@@ -64,6 +66,14 @@ const routes: Routes = [
       {
         path: 'proizvodi',
         component: PreduzeceProizvodiComponent,
+      },
+      {
+        path: 'proizvodi/new',
+        component: PreduzeceProizvodFormComponent,
+      },
+      {
+        path: 'proizvodi/:id',
+        component: PreduzeceProizvodComponent,
       },
     ],
   },

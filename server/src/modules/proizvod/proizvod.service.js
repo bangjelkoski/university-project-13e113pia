@@ -1,9 +1,20 @@
 import db from '~/database/index';
+import ApiError from '~/handlers/ApiError';
 
 export const proizvod = async (id) => {
   try {
     return await db.Proizvod.findOne({
       where: { id },
+      include: [
+        {
+          model: db.Ocena,
+          as: 'Ocene',
+        },
+        {
+          model: db.Komentar,
+          as: 'Komentari',
+        },
+      ],
     });
   } catch (error) {
     return ApiError.throw(error, 'Производ није пронађен');
@@ -20,13 +31,29 @@ export const proizvodi = async (PreduzeceId) => {
   }
 };
 
-export const azuriraj = async ({ id, name }) => {
+export const kreiraj = async ({
+  PreduzeceId,
+  name,
+  manufacturer,
+  description,
+  image,
+  price,
+  type,
+  quantity,
+  value,
+}) => {
   try {
-    const proizvod = await db.Proizvod.findOne({
-      where: { id },
+    await db.Proizvod.create({
+      PreduzeceId,
+      name,
+      manufacturer,
+      description,
+      image,
+      price,
+      type,
+      quantity,
+      value,
     });
-
-    await proizvod.update({ name });
   } catch (error) {
     return ApiError.throw(error, 'Настала ја грешка');
   }

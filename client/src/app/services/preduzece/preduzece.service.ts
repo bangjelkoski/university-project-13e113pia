@@ -33,6 +33,46 @@ export class PreduzeceService {
     return await this.httpService.get(`proizvodi/${this.preduzece.id}`);
   }
 
+  async getKomentari(proizvodId) {
+    return await this.httpService.get(`komentari/${proizvodId}`);
+  }
+
+  async getOcene(proizvodId) {
+    return await this.httpService.get(`ocene/${proizvodId}`);
+  }
+
+  async getProizvod(id) {
+    return await this.httpService.get(`proizvodi/${this.preduzece.id}/${id}`);
+  }
+
+  async kreirajProizvoda({
+    name,
+    manufacturer,
+    description,
+    image,
+    price,
+    type,
+    quantity,
+    value,
+  }) {
+    try {
+      await this.httpService.post(`proizvodi/${this.preduzece.id}`, {
+        name,
+        manufacturer,
+        description,
+        image,
+        price,
+        type,
+        quantity,
+        value,
+      });
+      this.toast.success('Успешнo креиран производ.');
+      this.router.navigate(['/preduzece/proizvodi']);
+    } catch (error) {
+      return this.toast.error(error.message);
+    }
+  }
+
   async dodeliKurira(id, narudzbinaId) {
     try {
       // Demo
@@ -70,6 +110,15 @@ export class PreduzeceService {
         `narudzbine/${this.preduzece.id}/${id}/odbij`
       );
       this.toast.success('Успешна одбијенa наруђбина.');
+    } catch (error) {
+      return this.toast.error(error.message);
+    }
+  }
+
+  async obrisiProizvod(id: string) {
+    try {
+      await this.httpService.delete(`proizvodi/${this.preduzece.id}/${id}`);
+      this.toast.success('Успешнo обрисан производ.');
     } catch (error) {
       return this.toast.error(error.message);
     }

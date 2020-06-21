@@ -39,6 +39,8 @@ import { ChartComponent as PreduzeceDashboardChartComponent } from './preduzece/
 import { NarudzbineComponent as PreduzeceNarudzbineComponent } from './preduzece/dashboard/narudzbine/narudzbine.component';
 import { ChartsModule } from 'ng2-charts';
 import { KurirComponent as PreduzeceKurirComponent } from './preduzece/dashboard/kurir/kurir.component';
+import { ProizvodComponent as PreduzeceProizvodComponent } from './preduzece/proizvodi/proizvod/proizvod.component';
+import { ProizvodFormComponent as PreduzeceProizvodFormComponent } from './preduzece/proizvodi/proizvod-form/proizvod-form.component';
 
 @NgModule({
   declarations: [
@@ -63,6 +65,8 @@ import { KurirComponent as PreduzeceKurirComponent } from './preduzece/dashboard
     PreduzeceDashboardChartComponent,
     PreduzeceNarudzbineComponent,
     PreduzeceKurirComponent,
+    PreduzeceProizvodComponent,
+    PreduzeceProizvodFormComponent,
   ],
   imports: [
     BrowserModule,

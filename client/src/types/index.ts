@@ -16,6 +16,11 @@ export const OrderStatus = {
   odobrena: 'odobrena',
 };
 
+export const TipProizvoda = {
+  sadnica: 'sadnica',
+  preparat: 'preparat',
+};
+
 export interface Korisnik {
   id?: string;
   email: string;

@@ -10,6 +10,12 @@ router.get(
   validator.params(validation.proizvodi),
   controller.proizvodi
 );
+router.post(
+  '/:preduzeceId',
+  validator.params(validation.kreirajParams),
+  validator.body(validation.kreiraj),
+  controller.kreiraj
+);
 
 router.get(
   '/:preduzeceId/:id',

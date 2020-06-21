@@ -5,6 +5,8 @@ import korisnikRoutes from '~/modules/korisnik/korisnik.routes';
 import narudzbinaRoutes from '~/modules/narudzbina/narudzbina.routes';
 import proizvodRoutes from '~/modules/proizvod/proizvod.routes';
 import kurirRoutes from '~/modules/kurir/kurir.routes';
+import ocenaRoutes from '~/modules/ocena/ocena.routes';
+import komentarRoutes from '~/modules/komentar/komentar.routes';
 import listEndpoints from 'express-list-endpoints';
 
 const router = Router();
@@ -21,6 +23,8 @@ router.use('/korisnici/', korisnikRoutes);
 router.use('/proizvodi/', proizvodRoutes);
 router.use('/narudzbine/', narudzbinaRoutes);
 router.use('/kuriri/', kurirRoutes);
+router.use('/komentari/', komentarRoutes);
+router.use('/ocene/', ocenaRoutes);
 
 router.all('*', async (req, res) => {
   res.status(HTTPStatus.NOT_FOUND).json('Страница није пронађена');

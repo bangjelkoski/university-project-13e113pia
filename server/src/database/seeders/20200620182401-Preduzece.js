@@ -38,7 +38,7 @@ const naruceniProizvod = (preduzeceId, narduzbinaId, proizvodId) => {
 };
 
 const komentari = (proizvodId) => {
-  return Array.from(Array(20), () => ({
+  return Array.from(Array(5), () => ({
     komentar: chance.sentence(),
     ProizvodId: proizvodId,
   }));

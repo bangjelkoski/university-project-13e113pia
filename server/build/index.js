@@ -472,7 +472,7 @@ function init$5(sequelize) {
       allowNull: false
     },
     price: {
-      type: Sequelize.DataTypes.DECIMAL,
+      type: Sequelize.DataTypes.DECIMAL(10, 2),
       allowNull: false
     },
     quantity: {
@@ -1649,10 +1649,25 @@ router$2.post('/:preduzeceId/:id/odobri', validator.params(odobri$3), odobri$5);
 router$2.get('/:preduzeceId/:id', validator.params(narudzbina), narudzbina$2);
 
 var azurirajParams$1 = Joi.object({
-  id: Joi.number().required()
+  id: Joi.number().required(),
+  preduzeceId: Joi.number().required()
 });
 var proizvod = Joi.object({
-  id: Joi.number().required()
+  id: Joi.number().required(),
+  preduzeceId: Joi.number().required()
+});
+var kreirajParams = Joi.object({
+  preduzeceId: Joi.number().required()
+});
+var kreiraj = Joi.object({
+  name: Joi.string().required(),
+  manufacturer: Joi.string().required(),
+  description: Joi.string().required(),
+  image: Joi.string().required(),
+  price: Joi.number().required(),
+  type: Joi.string().required(),
+  quantity: Joi.number().required(),
+  value: Joi.number().required()
 });
 var proizvodi = Joi.object({
   preduzeceId: Joi.number().required()
@@ -1661,7 +1676,8 @@ var azuriraj$3 = Joi.object({
   name: Joi.string().required()
 });
 var obrisi$3 = Joi.object({
-  id: Joi.number().required()
+  id: Joi.number().required(),
+  preduzeceId: Joi.number().required()
 });
 
 var proizvod$1 = /*#__PURE__*/function () {
@@ -1670,10 +1686,17 @@ var proizvod$1 = /*#__PURE__*/function () {
       return yield db.Proizvod.findOne({
         where: {
           id
-        }
+        },
+        include: [{
+          model: db.Ocena,
+          as: 'Ocene'
+        }, {
+          model: db.Komentar,
+          as: 'Komentari'
+        }]
       });
     } catch (error) {
-      return ApiError.throw(error, 'Производ није пронађен');
+      return ApiError$1.throw(error, 'Производ није пронађен');
     }
   });
 
@@ -1690,7 +1713,7 @@ var proizvodi$1 = /*#__PURE__*/function () {
         }
       });
     } catch (error) {
-      return ApiError.throw(error, 'Настала ја грешка');
+      return ApiError$1.throw(error, 'Настала ја грешка');
     }
   });
 
@@ -1698,13 +1721,43 @@ var proizvodi$1 = /*#__PURE__*/function () {
     return _ref2.apply(this, arguments);
   };
 }();
-var azuriraj$4 = /*#__PURE__*/function () {
+var kreiraj$1 = /*#__PURE__*/function () {
   var _ref4 = _asyncToGenerator(function* (_ref3) {
     var {
-      id,
-      name
+      PreduzeceId,
+      name,
+      manufacturer,
+      description,
+      image,
+      price,
+      type,
+      quantity,
+      value
     } = _ref3;
 
+    try {
+      yield db.Proizvod.create({
+        PreduzeceId,
+        name,
+        manufacturer,
+        description,
+        image,
+        price,
+        type,
+        quantity,
+        value
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка');
+    }
+  });
+
+  return function kreiraj(_x3) {
+    return _ref4.apply(this, arguments);
+  };
+}();
+var obrisi$4 = /*#__PURE__*/function () {
+  var _ref5 = _asyncToGenerator(function* (id) {
     try {
       var _proizvod = yield db.Proizvod.findOne({
         where: {
@@ -1712,30 +1765,9 @@ var azuriraj$4 = /*#__PURE__*/function () {
         }
       });
 
-      yield _proizvod.update({
-        name
-      });
+      yield _proizvod.destroy();
     } catch (error) {
-      return ApiError.throw(error, 'Настала ја грешка');
-    }
-  });
-
-  return function azuriraj(_x3) {
-    return _ref4.apply(this, arguments);
-  };
-}();
-var obrisi$4 = /*#__PURE__*/function () {
-  var _ref5 = _asyncToGenerator(function* (id) {
-    try {
-      var _proizvod2 = yield db.Proizvod.findOne({
-        where: {
-          id
-        }
-      });
-
-      yield _proizvod2.destroy();
-    } catch (error) {
-      return ApiError.throw(error, 'Настала ја грешка');
+      return ApiError$1.throw(error, 'Настала ја грешка');
     }
   });
 
@@ -1743,6 +1775,14 @@ var obrisi$4 = /*#__PURE__*/function () {
     return _ref5.apply(this, arguments);
   };
 }();
+
+var proizvodService = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  proizvod: proizvod$1,
+  proizvodi: proizvodi$1,
+  kreiraj: kreiraj$1,
+  obrisi: obrisi$4
+});
 
 var proizvod$2 = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (req, res) {
@@ -1782,7 +1822,7 @@ var proizvodi$2 = /*#__PURE__*/function () {
     return _ref2.apply(this, arguments);
   };
 }();
-var azuriraj$5 = /*#__PURE__*/function () {
+var azuriraj$4 = /*#__PURE__*/function () {
   var _ref3 = _asyncToGenerator(function* (req, res) {
     var {
       id
@@ -1792,7 +1832,7 @@ var azuriraj$5 = /*#__PURE__*/function () {
     } = req.body;
 
     try {
-      yield azuriraj$4({
+      yield undefined({
         id,
         name
       });
@@ -1812,7 +1852,7 @@ var obrisi$5 = /*#__PURE__*/function () {
   var _ref4 = _asyncToGenerator(function* (req, res, next) {
     var {
       id
-    } = req.body;
+    } = req.params;
 
     try {
       yield obrisi$4(id);
@@ -1828,11 +1868,52 @@ var obrisi$5 = /*#__PURE__*/function () {
     return _ref4.apply(this, arguments);
   };
 }();
+var kreiraj$2 = /*#__PURE__*/function () {
+  var _ref5 = _asyncToGenerator(function* (req, res, next) {
+    var {
+      preduzeceId
+    } = req.params;
+    var {
+      name,
+      manufacturer,
+      description,
+      image,
+      price,
+      type,
+      quantity,
+      value
+    } = req.body;
+
+    try {
+      yield kreiraj$1({
+        PreduzeceId: preduzeceId,
+        name,
+        manufacturer,
+        description,
+        image,
+        price,
+        type,
+        quantity,
+        value
+      });
+      res.json({
+        message: 'Успешно креиран производ.'
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function kreiraj(_x10, _x11, _x12) {
+    return _ref5.apply(this, arguments);
+  };
+}();
 
 var router$3 = express.Router();
 router$3.get('/:preduzeceId', validator.params(proizvodi), proizvodi$2);
+router$3.post('/:preduzeceId', validator.params(kreirajParams), validator.body(kreiraj), kreiraj$2);
 router$3.get('/:preduzeceId/:id', validator.params(proizvod), proizvod$2);
-router$3.post('/:preduzeceId/:id', validator.params(azurirajParams$1), validator.body(azuriraj$3), azuriraj$5);
+router$3.post('/:preduzeceId/:id', validator.params(azurirajParams$1), validator.body(azuriraj$3), azuriraj$4);
 router$3.delete('/:preduzeceId/:id', validator.params(obrisi$3), obrisi$5);
 
 var kuriri = Joi.object({
@@ -1967,19 +2048,117 @@ var router$4 = express.Router();
 router$4.post('/dodeli', validator.body(dodeli), dodeli$2);
 router$4.get('/:preduzeceId', validator.params(kuriri), kuriri$2);
 
+var ocene = Joi.object({
+  proizvodId: Joi.number().required()
+});
+
+var ocene$1 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (ProizvodId) {
+    try {
+      return yield db.Ocena.findAll({
+        where: {
+          ProizvodId
+        },
+        include: [{
+          model: db.Korisnik
+        }]
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Оцене нису пронађене');
+    }
+  });
+
+  return function ocene(_x) {
+    return _ref.apply(this, arguments);
+  };
+}();
+
+var ocene$2 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (req, res) {
+    var {
+      proizvodId
+    } = req.params;
+
+    try {
+      var _ocene = yield ocene$1(proizvodId);
+
+      res.json(_ocene);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function ocene(_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
+
 var router$5 = express.Router();
-router$5.get('/', (req, res) => {
+router$5.get('/:proizvodId', validator.params(ocene), ocene$2);
+
+var komentari = Joi.object({
+  proizvodId: Joi.number().required()
+});
+
+var komentari$1 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (ProizvodId) {
+    try {
+      return yield db.Komentar.findAll({
+        where: {
+          ProizvodId
+        },
+        include: [{
+          model: db.Korisnik
+        }]
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Коментари нису пронађени');
+    }
+  });
+
+  return function komentari(_x) {
+    return _ref.apply(this, arguments);
+  };
+}();
+
+var komentari$2 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (req, res) {
+    var {
+      proizvodId
+    } = req.params;
+
+    try {
+      var _komentari = yield komentari$1(proizvodId);
+
+      res.json(_komentari);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function komentari(_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
+
+var router$6 = express.Router();
+router$6.get('/:proizvodId', validator.params(komentari), komentari$2);
+
+var router$7 = express.Router();
+router$7.get('/', (req, res) => {
   res.json({
     statusCode: HTTPStatus.OK,
     message: 'Welcome to 13e113pia project API'
   });
 });
-router$5.use('/auth/', router);
-router$5.use('/korisnici/', router$1);
-router$5.use('/proizvodi/', router$3);
-router$5.use('/narudzbine/', router$2);
-router$5.use('/kuriri/', router$4);
-router$5.all('*', /*#__PURE__*/function () {
+router$7.use('/auth/', router);
+router$7.use('/korisnici/', router$1);
+router$7.use('/proizvodi/', router$3);
+router$7.use('/narudzbine/', router$2);
+router$7.use('/kuriri/', router$4);
+router$7.use('/komentari/', router$6);
+router$7.use('/ocene/', router$5);
+router$7.all('*', /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (req, res) {
     res.status(HTTPStatus.NOT_FOUND).json('Страница није пронађена');
   });
@@ -1988,7 +2167,7 @@ router$5.all('*', /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }());
-console.log(listEndpoints(router$5));
+console.log(listEndpoints(router$7));
 
 var app = express__default();
 var log = debug('app');
@@ -2023,7 +2202,7 @@ db.sequelize.authenticate().then(() => {
  * API Routes
  */
 
-app.use(router$5);
+app.use(router$7);
 /**
  * Validation Errors
  */
