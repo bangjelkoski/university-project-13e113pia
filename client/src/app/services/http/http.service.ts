@@ -36,7 +36,7 @@ export class HttpService {
     }
   }
 
-  async post(endpoint, params) {
+  async post(endpoint, params = {}) {
     try {
       const { data } = await this.axiosClient.request({
         method: 'post',
@@ -50,7 +50,7 @@ export class HttpService {
     }
   }
 
-  async patch(endpoint, params) {
+  async patch(endpoint, params = {}) {
     try {
       const { data } = await this.axiosClient.request({
         method: 'patch',
@@ -64,7 +64,7 @@ export class HttpService {
     }
   }
 
-  async delete(endpoint, params) {
+  async delete(endpoint, params = {}) {
     try {
       const { data } = await this.axiosClient.request({
         method: 'delete',

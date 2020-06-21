@@ -37,7 +37,6 @@ export class PreduzecaComponent implements OnInit {
   }
 
   async izmeni({ id }) {
-    console.log(id);
     this.router.navigate([`/admin/korisnik/${id}`]);
   }
 
@@ -49,7 +48,7 @@ export class PreduzecaComponent implements OnInit {
   async odobri({ id }) {
     await this.adminService.odobri(id);
     this.preduzeca = this.preduzeca.map((korisnik) => {
-      if (!korisnik.id === id) {
+      if (!(korisnik.id === id)) {
         return korisnik;
       }
 
@@ -63,7 +62,7 @@ export class PreduzecaComponent implements OnInit {
   async odbij({ id }) {
     await this.adminService.odbij(id);
     this.preduzeca = this.preduzeca.map((korisnik) => {
-      if (!korisnik.id === id) {
+      if (!(korisnik.id === id)) {
         return korisnik;
       }
 

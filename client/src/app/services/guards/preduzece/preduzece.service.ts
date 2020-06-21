@@ -25,8 +25,10 @@ export class PreduzeceGuardService implements CanActivate {
           return: state.url,
         },
       });
+
+      return false;
     }
 
-    return false;
+    return true;
   }
 }

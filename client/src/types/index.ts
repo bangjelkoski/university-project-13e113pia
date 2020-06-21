@@ -10,6 +10,12 @@ export const Status = {
   odobren: 'odobren',
 };
 
+export const OrderStatus = {
+  naCekanju: 'naCekanju',
+  odbijena: 'odbijena',
+  odobrena: 'odobrena',
+};
+
 export interface Korisnik {
   id?: string;
   email: string;

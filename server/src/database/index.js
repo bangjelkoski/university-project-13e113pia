@@ -4,7 +4,6 @@ import korisnikInit from '~/modules/korisnik/korisnik.model';
 import preduzeceInit from '~/modules/preduzece/preduzece.model';
 import adminInit from '~/modules/admin/admin.model';
 import poljoprivrednikInit from '~/modules/poljoprivrednik/poljoprivrednik.model';
-import magacinInit from '~/modules/magacin/magacin.model';
 import ocenaInit from '~/modules/ocena/ocena.model';
 import proizvodInit from '~/modules/proizvod/proizvod.model';
 import narudzbinaInit from '~/modules/narudzbina/narudzbina.model';
@@ -33,9 +32,8 @@ const Komentar = komentarInit(sequelize);
 const Ocena = ocenaInit(sequelize);
 const Kurir = kurirInit(sequelize);
 const Rasadnik = rasadnikInit(sequelize);
-const Magacin = magacinInit(sequelize);
 const Narudzbina = narudzbinaInit(sequelize);
-const [Proizvod, KupljeniProizvod] = proizvodInit(sequelize);
+const [Proizvod, NaruceniProizvod] = proizvodInit(sequelize);
 
 /**
  * Relationships
@@ -43,15 +41,25 @@ const [Proizvod, KupljeniProizvod] = proizvodInit(sequelize);
 Korisnik.hasOne(Admin);
 Korisnik.hasOne(Poljoprivrednik);
 Korisnik.hasOne(Preduzece);
-Korisnik.hasMany(Komentar);
-Korisnik.hasMany(Ocena);
+Korisnik.hasMany(Komentar, {
+  as: 'Komentari',
+});
+Korisnik.hasMany(Ocena, {
+  as: 'Ocene',
+});
 
-Proizvod.hasMany(Ocena);
-Proizvod.hasMany(Komentar);
+Proizvod.hasMany(Ocena, {
+  as: 'Ocene',
+});
+Proizvod.hasMany(Komentar, {
+  as: 'Komentari',
+});
 
-Preduzece.hasMany(Kurir);
+Preduzece.hasMany(Kurir, {
+  as: 'Kuriri',
+});
 
-Rasadnik.hasMany(Magacin);
+Rasadnik.hasOne(Narudzbina);
 Rasadnik.belongsTo(Poljoprivrednik);
 
 Admin.belongsTo(Korisnik);
@@ -65,20 +73,21 @@ Ocena.belongsTo(Korisnik);
 Ocena.belongsTo(Proizvod);
 
 Kurir.belongsTo(Preduzece);
-Kurir.belongsTo(Narudzbina);
-
-Magacin.hasMany(Narudzbina);
-Magacin.belongsTo(Rasadnik);
+Kurir.hasOne(Narudzbina);
 
 Narudzbina.belongsTo(Preduzece);
-Narudzbina.belongsTo(Magacin);
-Narudzbina.hasOne(Kurir);
+Narudzbina.belongsTo(Kurir);
+Narudzbina.belongsTo(Rasadnik);
+Narudzbina.hasMany(NaruceniProizvod, {
+  as: 'NaruceniProizvodi',
+});
 
 Proizvod.belongsTo(Preduzece);
-Proizvod.hasMany(Komentar);
 
-KupljeniProizvod.hasMany(Narudzbina);
-KupljeniProizvod.hasMany(Ocena);
+NaruceniProizvod.belongsTo(Narudzbina);
+NaruceniProizvod.belongsTo(Proizvod, {
+  onDelete: 'SET NULL',
+});
 
 const db = {
   sequelize,
@@ -91,10 +100,9 @@ const db = {
   Ocena,
   Kurir,
   Rasadnik,
-  Magacin,
   Narudzbina,
   Proizvod,
-  KupljeniProizvod,
+  NaruceniProizvod,
 };
 
 export default db;

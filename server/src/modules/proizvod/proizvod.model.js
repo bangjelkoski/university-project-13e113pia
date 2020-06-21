@@ -32,8 +32,8 @@ export default function init(sequelize) {
       allowNull: false,
     },
     value: {
-      // Ili vreme ubrzanja ili vreme razvoja zavisi za tip
-      type: DataTypes.DATE,
+      // Ili vreme ubrzanja ili vreme razvoja zavisi za tip u ms
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
   };
@@ -44,8 +44,8 @@ export default function init(sequelize) {
 
   const Proizvod = sequelize.define('Proizvod', schema, tableParams);
 
-  const KupljeniProizvod = sequelize.define(
-    'KupljeniProizvod',
+  const NaruceniProizvod = sequelize.define(
+    'NaruceniProizvod',
     schema,
     tableParams
   );
@@ -58,5 +58,5 @@ export default function init(sequelize) {
     //
   };
 
-  return [Proizvod, KupljeniProizvod];
+  return [Proizvod, NaruceniProizvod];
 }

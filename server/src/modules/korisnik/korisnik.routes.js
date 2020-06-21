@@ -5,28 +5,24 @@ import * as controller from './korisnik.controller';
 
 const router = Router();
 
-router.post('/odbij', validator.body(validation.odbij), controller.odbij);
-router.post('/odobri', validator.body(validation.odobri), controller.odobri);
+router.get('/na-cekanju', controller.korisniciNaCekanju);
+router.get('/poljoprivrednici', controller.poljoprivrednici);
+router.get('/preduzeca', controller.preduzeca);
 
-router.get(
-  '/korisnik/:id',
-  validator.params(validation.korisnik),
-  controller.korisnik
-);
+router.post('/:id/odbij', validator.params(validation.odbij), controller.odbij);
 router.post(
-  '/korisnik/:id',
+  '/:id/odobri',
+  validator.params(validation.odobri),
+  controller.odobri
+);
+
+router.get('/:id', validator.params(validation.korisnik), controller.korisnik);
+router.post(
+  '/:id',
   validator.params(validation.azurirajParams),
   validator.body(validation.azuriraj),
   controller.azuriraj
 );
-router.delete(
-  '/korisnik/:id',
-  validator.params(validation.obrisi),
-  controller.obrisi
-);
-
-router.get('/korisnici-na-cekanju', controller.korisniciNaCekanju);
-router.get('/poljoprivrednici', controller.poljoprivrednici);
-router.get('/preduzeca', controller.preduzeca);
+router.delete('/:id', validator.params(validation.obrisi), controller.obrisi);
 
 export default router;

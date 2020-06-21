@@ -1,0 +1,27 @@
+<div class="bg-gray-100 overflow-hidden shadow rounded-lg">
+  <div class="px-4 py-5 sm:p-6">
+    <div class="flex items-center">
+      <div class="ml-5 w-0 flex-1">
+        <dl>
+          <dt class="text-sm leading-5 font-medium text-gray-500 truncate">
+            Наруђбине у задња 30 дана
+          </dt>
+          <dd class="flex items-baseline mt-4">
+            <canvas
+              baseChart
+              height="245"
+              [datasets]="lineChartData"
+              [labels]="lineChartLabels"
+              [options]="lineChartOptions"
+              [colors]="lineChartColors"
+              [legend]="lineChartLegend"
+              [chartType]="lineChartType"
+              [plugins]="lineChartPlugins"
+            >
+            </canvas>
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>

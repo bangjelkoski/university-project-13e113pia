@@ -20,13 +20,15 @@ export class PoljoprivrednikGuardService implements CanActivate {
     const korisnik = this.authService.korisnik();
 
     if (korisnik.role !== Role.poljoprivrednik) {
-      return this.router.navigate([`/${korisnik.role}`], {
+      this.router.navigate([`/${korisnik.role}`], {
         queryParams: {
           return: state.url,
         },
       });
+
+      return false;
     }
 
-    return false;
+    return true;
   }
 }

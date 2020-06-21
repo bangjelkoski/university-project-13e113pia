@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { LoginComponent } from './auth/login/login.component';
 import { GuestGuardService } from './services/guards/guest/guest.service';
 import { AdminComponent } from './admin/admin.component';
+import { PreduzeceComponent } from './preduzece/preduzece.component';
 import { AuthGuardService } from './services/guards/auth/auth.service';
 import { RegisterComponent as RegisterPoljoprivrednikComponent } from './poljoprivrednik/auth/register/register.component';
 import { RegisterComponent as RegisterPreduzeceComponent } from './preduzece/auth/register/register.component';
@@ -10,9 +11,12 @@ import { AuthComponent } from './auth/auth.component';
 import { PasswordComponent } from './auth/password/password.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { AdminGuardService } from './services/guards/admin/admin.service';
+import { PreduzeceGuardService } from './services/guards/preduzece/preduzece.service';
 import { DashboardComponent as AdminDashboardComponent } from './admin/dashboard/dashboard.component';
+import { DashboardComponent as PreduzeceDashboardComponent } from './preduzece/dashboard/dashboard.component';
 import { PoljoprivredniciComponent as AdminPoljoprivredniciComponent } from './admin/poljoprivrednici/poljoprivrednici.component';
 import { PreduzecaComponent as AdminPreduzecaComponent } from './admin/preduzeca/preduzeca.component';
+import { ProizvodiComponent as PreduzeceProizvodiComponent } from './preduzece/proizvodi/proizvodi.component';
 import { KorisnikComponent as AdminKorisnikComponent } from './admin/korisnik/korisnik.component';
 
 const routes: Routes = [
@@ -49,8 +53,19 @@ const routes: Routes = [
     children: [],
   },
   {
-    path: 'preduzetnik',
-    children: [],
+    path: 'preduzece',
+    component: PreduzeceComponent,
+    canActivate: [AuthGuardService, PreduzeceGuardService],
+    children: [
+      {
+        path: '',
+        component: PreduzeceDashboardComponent,
+      },
+      {
+        path: 'proizvodi',
+        component: PreduzeceProizvodiComponent,
+      },
+    ],
   },
   {
     path: 'admin',

@@ -4,6 +4,9 @@ import STATUS from '~/utils/status';
 import ROLES from '~/utils/roles';
 import ApiError from '~/handlers/ApiError';
 import avatar from '../../utils/avatar';
+import Chance from 'chance';
+
+const chance = new Chance();
 
 export const login = async (username, password) => {
   let korisnik;
@@ -26,12 +29,16 @@ export const login = async (username, password) => {
     return ApiError.throw(error, 'Корисник није пронађен');
   }
 
+  if (!korisnik) {
+    throw new Error('Корисник није пронађен.');
+  }
+
   try {
     if (await korisnik.isValidPassword(password)) {
       return korisnik;
     }
   } catch (error) {
-    return ApiError.throw(error, 'Лозинке нису исте.');
+    return ApiError.throw(error, 'Корисник није пронађен.');
   }
 };
 
@@ -104,6 +111,17 @@ export const registerPreduzece = async ({
       dateOfCreation,
       KorisnikId: korisnik.id,
     });
+
+    /** Za svako preduzece kreiramo 5 kurira */
+    await Promise.all(
+      new Array(5).map(async (kurir) => {
+        await db.Kurir.create({
+          firstName: chance.first(),
+          lastName: chance.last(),
+          zauzetDo: Date.now(),
+        });
+      })
+    );
 
     return [korisnik, preduzece];
   } catch (error) {

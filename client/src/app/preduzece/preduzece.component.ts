@@ -1,15 +1,34 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { AuthService } from '../services/auth/auth.service';
+import { ViewService } from '../services/view/view.service';
 
 @Component({
   selector: 'app-preduzece',
   templateUrl: './preduzece.component.html',
-  styleUrls: ['./preduzece.component.scss']
+  styleUrls: ['./preduzece.component.scss'],
 })
-export class PreduzeceComponent implements OnInit {
+export class PreduzeceComponent {
+  navOpen: boolean = false;
+  userOpen: boolean = false;
 
-  constructor() { }
+  korisnik: any = {};
 
-  ngOnInit(): void {
+  constructor(
+    private authService: AuthService,
+    public viewService: ViewService
+  ) {
+    this.korisnik = this.authService.korisnik();
   }
 
+  handleNavVisibilityToggle() {
+    this.navOpen = !this.navOpen;
+  }
+
+  handleUserVisibilityToggle() {
+    this.userOpen = !this.userOpen;
+  }
+
+  onLogout() {
+    this.authService.logout();
+  }
 }

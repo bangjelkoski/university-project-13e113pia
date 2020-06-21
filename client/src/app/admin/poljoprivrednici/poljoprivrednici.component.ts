@@ -37,7 +37,6 @@ export class PoljoprivredniciComponent implements OnInit {
   }
 
   async izmeni({ id }) {
-    console.log(id);
     this.router.navigate([`/admin/korisnik/${id}`]);
   }
 
@@ -51,7 +50,7 @@ export class PoljoprivredniciComponent implements OnInit {
   async odobri({ id }) {
     await this.adminService.odobri(id);
     this.poljoprivrednici = this.poljoprivrednici.map((korisnik) => {
-      if (!korisnik.id === id) {
+      if (!(korisnik.id === id)) {
         return korisnik;
       }
 
@@ -65,7 +64,7 @@ export class PoljoprivredniciComponent implements OnInit {
   async odbij({ id }) {
     await this.adminService.odbij(id);
     this.poljoprivrednici = this.poljoprivrednici.map((korisnik) => {
-      if (!korisnik.id === id) {
+      if (!(korisnik.id === id)) {
         return korisnik;
       }
 

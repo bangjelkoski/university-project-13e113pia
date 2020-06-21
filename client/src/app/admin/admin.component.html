@@ -71,7 +71,7 @@
             </div>
             <div class="-mr-2 flex md:hidden">
               <button
-                (click)="handleUserVisibilityToggle()"
+                (click)="handleNavVisibilityToggle()"
                 class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:bg-gray-700 focus:text-white"
               >
                 <svg
@@ -107,14 +107,30 @@
       <div
         [class.block]="navOpen"
         [class.hidden]="!navOpen"
-        class="hidden border-b border-gray-700 md:hidden"
+        class="border-b border-gray-700 md:hidden"
       >
         <div class="px-2 py-3 sm:px-3">
           <a
-            href="#"
-            class="block px-3 py-2 rounded-md text-base font-medium text-white bg-gray-900 focus:outline-none focus:text-white focus:bg-gray-700"
+            [routerLink]="['/admin']"
+            [routerLinkActive]="['bg-gray-900', 'text-white']"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md text-sm font-medium text-white focus:outline-none focus:text-white"
           >
             Почетна
+          </a>
+          <a
+            [routerLink]="['/admin/poljoprivrednici']"
+            [routerLinkActive]="['bg-gray-900', 'text-white']"
+            class="ml-4 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md text-sm font-medium text-white focus:outline-none focus:text-white"
+          >
+            Пољопривредници
+          </a>
+          <a
+            [routerLink]="['/admin/preduzeca']"
+            [routerLinkActive]="['bg-gray-900', 'text-white']"
+            class="ml-4 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md text-sm font-medium text-white focus:outline-none focus:text-white"
+          >
+            Предузећа
           </a>
         </div>
         <div class="pt-4 pb-3 border-t border-gray-700">

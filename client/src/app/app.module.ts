@@ -16,21 +16,29 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AuthComponent } from './auth/auth.component';
 import { PasswordComponent } from './auth/password/password.component';
 import { RegisterComponent as RegisterPoljoprivrednikComponent } from './poljoprivrednik/auth/register/register.component';
-import { RegisterComponent as RegisterPreduzetnikComponent } from './preduzece/auth/register/register.component';
+import { RegisterComponent as RegisterPreduzeceComponent } from './preduzece/auth/register/register.component';
 import { NotFoundComponent } from './not-found/not-found.component';
-import { DashboardComponent } from './admin/dashboard/dashboard.component';
+import { DashboardComponent as AdminDashboardComponent } from './admin/dashboard/dashboard.component';
 import { AdminGuardService } from './services/guards/admin/admin.service';
 import { PoljoprivrednikGuardService } from './services/guards/poljoprivrednik/poljoprivrednik.service';
 import { PreduzeceGuardService } from './services/guards/preduzece/preduzece.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 import { AdminService } from './services/admin/admin.service';
+import { PreduzeceService } from './services/preduzece/preduzece.service';
 import { HttpService } from './services/http/http.service';
 import { NgHcaptchaModule } from 'ng-hcaptcha';
 import { KorisniciComponent as AdminKorisniciComponent } from './admin/dashboard/korisnici/korisnici.component';
 import { PoljoprivredniciComponent as AdminPoljoprivredniciComponent } from './admin/poljoprivrednici/poljoprivrednici.component';
 import { PreduzecaComponent as AdminPreduzecaComponent } from './admin/preduzeca/preduzeca.component';
 import { KorisnikComponent as AdminKorisnikComponent } from './admin/korisnik/korisnik.component';
+import { RouterModule } from '@angular/router';
+import { DashboardComponent as PreduzeceDashboardComponent } from './preduzece/dashboard/dashboard.component';
+import { ProizvodiComponent as PreduzeceProizvodiComponent } from './preduzece/proizvodi/proizvodi.component';
+import { ChartComponent as PreduzeceDashboardChartComponent } from './preduzece/dashboard/chart/chart.component';
+import { NarudzbineComponent as PreduzeceNarudzbineComponent } from './preduzece/dashboard/narudzbine/narudzbine.component';
+import { ChartsModule } from 'ng2-charts';
+import { KurirComponent as PreduzeceKurirComponent } from './preduzece/dashboard/kurir/kurir.component';
 
 @NgModule({
   declarations: [
@@ -43,20 +51,27 @@ import { KorisnikComponent as AdminKorisnikComponent } from './admin/korisnik/ko
     AuthComponent,
     PasswordComponent,
     RegisterPoljoprivrednikComponent,
-    RegisterPreduzetnikComponent,
+    RegisterPreduzeceComponent,
     NotFoundComponent,
-    DashboardComponent,
+    AdminDashboardComponent,
     AdminKorisniciComponent,
     AdminPoljoprivredniciComponent,
     AdminPreduzecaComponent,
     AdminKorisnikComponent,
+    PreduzeceDashboardComponent,
+    PreduzeceProizvodiComponent,
+    PreduzeceDashboardChartComponent,
+    PreduzeceNarudzbineComponent,
+    PreduzeceKurirComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
+    RouterModule,
     FormsModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
+    ChartsModule,
     ToastrModule.forRoot({
       positionClass: 'toast-bottom-right',
     }),
@@ -74,6 +89,7 @@ import { KorisnikComponent as AdminKorisnikComponent } from './admin/korisnik/ko
     GuestGuardService,
     DemoService,
     AdminService,
+    PreduzeceService,
     HttpService,
   ],
   bootstrap: [AppComponent],

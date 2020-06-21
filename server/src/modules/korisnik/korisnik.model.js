@@ -110,22 +110,6 @@ export default function init(sequelize) {
     }
   };
 
-  Korisnik.odobri = async function (id) {
-    try {
-      const korisnik = await Korisnik.findOne({ where: { id } });
-
-      if (!korisnik) {
-        throw new Error('Корисник није пронађен');
-      }
-
-      return await korisnik.update({
-        status: STATUS.odobren,
-      });
-    } catch (error) {
-      return ApiError.throw(error, 'Настала ја грешка.');
-    }
-  };
-
   Korisnik.promeniLozinku = async function ({
     username,
     password,
@@ -150,6 +134,22 @@ export default function init(sequelize) {
       });
     } catch (error) {
       return ApiError.throw(error, 'Лозинке нису усте');
+    }
+  };
+
+  Korisnik.odobri = async function (id) {
+    try {
+      const korisnik = await Korisnik.findOne({ where: { id } });
+
+      if (!korisnik) {
+        throw new Error('Корисник није пронађен');
+      }
+
+      return await korisnik.update({
+        status: STATUS.odobren,
+      });
+    } catch (error) {
+      return ApiError.throw(error, 'Настала ја грешка.');
     }
   };
 

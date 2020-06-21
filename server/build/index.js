@@ -19,6 +19,7 @@ var Sequelize = require('sequelize');
 var Sequelize__default = _interopDefault(Sequelize);
 var bcrypt = _interopDefault(require('bcrypt'));
 var hcaptcha = require('hcaptcha');
+var Chance = _interopDefault(require('chance'));
 var listEndpoints = _interopDefault(require('express-list-endpoints'));
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
@@ -278,39 +279,13 @@ function init(sequelize) {
     };
   }();
 
-  Korisnik.odobri = /*#__PURE__*/function () {
-    var _ref4 = _asyncToGenerator(function* (id) {
-      try {
-        var korisnik = yield Korisnik.findOne({
-          where: {
-            id
-          }
-        });
-
-        if (!korisnik) {
-          throw new Error('Корисник није пронађен');
-        }
-
-        return yield korisnik.update({
-          status: STATUS.odobren
-        });
-      } catch (error) {
-        return ApiError.throw(error, 'Настала ја грешка.');
-      }
-    });
-
-    return function (_x4) {
-      return _ref4.apply(this, arguments);
-    };
-  }();
-
   Korisnik.promeniLozinku = /*#__PURE__*/function () {
-    var _ref6 = _asyncToGenerator(function* (_ref5) {
+    var _ref5 = _asyncToGenerator(function* (_ref4) {
       var {
         username,
         password,
         newPassword
-      } = _ref5;
+      } = _ref4;
       var korisnik = yield Korisnik.findOne({
         where: {
           username
@@ -333,6 +308,32 @@ function init(sequelize) {
         });
       } catch (error) {
         return ApiError.throw(error, 'Лозинке нису усте');
+      }
+    });
+
+    return function (_x4) {
+      return _ref5.apply(this, arguments);
+    };
+  }();
+
+  Korisnik.odobri = /*#__PURE__*/function () {
+    var _ref6 = _asyncToGenerator(function* (id) {
+      try {
+        var korisnik = yield Korisnik.findOne({
+          where: {
+            id
+          }
+        });
+
+        if (!korisnik) {
+          throw new Error('Корисник није пронађен');
+        }
+
+        return yield korisnik.update({
+          status: STATUS.odobren
+        });
+      } catch (error) {
+        return ApiError.throw(error, 'Настала ја грешка.');
       }
     });
 
@@ -434,13 +435,6 @@ function init$3(sequelize) {
 }
 
 function init$4(sequelize) {
-  var Magacin = sequelize.define('Magacin', {}, {
-    freezeTableName: true
-  });
-  return Magacin;
-}
-
-function init$5(sequelize) {
   var Ocena = sequelize.define('Ocena', {
     ocena: {
       type: Sequelize.DataTypes.INTEGER,
@@ -457,7 +451,7 @@ var PRODUCT_TYPE = {
   preparat: 'preparat'
 };
 
-function init$6(sequelize) {
+function init$5(sequelize) {
   var _this = this;
 
   var schema = {
@@ -490,8 +484,8 @@ function init$6(sequelize) {
       allowNull: false
     },
     value: {
-      // Ili vreme ubrzanja ili vreme razvoja zavisi za tip
-      type: Sequelize.DataTypes.DATE,
+      // Ili vreme ubrzanja ili vreme razvoja zavisi za tip u ms
+      type: Sequelize.DataTypes.INTEGER,
       allowNull: false
     }
   };
@@ -499,28 +493,95 @@ function init$6(sequelize) {
     freezeTableName: true
   };
   var Proizvod = sequelize.define('Proizvod', schema, tableParams);
-  var KupljeniProizvod = sequelize.define('KupljeniProizvod', schema, tableParams);
+  var NaruceniProizvod = sequelize.define('NaruceniProizvod', schema, tableParams);
   Proizvod.prototype.toJson = /*#__PURE__*/_asyncToGenerator(function* () {
     return _objectSpread2({}, _this.get());
   });
   Proizvod.prototype.toNarudzbinu = /*#__PURE__*/_asyncToGenerator(function* () {//
   });
-  return [Proizvod, KupljeniProizvod];
+  return [Proizvod, NaruceniProizvod];
 }
 
-function init$7(sequelize) {
+var ORDER_STATUS = {
+  naCekanju: 'naCekanju',
+  odobrena: 'odobrena',
+  odbijena: 'odbijena'
+};
+
+function init$6(sequelize) {
   var Narudzbina = sequelize.define('Narudzbina', {
     total: {
       type: Sequelize.DataTypes.DECIMAL,
+      defaultValue: 0,
+      allowNull: false
+    },
+    status: {
+      type: Sequelize.DataTypes.ENUM([ORDER_STATUS.naCekanju, ORDER_STATUS.odobrena, ORDER_STATUS.odbijena]),
+      defaultValue: ORDER_STATUS.naCekanju,
       allowNull: false
     }
   }, {
     freezeTableName: true
   });
+
+  Narudzbina.odobri = /*#__PURE__*/function () {
+    var _ref = _asyncToGenerator(function* (id, PreduzeceId) {
+      try {
+        var narudzbina = yield Narudzbina.findOne({
+          where: {
+            id,
+            PreduzeceId
+          }
+        });
+
+        if (!narudzbina) {
+          throw new Error('Нарудђбина није пронађен');
+        }
+
+        return yield narudzbina.update({
+          status: ORDER_STATUS.odobrena
+        });
+      } catch (error) {
+        return ApiError.throw(error, 'Настала ја грешка.');
+      }
+    });
+
+    return function (_x, _x2) {
+      return _ref.apply(this, arguments);
+    };
+  }();
+
+  Narudzbina.odbij = /*#__PURE__*/function () {
+    var _ref2 = _asyncToGenerator(function* (id, PreduzeceId) {
+      try {
+        var narudzbina = yield Narudzbina.findOne({
+          where: {
+            id,
+            PreduzeceId
+          }
+        });
+
+        if (!narudzbina) {
+          return ApiError.throw({}, 'Нарудђбина није пронађен');
+        }
+
+        return yield narudzbina.update({
+          status: ORDER_STATUS.odbijena
+        });
+      } catch (error) {
+        return ApiError.throw(error, 'Настала ја грешка.');
+      }
+    });
+
+    return function (_x3, _x4) {
+      return _ref2.apply(this, arguments);
+    };
+  }();
+
   return Narudzbina;
 }
 
-function init$8(sequelize) {
+function init$7(sequelize) {
   var Komentar = sequelize.define('Komentar', {
     komentar: {
       type: Sequelize.DataTypes.STRING,
@@ -532,7 +593,7 @@ function init$8(sequelize) {
   return Komentar;
 }
 
-function init$9(sequelize) {
+function init$8(sequelize) {
   var Rasadnik = sequelize.define('Rasadnik', {
     name: {
       type: Sequelize.DataTypes.STRING,
@@ -565,7 +626,7 @@ function init$9(sequelize) {
   return Rasadnik;
 }
 
-function init$a(sequelize) {
+function init$9(sequelize) {
   var Kurir = sequelize.define('Kurir', {
     firstName: {
       type: Sequelize.DataTypes.STRING,
@@ -610,13 +671,12 @@ var Korisnik = init(sequelize);
 var Preduzece = init$1(sequelize);
 var Admin = init$2(sequelize);
 var Poljoprivrednik = init$3(sequelize);
-var Komentar = init$8(sequelize);
-var Ocena = init$5(sequelize);
-var Kurir = init$a(sequelize);
-var Rasadnik = init$9(sequelize);
-var Magacin = init$4(sequelize);
-var Narudzbina = init$7(sequelize);
-var [Proizvod, KupljeniProizvod] = init$6(sequelize);
+var Komentar = init$7(sequelize);
+var Ocena = init$4(sequelize);
+var Kurir = init$9(sequelize);
+var Rasadnik = init$8(sequelize);
+var Narudzbina = init$6(sequelize);
+var [Proizvod, NaruceniProizvod] = init$5(sequelize);
 /**
  * Relationships
  */
@@ -624,12 +684,22 @@ var [Proizvod, KupljeniProizvod] = init$6(sequelize);
 Korisnik.hasOne(Admin);
 Korisnik.hasOne(Poljoprivrednik);
 Korisnik.hasOne(Preduzece);
-Korisnik.hasMany(Komentar);
-Korisnik.hasMany(Ocena);
-Proizvod.hasMany(Ocena);
-Proizvod.hasMany(Komentar);
-Preduzece.hasMany(Kurir);
-Rasadnik.hasMany(Magacin);
+Korisnik.hasMany(Komentar, {
+  as: 'Komentari'
+});
+Korisnik.hasMany(Ocena, {
+  as: 'Ocene'
+});
+Proizvod.hasMany(Ocena, {
+  as: 'Ocene'
+});
+Proizvod.hasMany(Komentar, {
+  as: 'Komentari'
+});
+Preduzece.hasMany(Kurir, {
+  as: 'Kuriri'
+});
+Rasadnik.hasOne(Narudzbina);
 Rasadnik.belongsTo(Poljoprivrednik);
 Admin.belongsTo(Korisnik);
 Poljoprivrednik.belongsTo(Korisnik);
@@ -639,16 +709,18 @@ Komentar.belongsTo(Proizvod);
 Ocena.belongsTo(Korisnik);
 Ocena.belongsTo(Proizvod);
 Kurir.belongsTo(Preduzece);
-Kurir.belongsTo(Narudzbina);
-Magacin.hasMany(Narudzbina);
-Magacin.belongsTo(Rasadnik);
+Kurir.hasOne(Narudzbina);
 Narudzbina.belongsTo(Preduzece);
-Narudzbina.belongsTo(Magacin);
-Narudzbina.hasOne(Kurir);
+Narudzbina.belongsTo(Kurir);
+Narudzbina.belongsTo(Rasadnik);
+Narudzbina.hasMany(NaruceniProizvod, {
+  as: 'NaruceniProizvodi'
+});
 Proizvod.belongsTo(Preduzece);
-Proizvod.hasMany(Komentar);
-KupljeniProizvod.hasMany(Narudzbina);
-KupljeniProizvod.hasMany(Ocena);
+NaruceniProizvod.belongsTo(Narudzbina);
+NaruceniProizvod.belongsTo(Proizvod, {
+  onDelete: 'SET NULL'
+});
 var db = {
   sequelize,
   Sequelize: Sequelize__default,
@@ -660,10 +732,9 @@ var db = {
   Ocena,
   Kurir,
   Rasadnik,
-  Magacin,
   Narudzbina,
   Proizvod,
-  KupljeniProizvod
+  NaruceniProizvod
 };
 
 class ApiError$1 {
@@ -705,6 +776,7 @@ function avatar () {
   return "https://avataaars.io/?avatarStyle=Circle&topType=".concat(top, "&accessoriesType=").concat(accessory, "&hairColor=").concat(hairColor, "&facialHairType=").concat(facial, "&facialHairColor=").concat(facialColor, "&clotheType=").concat(clothing, "&clotheColor=").concat(clothingColor, "&eyeType=").concat(eye, "&eyebrowType=").concat(eyebrow, "&mouthType=").concat(mouth, "&skinColor=").concat(skin);
 }
 
+var chance = new Chance();
 var login$1 = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (username, password) {
     var korisnik;
@@ -726,12 +798,16 @@ var login$1 = /*#__PURE__*/function () {
       return ApiError$1.throw(error, 'Корисник није пронађен');
     }
 
+    if (!korisnik) {
+      throw new Error('Корисник није пронађен.');
+    }
+
     try {
       if (yield korisnik.isValidPassword(password)) {
         return korisnik;
       }
     } catch (error) {
-      return ApiError$1.throw(error, 'Лозинке нису исте.');
+      return ApiError$1.throw(error, 'Корисник није пронађен.');
     }
   });
 
@@ -823,6 +899,21 @@ var registerPreduzece$1 = /*#__PURE__*/function () {
         dateOfCreation,
         KorisnikId: korisnik.id
       });
+      /** Za svako preduzece kreiramo 5 kurira */
+
+      yield Promise.all(new Array(5).map( /*#__PURE__*/function () {
+        var _ref6 = _asyncToGenerator(function* (kurir) {
+          yield db.Kurir.create({
+            firstName: chance.first(),
+            lastName: chance.last(),
+            zauzetDo: Date.now()
+          });
+        });
+
+        return function (_x5) {
+          return _ref6.apply(this, arguments);
+        };
+      }()));
       return [korisnik, preduzece];
     } catch (error) {
       return ApiError$1.throw(error, 'Регистрација корисника није успела.');
@@ -834,12 +925,12 @@ var registerPreduzece$1 = /*#__PURE__*/function () {
   };
 }();
 var reset$1 = /*#__PURE__*/function () {
-  var _ref7 = _asyncToGenerator(function* (_ref6) {
+  var _ref8 = _asyncToGenerator(function* (_ref7) {
     var {
       username,
       password,
       newPassword
-    } = _ref6;
+    } = _ref7;
 
     try {
       yield db.Korisnik.promeniLozinku({
@@ -852,12 +943,12 @@ var reset$1 = /*#__PURE__*/function () {
     }
   });
 
-  return function reset(_x5) {
-    return _ref7.apply(this, arguments);
+  return function reset(_x6) {
+    return _ref8.apply(this, arguments);
   };
 }();
 var captcha$1 = /*#__PURE__*/function () {
-  var _ref8 = _asyncToGenerator(function* (token) {
+  var _ref9 = _asyncToGenerator(function* (token) {
     var secret = process.env.NO_CAPTCHA_SECRET;
 
     try {
@@ -867,8 +958,8 @@ var captcha$1 = /*#__PURE__*/function () {
     }
   });
 
-  return function captcha(_x6) {
-    return _ref8.apply(this, arguments);
+  return function captcha(_x7) {
+    return _ref9.apply(this, arguments);
   };
 }();
 
@@ -1370,25 +1461,525 @@ var obrisi$2 = /*#__PURE__*/function () {
 }();
 
 var router$1 = express.Router();
-router$1.post('/odbij', validator.body(odbij), odbij$2);
-router$1.post('/odobri', validator.body(odobri), odobri$2);
-router$1.get('/korisnik/:id', validator.params(korisnik), korisnik$2);
-router$1.post('/korisnik/:id', validator.params(azurirajParams), validator.body(azuriraj), azuriraj$2);
-router$1.delete('/korisnik/:id', validator.params(obrisi), obrisi$2);
-router$1.get('/korisnici-na-cekanju', korisniciNaCekanju$1);
+router$1.get('/na-cekanju', korisniciNaCekanju$1);
 router$1.get('/poljoprivrednici', poljoprivrednici$1);
 router$1.get('/preduzeca', preduzeca$1);
+router$1.post('/:id/odbij', validator.params(odbij), odbij$2);
+router$1.post('/:id/odobri', validator.params(odobri), odobri$2);
+router$1.get('/:id', validator.params(korisnik), korisnik$2);
+router$1.post('/:id', validator.params(azurirajParams), validator.body(azuriraj), azuriraj$2);
+router$1.delete('/:id', validator.params(obrisi), obrisi$2);
+
+var odbij$3 = Joi.object({
+  id: Joi.number().required(),
+  preduzeceId: Joi.number().required()
+});
+var odobri$3 = Joi.object({
+  id: Joi.number().required(),
+  preduzeceId: Joi.number().required()
+});
+var narudzbina = Joi.object({
+  id: Joi.number().required(),
+  preduzeceId: Joi.number().required()
+});
+var narudzbine = Joi.object({
+  preduzeceId: Joi.number().required()
+});
+
+var narudzbina$1 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (id, PreduzeceId) {
+    try {
+      return yield db.Narudzbina.findOne({
+        where: {
+          id,
+          PreduzeceId
+        },
+        include: [{
+          model: db.Kurir
+        }, {
+          model: db.NaruceniProizvod,
+          as: 'NaruceniProizvod'
+        }]
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Наруђбина није пронађена');
+    }
+  });
+
+  return function narudzbina(_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
+var narudzbine$1 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (PreduzeceId) {
+    try {
+      return yield db.Narudzbina.findAll({
+        where: {
+          PreduzeceId
+        },
+        include: [{
+          model: db.Kurir
+        }, {
+          model: db.NaruceniProizvod,
+          as: 'NaruceniProizvodi'
+        }]
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Наруђбина није пронађена');
+    }
+  });
+
+  return function narudzbine(_x3) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var odobri$4 = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(function* (id, preduzeceId) {
+    try {
+      yield db.Narudzbina.odobri(id, preduzeceId);
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка');
+    }
+  });
+
+  return function odobri(_x4, _x5) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+var odbij$4 = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(function* (id, preduzeceId) {
+    try {
+      yield db.Narudzbina.odbij(id, preduzeceId);
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка');
+    }
+  });
+
+  return function odbij(_x6, _x7) {
+    return _ref4.apply(this, arguments);
+  };
+}();
+
+var narudzbina$2 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (req, res) {
+    var {
+      id,
+      preduzeceId
+    } = req.params;
+
+    try {
+      var _narudzbina = yield narudzbina$1(id, preduzeceId);
+
+      res.json(_narudzbina);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function narudzbina(_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
+var narudzbine$2 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (req, res) {
+    var {
+      preduzeceId
+    } = req.params;
+
+    try {
+      var _narudzbine = yield narudzbine$1(preduzeceId);
+
+      res.json(_narudzbine);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function narudzbine(_x3, _x4) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var odbij$5 = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(function* (req, res, next) {
+    var {
+      id,
+      preduzeceId
+    } = req.params;
+
+    try {
+      yield odbij$4(id, preduzeceId);
+      res.json({
+        message: 'Успешно одбијенa наруђбина.'
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function odbij(_x5, _x6, _x7) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+var odobri$5 = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(function* (req, res, next) {
+    var {
+      id,
+      preduzeceId
+    } = req.params;
+
+    try {
+      yield odobri$4(id, preduzeceId);
+      res.json({
+        message: 'Успешно одобрена наруђбина.'
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function odobri(_x8, _x9, _x10) {
+    return _ref4.apply(this, arguments);
+  };
+}();
 
 var router$2 = express.Router();
-router$2.get('/', (req, res) => {
+router$2.get('/:preduzeceId', validator.params(narudzbine), narudzbine$2);
+router$2.post('/:preduzeceId/:id/odbij', validator.params(odbij$3), odbij$5);
+router$2.post('/:preduzeceId/:id/odobri', validator.params(odobri$3), odobri$5);
+router$2.get('/:preduzeceId/:id', validator.params(narudzbina), narudzbina$2);
+
+var azurirajParams$1 = Joi.object({
+  id: Joi.number().required()
+});
+var proizvod = Joi.object({
+  id: Joi.number().required()
+});
+var proizvodi = Joi.object({
+  preduzeceId: Joi.number().required()
+});
+var azuriraj$3 = Joi.object({
+  name: Joi.string().required()
+});
+var obrisi$3 = Joi.object({
+  id: Joi.number().required()
+});
+
+var proizvod$1 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (id) {
+    try {
+      return yield db.Proizvod.findOne({
+        where: {
+          id
+        }
+      });
+    } catch (error) {
+      return ApiError.throw(error, 'Производ није пронађен');
+    }
+  });
+
+  return function proizvod(_x) {
+    return _ref.apply(this, arguments);
+  };
+}();
+var proizvodi$1 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (PreduzeceId) {
+    try {
+      return yield db.Proizvod.findAll({
+        where: {
+          PreduzeceId
+        }
+      });
+    } catch (error) {
+      return ApiError.throw(error, 'Настала ја грешка');
+    }
+  });
+
+  return function proizvodi(_x2) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var azuriraj$4 = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(function* (_ref3) {
+    var {
+      id,
+      name
+    } = _ref3;
+
+    try {
+      var _proizvod = yield db.Proizvod.findOne({
+        where: {
+          id
+        }
+      });
+
+      yield _proizvod.update({
+        name
+      });
+    } catch (error) {
+      return ApiError.throw(error, 'Настала ја грешка');
+    }
+  });
+
+  return function azuriraj(_x3) {
+    return _ref4.apply(this, arguments);
+  };
+}();
+var obrisi$4 = /*#__PURE__*/function () {
+  var _ref5 = _asyncToGenerator(function* (id) {
+    try {
+      var _proizvod2 = yield db.Proizvod.findOne({
+        where: {
+          id
+        }
+      });
+
+      yield _proizvod2.destroy();
+    } catch (error) {
+      return ApiError.throw(error, 'Настала ја грешка');
+    }
+  });
+
+  return function obrisi(_x4) {
+    return _ref5.apply(this, arguments);
+  };
+}();
+
+var proizvod$2 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (req, res) {
+    var {
+      id
+    } = req.params;
+
+    try {
+      var _proizvod = yield proizvod$1(id);
+
+      res.json(_proizvod);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function proizvod(_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
+var proizvodi$2 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (req, res) {
+    var {
+      preduzeceId
+    } = req.params;
+
+    try {
+      var _proizvodi = yield proizvodi$1(preduzeceId);
+
+      res.json(_proizvodi);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function proizvodi(_x3, _x4) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var azuriraj$5 = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(function* (req, res) {
+    var {
+      id
+    } = req.params;
+    var {
+      name
+    } = req.body;
+
+    try {
+      yield azuriraj$4({
+        id,
+        name
+      });
+      res.json({
+        message: 'Успешно ажуриран производ.'
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function azuriraj(_x5, _x6) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+var obrisi$5 = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(function* (req, res, next) {
+    var {
+      id
+    } = req.body;
+
+    try {
+      yield obrisi$4(id);
+      res.json({
+        message: 'Успешно обрисан производ.'
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function obrisi(_x7, _x8, _x9) {
+    return _ref4.apply(this, arguments);
+  };
+}();
+
+var router$3 = express.Router();
+router$3.get('/:preduzeceId', validator.params(proizvodi), proizvodi$2);
+router$3.get('/:preduzeceId/:id', validator.params(proizvod), proizvod$2);
+router$3.post('/:preduzeceId/:id', validator.params(azurirajParams$1), validator.body(azuriraj$3), azuriraj$5);
+router$3.delete('/:preduzeceId/:id', validator.params(obrisi$3), obrisi$5);
+
+var kuriri = Joi.object({
+  preduzeceId: Joi.number().required()
+});
+var dodeli = Joi.object({
+  id: Joi.number().required(),
+  narudzbinaId: Joi.number().required(),
+  zauzetDo: Joi.required()
+});
+
+var kuriri$1 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (PreduzeceId) {
+    try {
+      return yield db.Kurir.findAll({
+        where: {
+          PreduzeceId
+        },
+        include: [{
+          model: db.Narudzbina
+        }]
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Курири не постоје');
+    }
+  });
+
+  return function kuriri(_x) {
+    return _ref.apply(this, arguments);
+  };
+}();
+var dodeli$1 = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(function* (_ref2) {
+    var {
+      id,
+      narudzbinaId,
+      zauzetDo
+    } = _ref2;
+
+    try {
+      var narudzbina = yield db.Narudzbina.findOne({
+        where: {
+          id: narudzbinaId
+        }
+      });
+      yield narudzbina.update({
+        KurirId: id
+      });
+      var kurir = yield db.Kurir.findOne({
+        where: {
+          id
+        }
+      });
+      yield kurir.update({
+        zauzetDo
+      });
+      var updatedNarudzbina = yield db.Narudzbina.findOne({
+        where: {
+          id: narudzbinaId
+        },
+        include: [{
+          model: db.Kurir
+        }]
+      });
+      var updatedKurir = yield db.Kurir.findOne({
+        where: {
+          id
+        },
+        include: [{
+          model: db.Narudzbina
+        }]
+      });
+      return [updatedKurir, updatedNarudzbina];
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала је грешка');
+    }
+  });
+
+  return function dodeli(_x2) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+
+var kuriri$2 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (req, res) {
+    var {
+      preduzeceId
+    } = req.params;
+
+    try {
+      var _kuriri = yield kuriri$1(preduzeceId);
+
+      res.json(_kuriri);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function kuriri(_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
+var dodeli$2 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (req, res) {
+    var {
+      id,
+      zauzetDo,
+      narudzbinaId
+    } = req.body;
+
+    try {
+      var [kurir, narudzbina] = yield dodeli$1({
+        id,
+        zauzetDo,
+        narudzbinaId
+      });
+      res.json({
+        narudzbina,
+        kurir
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function dodeli(_x3, _x4) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+
+var router$4 = express.Router();
+router$4.post('/dodeli', validator.body(dodeli), dodeli$2);
+router$4.get('/:preduzeceId', validator.params(kuriri), kuriri$2);
+
+var router$5 = express.Router();
+router$5.get('/', (req, res) => {
   res.json({
     statusCode: HTTPStatus.OK,
     message: 'Welcome to 13e113pia project API'
   });
 });
-router$2.use('/auth/', router);
-router$2.use('/korisnici/', router$1);
-router$2.all('*', /*#__PURE__*/function () {
+router$5.use('/auth/', router);
+router$5.use('/korisnici/', router$1);
+router$5.use('/proizvodi/', router$3);
+router$5.use('/narudzbine/', router$2);
+router$5.use('/kuriri/', router$4);
+router$5.all('*', /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (req, res) {
     res.status(HTTPStatus.NOT_FOUND).json('Страница није пронађена');
   });
@@ -1397,7 +1988,7 @@ router$2.all('*', /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }());
-console.log(listEndpoints(router$2));
+console.log(listEndpoints(router$5));
 
 var app = express__default();
 var log = debug('app');
@@ -1432,7 +2023,7 @@ db.sequelize.authenticate().then(() => {
  * API Routes
  */
 
-app.use(router$2);
+app.use(router$5);
 /**
  * Validation Errors
  */

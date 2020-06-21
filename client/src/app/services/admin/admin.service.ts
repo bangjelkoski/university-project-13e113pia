@@ -16,7 +16,7 @@ export class AdminService {
   ) {}
 
   async getKorisniciNaCekanju() {
-    return await this.httpService.get('korisnici/korisnici-na-cekanju');
+    return await this.httpService.get('korisnici/na-cekanju');
   }
 
   async getPoljoprivrednici() {
@@ -29,7 +29,7 @@ export class AdminService {
 
   async getKorisnik(id: string) {
     try {
-      return await this.httpService.get(`korisnici/korisnik/${id}`);
+      return await this.httpService.get(`korisnici/${id}`);
     } catch (error) {
       return this.toast.error(error.message);
     }
@@ -37,7 +37,7 @@ export class AdminService {
 
   async updateKorisnik({ id, username, password, phone, email, role }) {
     try {
-      await this.httpService.post(`korisnici/korisnik/${id}`, {
+      await this.httpService.post(`korisnici/${id}`, {
         username,
         password,
         phone,
@@ -57,9 +57,7 @@ export class AdminService {
 
   async odobri(id: string) {
     try {
-      await this.httpService.post('korisnici/odobri', {
-        id,
-      });
+      await this.httpService.post(`korisnici/${id}/odobri`);
       this.toast.success('Успешна одобрен корисник.');
     } catch (error) {
       return this.toast.error(error.message);
@@ -68,9 +66,7 @@ export class AdminService {
 
   async odbij(id: string) {
     try {
-      await this.httpService.post('korisnici/odbij', {
-        id,
-      });
+      await this.httpService.post(`korisnici/${id}/odbij`);
       this.toast.success('Успешна одбијен корисник.');
     } catch (error) {
       return this.toast.error(error.message);
@@ -79,9 +75,7 @@ export class AdminService {
 
   async obrisi(id: string) {
     try {
-      await this.httpService.delete(`korisnici/korisnik/${id}`, {
-        id,
-      });
+      await this.httpService.delete(`korisnici/${id}`);
       this.toast.success('Успешнo обрисан корисник.');
     } catch (error) {
       return this.toast.error(error.message);
