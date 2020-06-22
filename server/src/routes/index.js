@@ -7,6 +7,9 @@ import proizvodRoutes from '~/modules/proizvod/proizvod.routes';
 import kurirRoutes from '~/modules/kurir/kurir.routes';
 import ocenaRoutes from '~/modules/ocena/ocena.routes';
 import komentarRoutes from '~/modules/komentar/komentar.routes';
+import rasadnikRoutes from '~/modules/rasadnik/rasadnik.routes';
+import sadnikRoutes from '~/modules/sadnik/sadnik.routes';
+import magacinRoutes from '~/modules/magacin/magacin.routes';
 import listEndpoints from 'express-list-endpoints';
 
 const router = Router();
@@ -25,6 +28,9 @@ router.use('/narudzbine/', narudzbinaRoutes);
 router.use('/kuriri/', kurirRoutes);
 router.use('/komentari/', komentarRoutes);
 router.use('/ocene/', ocenaRoutes);
+router.use('/rasadnici/', rasadnikRoutes);
+router.use('/magacini/', magacinRoutes);
+router.use('/sadnici/', sadnikRoutes);
 
 router.all('*', async (req, res) => {
   res.status(HTTPStatus.NOT_FOUND).json('Страница није пронађена');

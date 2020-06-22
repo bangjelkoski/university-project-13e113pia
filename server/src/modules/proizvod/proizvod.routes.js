@@ -22,12 +22,6 @@ router.get(
   validator.params(validation.proizvod),
   controller.proizvod
 );
-router.post(
-  '/:preduzeceId/:id',
-  validator.params(validation.azurirajParams),
-  validator.body(validation.azuriraj),
-  controller.azuriraj
-);
 router.delete(
   '/:preduzeceId/:id',
   validator.params(validation.obrisi),

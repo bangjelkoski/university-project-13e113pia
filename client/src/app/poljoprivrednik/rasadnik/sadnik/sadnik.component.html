@@ -1,0 +1,152 @@
+<div
+  class="bg-white shadow sm:rounded-lg"
+  [class]="
+    transformedSadnik.izvadiNa
+      ? 'opacity-50 cursor-not-allowed pointer-events-none'
+      : ''
+  "
+>
+  <div class="px-4 py-5 sm:p-6">
+    <h2 class="text-xs title-font text-gray-500 tracking-widest">
+      {{ transformedSadnik.manufacturer }}
+    </h2>
+    <h3 class="mt-2 text-xl leading-6 font-medium text-gray-900">
+      {{ transformedSadnik.name }}
+    </h3>
+    <div class="mt-4 max-w-xl text-sm leading-5 text-gray-500">
+      <div class="shadow w-full bg-grey-light">
+        <div
+          class="bg-green-500 text-xs leading-none py-1 text-center text-white rounded-md"
+          [style]="transformedSadnik.style"
+        >
+          {{ transformedSadnik.progress }}%
+        </div>
+      </div>
+    </div>
+    <div class="mt-5 flex lg:justify-end">
+      <button
+        type="button"
+        (click)="onModalOpen()"
+        class="inline-flex items-center justify-center px-2 py-1 mr-2 border border-transparent font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-50 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-blue-200 transition ease-in-out duration-150 sm:text-sm sm:leading-5"
+      >
+        Додај препарат
+      </button>
+      <button
+        type="button"
+        (click)="onIzvadiSadnik()"
+        *ngIf="!transformedSadnik.izvadiNa"
+        [disabled]="transformedSadnik.progress < 100"
+        class="inline-flex items-center justify-center px-2 py-1 border border-transparent font-medium rounded-md text-teal-700 bg-teal-100 hover:bg-teal-50 focus:outline-none focus:border-teal-300 focus:shadow-outline-teal active:bg-teal-200 transition ease-in-out duration-150 sm:text-sm sm:leading-5"
+      >
+        Извади
+      </button>
+      <button
+        type="button"
+        *ngIf="transformedSadnik.izvadiNa"
+        class="inline-flex items-center justify-center px-2 py-1 border border-transparent font-medium rounded-md text-teal-700 bg-teal-100 hover:bg-teal-50 focus:outline-none focus:border-teal-300 focus:shadow-outline-teal active:bg-teal-200 transition ease-in-out duration-150 sm:text-sm sm:leading-5"
+      >
+        Вади се на: {{ transformedSadnik.formattedIzvadiNa }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<div
+  *ngIf="isModalOpen"
+  class="fixed bottom-0 inset-x-0 px-4 pb-4 sm:inset-0 sm:flex sm:items-center sm:justify-center z-10"
+>
+  <div *ngIf="isModalOpen" class="fixed inset-0 transition-opacity">
+    <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+  </div>
+
+  <div
+    *ngIf="isModalOpen"
+    class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full"
+  >
+    <form [formGroup]="preparatForm" (ngSubmit)="onDodajPreparat()">
+      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div class="sm:flex sm:items-start">
+          <div
+            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-teal-100 sm:mx-0 sm:h-10 sm:w-10"
+          >
+            <svg
+              class="h-6 w-6 text-teal-600"
+              stroke="currentColor"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+          </div>
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+              Додај препарат на садник
+            </h3>
+
+            <div class="mt-4">
+              <label
+                for="preparat"
+                class="block text-sm font-medium leading-5 text-gray-700"
+              >
+                Изабери препарат
+              </label>
+              <div class="mt-1 rounded-md shadow-sm">
+                <select
+                  id="preparat"
+                  formControlName="preparat"
+                  required
+                  class="appearance-none bg-white block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+                >
+                  <option value="">&mdash;</option>
+                  <option
+                    *ngFor="let preparat of transformedPreparati"
+                    [value]="preparat.id"
+                  >
+                    {{ preparat.name }}, {{ preparat.manufacturer }} - Убрзава
+                    раст за: {{ preparat.formattedValue }}
+                  </option>
+                </select>
+              </div>
+              <div
+                class="text-xs text-red-500 mt-1"
+                *ngIf="preparat.invalid && (preparat.dirty || preparat.touched)"
+              >
+                <span *ngIf="preparat.errors.required">
+                  Мораш да попуниш ово поље.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="bg-gray-200 mt-2 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse"
+      >
+        <span class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
+          <button
+            (click)="onDodajPreparat()"
+            [disabled]="!preparatForm.valid"
+            type="button"
+            class="inline-flex justify-center w-full rounded-md border border-transparent px-4 py-2 bg-blue-600 text-base leading-6 font-medium text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:border-red-700 focus:shadow-outline-red transition ease-in-out duration-150 sm:text-sm sm:leading-5"
+          >
+            Додај
+          </button>
+        </span>
+        <span class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
+          <button
+            (click)="onModalClose()"
+            type="button"
+            class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-base leading-6 font-medium text-gray-700 shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline transition ease-in-out duration-150 sm:text-sm sm:leading-5"
+          >
+            Затвори
+          </button>
+        </span>
+      </div>
+    </form>
+  </div>
+</div>

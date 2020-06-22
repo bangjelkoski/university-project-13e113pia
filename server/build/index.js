@@ -22,6 +22,14 @@ var hcaptcha = require('hcaptcha');
 var Chance = _interopDefault(require('chance'));
 var listEndpoints = _interopDefault(require('express-list-endpoints'));
 
+class ApiError$1 {
+  static throw(error, message) {
+    console.log(error);
+    throw new Error(message);
+  }
+
+}
+
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
   try {
     var info = gen[key](arg);
@@ -594,6 +602,40 @@ function init$7(sequelize) {
 }
 
 function init$8(sequelize) {
+  var Magacin = sequelize.define('Magacin', {}, {
+    freezeTableName: true
+  });
+  return Magacin;
+}
+
+function init$9(sequelize) {
+  var Sadnik = sequelize.define('Sadnik', {
+    name: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false
+    },
+    manufacturer: {
+      type: Sequelize.DataTypes.STRING,
+      allowNull: false
+    },
+    // Milisekundi od datuma kreiranja potrebno da se sadnik razvije
+    ms: {
+      type: Sequelize.DataTypes.INTEGER,
+      allowNull: false
+    },
+    // Datum kada treba izvaditi sadnicu sa rasadnika
+    izvadiNa: {
+      type: Sequelize.DataTypes.DATE,
+      allowNull: true,
+      default: null
+    }
+  }, {
+    freezeTableName: true
+  });
+  return Sadnik;
+}
+
+function init$a(sequelize) {
   var Rasadnik = sequelize.define('Rasadnik', {
     name: {
       type: Sequelize.DataTypes.STRING,
@@ -626,7 +668,7 @@ function init$8(sequelize) {
   return Rasadnik;
 }
 
-function init$9(sequelize) {
+function init$b(sequelize) {
   var Kurir = sequelize.define('Kurir', {
     firstName: {
       type: Sequelize.DataTypes.STRING,
@@ -673,9 +715,11 @@ var Admin = init$2(sequelize);
 var Poljoprivrednik = init$3(sequelize);
 var Komentar = init$7(sequelize);
 var Ocena = init$4(sequelize);
-var Kurir = init$9(sequelize);
-var Rasadnik = init$8(sequelize);
+var Kurir = init$b(sequelize);
+var Rasadnik = init$a(sequelize);
+var Magacin = init$8(sequelize);
 var Narudzbina = init$6(sequelize);
+var Sadnik = init$9(sequelize);
 var [Proizvod, NaruceniProizvod] = init$5(sequelize);
 /**
  * Relationships
@@ -699,11 +743,18 @@ Proizvod.hasMany(Komentar, {
 Preduzece.hasMany(Kurir, {
   as: 'Kuriri'
 });
-Rasadnik.hasOne(Narudzbina);
+Rasadnik.hasOne(Magacin);
 Rasadnik.belongsTo(Poljoprivrednik);
+Rasadnik.hasMany(Sadnik, {
+  as: 'Sadnici'
+});
 Admin.belongsTo(Korisnik);
 Poljoprivrednik.belongsTo(Korisnik);
 Preduzece.belongsTo(Korisnik);
+Magacin.belongsTo(Rasadnik);
+Magacin.hasMany(Narudzbina, {
+  as: 'Narudzbine'
+});
 Komentar.belongsTo(Korisnik);
 Komentar.belongsTo(Proizvod);
 Ocena.belongsTo(Korisnik);
@@ -712,15 +763,12 @@ Kurir.belongsTo(Preduzece);
 Kurir.hasOne(Narudzbina);
 Narudzbina.belongsTo(Preduzece);
 Narudzbina.belongsTo(Kurir);
-Narudzbina.belongsTo(Rasadnik);
+Narudzbina.belongsTo(Magacin);
 Narudzbina.hasMany(NaruceniProizvod, {
   as: 'NaruceniProizvodi'
 });
 Proizvod.belongsTo(Preduzece);
 NaruceniProizvod.belongsTo(Narudzbina);
-NaruceniProizvod.belongsTo(Proizvod, {
-  onDelete: 'SET NULL'
-});
 var db = {
   sequelize,
   Sequelize: Sequelize__default,
@@ -734,16 +782,10 @@ var db = {
   Rasadnik,
   Narudzbina,
   Proizvod,
+  Sadnik,
+  Magacin,
   NaruceniProizvod
 };
-
-class ApiError$1 {
-  static throw(error, message) {
-    console.log(error);
-    throw new Error(message);
-  }
-
-}
 
 var tops = ['NoHair', 'Eyepatch', 'Hat', 'Hijab', 'Turban', 'WinterHat1', 'WinterHat2', 'WinterHat3', 'WinterHat4', 'LongHairBigHair', 'LongHairBob', 'LongHairBun', 'LongHairCurly', 'LongHairCurvy', 'LongHairDreads', 'LongHairFrida', 'LongHairFro', 'LongHairFroBand', 'LongHairNotTooLong', 'LongHairShavedSides', 'LongHairMiaWallace', 'LongHairStraight', 'LongHairStraight2', 'LongHairStraightStrand', 'ShortHairDreads01', 'ShortHairDreads02', 'ShortHairFrizzle', 'ShortHairShaggyMullet', 'ShortHairShortCurly', 'ShortHairShortFlat', 'ShortHairShortRound', 'ShortHairShortWaved', 'ShortHairSides', 'ShortHairTheCaesar', 'ShortHairTheCaesarSidePart'];
 var hairColors = ['Black', 'Blue01', 'Blue02', 'Blue03', 'Gray01', 'Gray02', 'Heather', 'PastelBlue', 'PastelGreen', 'PastelOrange', 'PastelRed', 'PastelYellow', 'Pink', 'Red', 'White'];
@@ -1648,10 +1690,6 @@ router$2.post('/:preduzeceId/:id/odbij', validator.params(odbij$3), odbij$5);
 router$2.post('/:preduzeceId/:id/odobri', validator.params(odobri$3), odobri$5);
 router$2.get('/:preduzeceId/:id', validator.params(narudzbina), narudzbina$2);
 
-var azurirajParams$1 = Joi.object({
-  id: Joi.number().required(),
-  preduzeceId: Joi.number().required()
-});
 var proizvod = Joi.object({
   id: Joi.number().required(),
   preduzeceId: Joi.number().required()
@@ -1671,9 +1709,6 @@ var kreiraj = Joi.object({
 });
 var proizvodi = Joi.object({
   preduzeceId: Joi.number().required()
-});
-var azuriraj$3 = Joi.object({
-  name: Joi.string().required()
 });
 var obrisi$3 = Joi.object({
   id: Joi.number().required(),
@@ -1776,14 +1811,6 @@ var obrisi$4 = /*#__PURE__*/function () {
   };
 }();
 
-var proizvodService = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  proizvod: proizvod$1,
-  proizvodi: proizvodi$1,
-  kreiraj: kreiraj$1,
-  obrisi: obrisi$4
-});
-
 var proizvod$2 = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (req, res) {
     var {
@@ -1822,34 +1849,8 @@ var proizvodi$2 = /*#__PURE__*/function () {
     return _ref2.apply(this, arguments);
   };
 }();
-var azuriraj$4 = /*#__PURE__*/function () {
-  var _ref3 = _asyncToGenerator(function* (req, res) {
-    var {
-      id
-    } = req.params;
-    var {
-      name
-    } = req.body;
-
-    try {
-      yield undefined({
-        id,
-        name
-      });
-      res.json({
-        message: 'Успешно ажуриран производ.'
-      });
-    } catch (error) {
-      return res.status(400).send(error.message);
-    }
-  });
-
-  return function azuriraj(_x5, _x6) {
-    return _ref3.apply(this, arguments);
-  };
-}();
 var obrisi$5 = /*#__PURE__*/function () {
-  var _ref4 = _asyncToGenerator(function* (req, res, next) {
+  var _ref3 = _asyncToGenerator(function* (req, res, next) {
     var {
       id
     } = req.params;
@@ -1864,12 +1865,12 @@ var obrisi$5 = /*#__PURE__*/function () {
     }
   });
 
-  return function obrisi(_x7, _x8, _x9) {
-    return _ref4.apply(this, arguments);
+  return function obrisi(_x5, _x6, _x7) {
+    return _ref3.apply(this, arguments);
   };
 }();
 var kreiraj$2 = /*#__PURE__*/function () {
-  var _ref5 = _asyncToGenerator(function* (req, res, next) {
+  var _ref4 = _asyncToGenerator(function* (req, res, next) {
     var {
       preduzeceId
     } = req.params;
@@ -1904,8 +1905,8 @@ var kreiraj$2 = /*#__PURE__*/function () {
     }
   });
 
-  return function kreiraj(_x10, _x11, _x12) {
-    return _ref5.apply(this, arguments);
+  return function kreiraj(_x8, _x9, _x10) {
+    return _ref4.apply(this, arguments);
   };
 }();
 
@@ -1913,7 +1914,6 @@ var router$3 = express.Router();
 router$3.get('/:preduzeceId', validator.params(proizvodi), proizvodi$2);
 router$3.post('/:preduzeceId', validator.params(kreirajParams), validator.body(kreiraj), kreiraj$2);
 router$3.get('/:preduzeceId/:id', validator.params(proizvod), proizvod$2);
-router$3.post('/:preduzeceId/:id', validator.params(azurirajParams$1), validator.body(azuriraj$3), azuriraj$4);
 router$3.delete('/:preduzeceId/:id', validator.params(obrisi$3), obrisi$5);
 
 var kuriri = Joi.object({
@@ -2144,21 +2144,483 @@ var komentari$2 = /*#__PURE__*/function () {
 var router$6 = express.Router();
 router$6.get('/:proizvodId', validator.params(komentari), komentari$2);
 
+var rasadnik = Joi.object({
+  id: Joi.number().required(),
+  poljoprivrednikId: Joi.number().required()
+});
+var kreirajParams$1 = Joi.object({
+  poljoprivrednikId: Joi.number().required()
+});
+var kreiraj$3 = Joi.object({
+  name: Joi.string().required(),
+  location: Joi.string().required(),
+  width: Joi.number().required(),
+  length: Joi.number().required()
+});
+var setTemperatureParams = Joi.object({
+  id: Joi.number().required()
+});
+var setTemperature = Joi.object({
+  temperature: Joi.number().required()
+});
+var setWaterLevelParams = Joi.object({
+  id: Joi.number().required()
+});
+var setWaterLevel = Joi.object({
+  waterLevel: Joi.number().required()
+});
+var rasadnici = Joi.object({
+  poljoprivrednikId: Joi.number().required()
+});
+
+var rasadnik$1 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (id) {
+    try {
+      return yield db.Rasadnik.findOne({
+        where: {
+          id
+        },
+        include: [{
+          model: db.Sadnik,
+          as: 'Sadnici'
+        }]
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Расадник није пронађен');
+    }
+  });
+
+  return function rasadnik(_x) {
+    return _ref.apply(this, arguments);
+  };
+}();
+var rasadnici$1 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (PoljoprivrednikId) {
+    try {
+      return yield db.Rasadnik.findAll({
+        where: {
+          PoljoprivrednikId
+        },
+        include: [{
+          model: db.Sadnik,
+          as: 'Sadnici'
+        }]
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка');
+    }
+  });
+
+  return function rasadnici(_x2) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var setTemperature$1 = /*#__PURE__*/function () {
+  var _ref5 = _asyncToGenerator(function* (id, temperature) {
+    try {
+      var _rasadnik = yield db.Rasadnik.findOne({
+        where: {
+          id
+        }
+      });
+
+      yield _rasadnik.update({
+        temperature
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function setTemperature(_x4, _x5) {
+    return _ref5.apply(this, arguments);
+  };
+}();
+var setWaterLevel$1 = /*#__PURE__*/function () {
+  var _ref6 = _asyncToGenerator(function* (id, waterLevel) {
+    try {
+      var _rasadnik2 = yield db.Rasadnik.findOne({
+        where: {
+          id
+        }
+      });
+
+      yield _rasadnik2.update({
+        waterLevel
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function setWaterLevel(_x6, _x7) {
+    return _ref6.apply(this, arguments);
+  };
+}();
+
+var rasadnik$2 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (req, res) {
+    var {
+      id
+    } = req.params;
+
+    try {
+      var _rasadnik = yield rasadnik$1(id);
+
+      res.json(_rasadnik);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function rasadnik(_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
+var rasadnici$2 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (req, res) {
+    var {
+      poljoprivrednikId
+    } = req.params;
+
+    try {
+      var _rasadnici = yield rasadnici$1(poljoprivrednikId);
+
+      res.json(_rasadnici);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function rasadnici(_x3, _x4) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var setTemperature$2 = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(function* (req, res) {
+    var {
+      id
+    } = req.params;
+    var {
+      temperature
+    } = req.body;
+
+    try {
+      yield setTemperature$1(id, temperature);
+      res.json({
+        message: 'Успешно ажуриран расадник.'
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function setTemperature(_x5, _x6) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+var setWaterLevel$2 = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(function* (req, res) {
+    var {
+      id
+    } = req.params;
+    var {
+      waterLevel
+    } = req.body;
+
+    try {
+      yield setWaterLevel$1(id, waterLevel);
+      res.json({
+        message: 'Успешно ажуриран расадник.'
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function setWaterLevel(_x7, _x8) {
+    return _ref4.apply(this, arguments);
+  };
+}();
+var kreiraj$4 = /*#__PURE__*/function () {
+  var _ref5 = _asyncToGenerator(function* (req, res, next) {
+    var {
+      poljoprivrednikId
+    } = req.params;
+    var {
+      name,
+      location,
+      width,
+      length
+    } = req.body;
+
+    try {
+      yield proizvodService.kreiraj({
+        PoljoprivrednikId: poljoprivrednikId,
+        name,
+        location,
+        width,
+        length
+      });
+      res.json({
+        message: 'Успешно креиран расадник.'
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function kreiraj(_x9, _x10, _x11) {
+    return _ref5.apply(this, arguments);
+  };
+}();
+
 var router$7 = express.Router();
-router$7.get('/', (req, res) => {
+router$7.post('/:id/temperature', validator.params(setTemperatureParams), validator.body(setTemperature), setTemperature$2);
+router$7.post('/:id/water-level', validator.params(setWaterLevelParams), validator.body(setWaterLevel), setWaterLevel$2);
+router$7.get('/:poljoprivrednikId', validator.params(rasadnici), rasadnici$2);
+router$7.post('/:poljoprivrednikId', validator.params(kreirajParams$1), validator.body(kreiraj$3), kreiraj$4);
+router$7.get('/:poljoprivrednikId/:id', validator.params(rasadnik), rasadnik$2);
+
+var preparat = Joi.object({
+  sadnikId: Joi.number().required(),
+  preparatId: Joi.number().required()
+});
+var izvadi = Joi.object({
+  id: Joi.number().required()
+});
+var dodaj = Joi.object({
+  id: Joi.number().required(),
+  rasadnikId: Joi.number().required()
+});
+
+var preparat$1 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (sadnikId, preparatId) {
+    try {
+      var sadnik = yield db.Sadnik.findOne({
+        where: {
+          id: sadnikId
+        }
+      });
+
+      var _preparat = yield db.NaruceniProizvod.findOne({
+        where: {
+          id: preparatId
+        }
+      });
+
+      if (_preparat.quantity <= 0) {
+        throw new Error('Препарат није доступан.');
+      }
+
+      yield sadnik.update({
+        ms: sadnik.ms > _preparat.value ? sadnik.ms - _preparat.value : 0
+      });
+      yield _preparat.update({
+        quantity: _preparat.quantity - 1
+      });
+      return yield db.Sadnik.findOne({
+        where: {
+          id: sadnikId
+        }
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Садник није пронађен');
+    }
+  });
+
+  return function preparat(_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
+var izvadi$1 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (id) {
+    try {
+      var sadnik = yield db.Sadnik.findOne({
+        where: {
+          id
+        }
+      });
+      yield sadnik.update({
+        izvadiNa: new Date(new Date().getTime() + 60 * 60 * 24 * 1000)
+      });
+      return yield db.Sadnik.findOne({
+        where: {
+          id
+        }
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Садник није пронађен');
+    }
+  });
+
+  return function izvadi(_x3) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var dodaj$1 = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(function* (id, RasadnikId) {
+    try {
+      var {
+        name,
+        manufacturer,
+        value
+      } = yield db.NaruceniProizvod.findOne({
+        where: {
+          id
+        }
+      });
+      return yield db.Sadnik.create({
+        name,
+        RasadnikId,
+        manufacturer,
+        ms: value
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Садник није пронађен');
+    }
+  });
+
+  return function dodaj(_x4, _x5) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+
+var preparat$2 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (req, res) {
+    var {
+      sadnikId,
+      preparatId
+    } = req.params;
+
+    try {
+      var updatedSadnik = yield preparat$1(sadnikId, preparatId);
+      res.json(updatedSadnik);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function preparat(_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
+var izvadi$2 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (req, res) {
+    var {
+      id
+    } = req.params;
+
+    try {
+      var updatedSadnik = yield izvadi$1(id);
+      res.json(updatedSadnik);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function izvadi(_x3, _x4) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var dodaj$2 = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(function* (req, res) {
+    var {
+      id,
+      rasadnikId
+    } = req.params;
+
+    try {
+      var newSadnik = yield dodaj$1(id, rasadnikId);
+      res.json(newSadnik);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function dodaj(_x5, _x6) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+
+var router$8 = express.Router();
+router$8.post('/:id/izvadi', validator.params(izvadi), izvadi$2);
+router$8.post('/:rasadnikId/dodaj/:id', validator.params(dodaj), dodaj$2);
+router$8.post('/:sadnikId/preparat/:preparatId', validator.params(preparat), preparat$2);
+
+var magacin = Joi.object({
+  rasadnikId: Joi.number().required(),
+  poljoprivrednikId: Joi.number().required()
+});
+
+var magacin$1 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (PoljoprivrednikId, RasadnikId) {
+    try {
+      return yield db.Magacin.findOne({
+        where: {
+          RasadnikId
+        },
+        include: [{
+          model: db.Narudzbina,
+          as: 'Narudzbine',
+          include: [{
+            model: db.NaruceniProizvod,
+            as: 'NaruceniProizvodi'
+          }]
+        }]
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Магацин није пронађен');
+    }
+  });
+
+  return function magacin(_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
+
+var magacin$2 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (req, res) {
+    var {
+      poljoprivrednikId,
+      rasadnikId
+    } = req.params;
+
+    try {
+      var _magacin = yield magacin$1(poljoprivrednikId, rasadnikId);
+
+      res.json(_magacin);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function magacin(_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
+
+var router$9 = express.Router();
+router$9.get('/:poljoprivrednikId/:rasadnikId', validator.params(magacin), magacin$2);
+
+var router$a = express.Router();
+router$a.get('/', (req, res) => {
   res.json({
     statusCode: HTTPStatus.OK,
     message: 'Welcome to 13e113pia project API'
   });
 });
-router$7.use('/auth/', router);
-router$7.use('/korisnici/', router$1);
-router$7.use('/proizvodi/', router$3);
-router$7.use('/narudzbine/', router$2);
-router$7.use('/kuriri/', router$4);
-router$7.use('/komentari/', router$6);
-router$7.use('/ocene/', router$5);
-router$7.all('*', /*#__PURE__*/function () {
+router$a.use('/auth/', router);
+router$a.use('/korisnici/', router$1);
+router$a.use('/proizvodi/', router$3);
+router$a.use('/narudzbine/', router$2);
+router$a.use('/kuriri/', router$4);
+router$a.use('/komentari/', router$6);
+router$a.use('/ocene/', router$5);
+router$a.use('/rasadnici/', router$7);
+router$a.use('/magacini/', router$9);
+router$a.use('/sadnici/', router$8);
+router$a.all('*', /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (req, res) {
     res.status(HTTPStatus.NOT_FOUND).json('Страница није пронађена');
   });
@@ -2167,7 +2629,7 @@ router$7.all('*', /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }());
-console.log(listEndpoints(router$7));
+console.log(listEndpoints(router$a));
 
 var app = express__default();
 var log = debug('app');
@@ -2202,7 +2664,7 @@ db.sequelize.authenticate().then(() => {
  * API Routes
  */
 
-app.use(router$7);
+app.use(router$a);
 /**
  * Validation Errors
  */
@@ -2219,7 +2681,7 @@ app.use((err, req, res, next) => {
  */
 
 app.use((err, req, res, next) => {
-  if (err instanceof APIClientError) {
+  if (err instanceof ApiError$1) {
     return res.status(err.status).json(err.toJson());
   }
 

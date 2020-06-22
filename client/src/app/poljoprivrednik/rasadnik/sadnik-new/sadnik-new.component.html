@@ -1,0 +1,56 @@
+<div class="bg-white shadow sm:rounded-lg">
+  <div class="px-4 py-5 sm:p-6">
+    <h2 class="text-xs title-font text-gray-500 tracking-widest"></h2>
+    <h3 class="mt-2 text-xl leading-6 font-medium text-gray-900">
+      Додај нови садник
+    </h3>
+    <form [formGroup]="sadnikForm" (ngSubmit)="onDodajSadnik()">
+      <div class="bg-white mt-4">
+        <div class="flex items-center">
+          <div class="text-left mr-2">
+            <div>
+              <label
+                for="sadnik"
+                class="block text-sm font-medium leading-5 text-gray-700"
+              >
+                Изабери садник
+              </label>
+              <div class="mt-1 rounded-md shadow-sm">
+                <select
+                  id="sadnik"
+                  formControlName="sadnik"
+                  required
+                  class="appearance-none bg-white block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+                >
+                  <option value="">&mdash;</option>
+                  <option *ngFor="let sadnik of sadnici" [value]="sadnik.id">
+                    {{ sadnik.name }}, {{ sadnik.manufacturer }}
+                  </option>
+                </select>
+              </div>
+              <div
+                class="text-xs text-red-500 mt-1"
+                *ngIf="sadnik.invalid && (sadnik.dirty || sadnik.touched)"
+              >
+                <span *ngIf="sadnik.errors.required">
+                  Мораш да попуниш ово поље.
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ml-2 mt-6">
+            <button
+              [disabled]="!sadnikForm.valid"
+              (click)="onDodajSadnik()"
+              type="button"
+              class="inline-flex justify-center w-full rounded-md border border-transparent px-4 py-2 bg-blue-600 text-base leading-6 font-medium text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:border-red-700 focus:shadow-outline-red transition ease-in-out duration-150 sm:text-sm sm:leading-5"
+            >
+              Додај
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

@@ -33,6 +33,7 @@ import { PoljoprivredniciComponent as AdminPoljoprivredniciComponent } from './a
 import { PreduzecaComponent as AdminPreduzecaComponent } from './admin/preduzeca/preduzeca.component';
 import { KorisnikComponent as AdminKorisnikComponent } from './admin/korisnik/korisnik.component';
 import { RouterModule } from '@angular/router';
+
 import { DashboardComponent as PreduzeceDashboardComponent } from './preduzece/dashboard/dashboard.component';
 import { ProizvodiComponent as PreduzeceProizvodiComponent } from './preduzece/proizvodi/proizvodi.component';
 import { ChartComponent as PreduzeceDashboardChartComponent } from './preduzece/dashboard/chart/chart.component';
@@ -41,6 +42,14 @@ import { ChartsModule } from 'ng2-charts';
 import { KurirComponent as PreduzeceKurirComponent } from './preduzece/dashboard/kurir/kurir.component';
 import { ProizvodComponent as PreduzeceProizvodComponent } from './preduzece/proizvodi/proizvod/proizvod.component';
 import { ProizvodFormComponent as PreduzeceProizvodFormComponent } from './preduzece/proizvodi/proizvod-form/proizvod-form.component';
+
+import { DashboardComponent as PoljoprivrednikDashboardComponent } from './poljoprivrednik/dashboard/dashboard.component';
+import { RasadniciComponent as PoljoprivrednikRasadniciComponent } from './poljoprivrednik/dashboard/rasadnici/rasadnici.component';
+import { RasadnikComponent as PoljoprivrednikRasadnikComponent } from './poljoprivrednik/rasadnik/rasadnik.component';
+import { WaterComponent as WaterModalComponent } from './poljoprivrednik/rasadnik/water/water.component';
+import { TemperatureComponent as TemperatureModalComponent } from './poljoprivrednik/rasadnik/temperature/temperature.component';
+import { SadnikComponent } from './poljoprivrednik/rasadnik/sadnik/sadnik.component';
+import { SadnikNewComponent } from './poljoprivrednik/rasadnik/sadnik-new/sadnik-new.component';
 
 @NgModule({
   declarations: [
@@ -67,6 +76,13 @@ import { ProizvodFormComponent as PreduzeceProizvodFormComponent } from './predu
     PreduzeceKurirComponent,
     PreduzeceProizvodComponent,
     PreduzeceProizvodFormComponent,
+    PoljoprivrednikDashboardComponent,
+    PoljoprivrednikRasadniciComponent,
+    PoljoprivrednikRasadnikComponent,
+    WaterModalComponent,
+    TemperatureModalComponent,
+    SadnikComponent,
+    SadnikNewComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,100 @@
+<section class="body-font overflow-hidden bg-white" *ngIf="rasadnik">
+  <div class="container px-5 py-6 mx-auto">
+    <div class="w-full lg:pl-10 lg:py-6 mt-6 lg:mt-0">
+      <div class="flex items-center">
+        <h2 class="text-sm title-font text-gray-500 tracking-widest">
+          {{ rasadnik.location }}
+        </h2>
+      </div>
+
+      <h1 class="text-gray-900 text-3xl title-font font-black mb-1 mt-6">
+        {{ rasadnik.name }}
+      </h1>
+
+      <p class="leading-relaxed">
+        Димензије: {{ rasadnik.width }}
+        <span>&times;</span>
+        {{ rasadnik.length }}
+      </p>
+      <p class="leading-relaxed text-blue-500">
+        Ниво воде: {{ rasadnik.waterLevel }}L
+      </p>
+      <p class="leading-relaxed text-orange-500">
+        Температура: {{ rasadnik.temperature }}<span>&#176;</span>
+      </p>
+      <span class="title-font font-medium text-lg text-gray-900">
+        Расадник има {{ rasadnik.Sadnici.length }} укупно садника
+      </span>
+      <div class="flex items-center pb-5 border-b-2 border-gray-200 mb-5"></div>
+      <div class="flex lg:justify-end">
+        <div class="flex">
+          <button
+            (click)="onAddWater()"
+            class="flex ml-auto text-white bg-blue-500 border-0 py-2 px-6 focus:outline-none hover:bg-blue-600 rounded mr-4"
+          >
+            Додај воду
+          </button>
+          <button
+            (click)="onIncreaseTemperature()"
+            class="flex ml-auto text-white bg-orange-500 border-0 py-2 px-6 focus:outline-none hover:bg-orange-600 rounded mr-4"
+          >
+            Промени температуру
+          </button>
+          <button
+            class="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-gray-500"
+          >
+            <svg
+              fill="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              class="w-4 h-4"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <app-water-modal
+      [rasadnik]="rasadnik"
+      [isOpen]="isWaterModalOpen"
+      (closed)="onModalClose()"
+      (updated)="onUpdate($event)"
+    ></app-water-modal>
+    <app-temperature-modal
+      [rasadnik]="rasadnik"
+      [isOpen]="isTemperatureModalOpen"
+      (closed)="onModalClose()"
+      (updated)="onUpdate($event)"
+    ></app-temperature-modal>
+
+    <div class="lg:pl-10 lg:py-6 mt-6 lg:mt-0">
+      <h2 class="font-bold text-xl">Садници</h2>
+
+      <div class="-mx-4 flex flex-wrap">
+        <div
+          class="w-1/2 lg:w-1/3 px-4 my-2"
+          *ngFor="let sadnik of rasadnik.Sadnici"
+        >
+          <app-sadnik
+            [sadnik]="sadnik"
+            [preparati]="preparati"
+            (updated)="onSadnikUpdate($event)"
+          ></app-sadnik>
+        </div>
+        <div class="w-1/2 lg:w-1/3 px-4 my-2">
+          <app-sadnik-new
+            (created)="onSadnikCreated($event)"
+            [rasadnik]="rasadnik"
+            [sadnici]="sadnici"
+          ></app-sadnik-new>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

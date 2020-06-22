@@ -1,0 +1,115 @@
+<div class="mt-12 w-full mx-auto lg:w-3/4">
+  <div class="flex flex-col">
+    <h4 class="text-lg font-semibold">Расадници</h4>
+
+    <div
+      class="mt-4 -my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
+    >
+      <div
+        class="align-middle inline-block min-w-full shadow overflow-hidden sm:rounded-lg border-b border-gray-200"
+      >
+        <table class="min-w-full">
+          <thead>
+            <tr>
+              <th
+                class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Име
+              </th>
+              <th
+                class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Локација
+              </th>
+              <th
+                class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Димензије
+              </th>
+              <th
+                class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Температура
+              </th>
+              <th
+                class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Количина воде
+              </th>
+              <th
+                class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Информације
+              </th>
+              <th class="px-6 py-3 border-b border-gray-200 bg-gray-50"></th>
+            </tr>
+          </thead>
+          <tbody class="bg-white">
+            <tr *ngFor="let rasadnik of rasadnici">
+              <td
+                class="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm leading-5 font-medium text-gray-900"
+              >
+                {{ rasadnik.name }}
+              </td>
+              <td
+                class="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm leading-5 text-gray-500"
+              >
+                {{ rasadnik.location }}
+              </td>
+              <td
+                class="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm leading-5 text-gray-700"
+              >
+                {{ rasadnik.width }}
+                <span>&times;</span>
+                {{ rasadnik.length }}
+              </td>
+              <td
+                class="px-6 py-4 whitespace-no-wrap border-b text-right border-gray-200 text-sm leading-5 text-red-500"
+              >
+                <p>{{ rasadnik.temperature }}<span>&#176;</span></p>
+              </td>
+
+              <td
+                class="px-6 py-4 whitespace-no-wrap text-center border-b border-gray-200 text-sm leading-5 text-blue-800"
+              >
+                <span
+                  class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-200 text-blue-800"
+                >
+                  {{ rasadnik.waterLevel }}L
+                </span>
+              </td>
+              <td
+                class="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm leading-5 text-gray-500"
+              >
+                <div class="text-xs">
+                  <p>Бр. садника: {{ rasadnik.Sadnici.length }}</p>
+                  <p>
+                    Бр. слободних садница: {{ rasadnik.brSlobodnihSadnika }}
+                  </p>
+                </div>
+              </td>
+              <td
+                class="px-6 py-4 whitespace-no-wrap text-right border-b border-gray-200 text-sm leading-5 font-medium"
+              >
+                <button
+                  type="button"
+                  (click)="onMagacin(rasadnik)"
+                  class="text-blue-600 hover:text-blue-900 mr-2"
+                >
+                  Магацин
+                </button>
+                <button
+                  type="button"
+                  (click)="onDetails(rasadnik)"
+                  class="text-blue-600 hover:text-blue-900 mr-2"
+                >
+                  Детаљи
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

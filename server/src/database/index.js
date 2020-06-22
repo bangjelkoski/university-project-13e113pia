@@ -8,6 +8,8 @@ import ocenaInit from '~/modules/ocena/ocena.model';
 import proizvodInit from '~/modules/proizvod/proizvod.model';
 import narudzbinaInit from '~/modules/narudzbina/narudzbina.model';
 import komentarInit from '~/modules/komentar/komentar.model';
+import magacinInit from '~/modules/magacin/magacin.model';
+import sadnikInit from '~/modules/sadnik/sadnik.model';
 import rasadnikInit from '~/modules/rasadnik/rasadnik.model';
 import kurirInit from '~/modules/kurir/kurir.model';
 
@@ -32,7 +34,9 @@ const Komentar = komentarInit(sequelize);
 const Ocena = ocenaInit(sequelize);
 const Kurir = kurirInit(sequelize);
 const Rasadnik = rasadnikInit(sequelize);
+const Magacin = magacinInit(sequelize);
 const Narudzbina = narudzbinaInit(sequelize);
+const Sadnik = sadnikInit(sequelize);
 const [Proizvod, NaruceniProizvod] = proizvodInit(sequelize);
 
 /**
@@ -59,12 +63,20 @@ Preduzece.hasMany(Kurir, {
   as: 'Kuriri',
 });
 
-Rasadnik.hasOne(Narudzbina);
+Rasadnik.hasOne(Magacin);
 Rasadnik.belongsTo(Poljoprivrednik);
+Rasadnik.hasMany(Sadnik, {
+  as: 'Sadnici',
+});
 
 Admin.belongsTo(Korisnik);
 Poljoprivrednik.belongsTo(Korisnik);
 Preduzece.belongsTo(Korisnik);
+
+Magacin.belongsTo(Rasadnik);
+Magacin.hasMany(Narudzbina, {
+  as: 'Narudzbine',
+});
 
 Komentar.belongsTo(Korisnik);
 Komentar.belongsTo(Proizvod);
@@ -77,17 +89,13 @@ Kurir.hasOne(Narudzbina);
 
 Narudzbina.belongsTo(Preduzece);
 Narudzbina.belongsTo(Kurir);
-Narudzbina.belongsTo(Rasadnik);
+Narudzbina.belongsTo(Magacin);
 Narudzbina.hasMany(NaruceniProizvod, {
   as: 'NaruceniProizvodi',
 });
 
 Proizvod.belongsTo(Preduzece);
-
 NaruceniProizvod.belongsTo(Narudzbina);
-NaruceniProizvod.belongsTo(Proizvod, {
-  onDelete: 'SET NULL',
-});
 
 const db = {
   sequelize,
@@ -102,6 +110,8 @@ const db = {
   Rasadnik,
   Narudzbina,
   Proizvod,
+  Sadnik,
+  Magacin,
   NaruceniProizvod,
 };
 

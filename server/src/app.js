@@ -6,6 +6,7 @@ import debug from 'debug';
 import bodyParser from 'body-parser';
 import helmet from 'helmet';
 import { ValidationError } from 'express-validation';
+import ApiError from '~/handlers/ApiError';
 
 import routes from './routes';
 import database from './database';
@@ -61,7 +62,7 @@ app.use((err, req, res, next) => {
  * API Errors
  */
 app.use((err, req, res, next) => {
-  if (err instanceof APIClientError) {
+  if (err instanceof ApiError) {
     return res.status(err.status).json(err.toJson());
   }
 

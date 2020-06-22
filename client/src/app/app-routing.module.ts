@@ -20,6 +20,11 @@ import { ProizvodiComponent as PreduzeceProizvodiComponent } from './preduzece/p
 import { KorisnikComponent as AdminKorisnikComponent } from './admin/korisnik/korisnik.component';
 import { ProizvodComponent as PreduzeceProizvodComponent } from './preduzece/proizvodi/proizvod/proizvod.component';
 import { ProizvodFormComponent as PreduzeceProizvodFormComponent } from './preduzece/proizvodi/proizvod-form/proizvod-form.component';
+import { PoljoprivrednikGuardService } from './services/guards/poljoprivrednik/poljoprivrednik.service';
+
+import { PoljoprivrednikComponent } from './poljoprivrednik/poljoprivrednik.component';
+import { DashboardComponent as PoljoprivrednikDashboardComponent } from './poljoprivrednik/dashboard/dashboard.component';
+import { RasadnikComponent as PoljoprivrednikRasadnikComponent } from './poljoprivrednik/rasadnik/rasadnik.component';
 
 const routes: Routes = [
   {
@@ -52,7 +57,18 @@ const routes: Routes = [
   },
   {
     path: 'poljoprivrednik',
-    children: [],
+    component: PoljoprivrednikComponent,
+    canActivate: [AuthGuardService, PoljoprivrednikGuardService],
+    children: [
+      {
+        path: '',
+        component: PoljoprivrednikDashboardComponent,
+      },
+      {
+        path: 'rasadnik/:id',
+        component: PoljoprivrednikRasadnikComponent,
+      },
+    ],
   },
   {
     path: 'preduzece',

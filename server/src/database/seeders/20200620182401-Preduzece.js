@@ -21,7 +21,7 @@ const proizvodFactory = (preduzeceId) => ({
   image: 'https://picsum.photos/800/600',
   quantity: chance.integer({ min: 0, max: 10 }),
   price: chance.floating({ min: 0, max: 100 }),
-  value: chance.hour() * 24 * 60 * 1000,
+  value: chance.hour() * 60 * 1000,
   PreduzeceId: preduzeceId,
 });
 

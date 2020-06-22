@@ -24,24 +24,6 @@ export const proizvodi = async (req, res) => {
   }
 };
 
-export const azuriraj = async (req, res) => {
-  const { id } = req.params;
-  const { name } = req.body;
-
-  try {
-    await proizvodService.azuriraj({
-      id,
-      name,
-    });
-
-    res.json({
-      message: 'Успешно ажуриран производ.',
-    });
-  } catch (error) {
-    return res.status(400).send(error.message);
-  }
-};
-
 export const obrisi = async (req, res, next) => {
   const { id } = req.params;
 

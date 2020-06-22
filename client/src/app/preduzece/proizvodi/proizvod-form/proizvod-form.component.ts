@@ -5,7 +5,6 @@ import {
   FormBuilder,
   Validators,
 } from '@angular/forms';
-import { AuthService } from 'src/app/services/auth/auth.service';
 import { PreduzeceService } from 'src/app/services/preduzece/preduzece.service';
 
 @Component({
@@ -25,11 +24,6 @@ export class ProizvodFormComponent {
   quantity: FormControl;
   value: FormControl;
 
-  /**
-   * name, description,
-   * manufacturer, price, quantity,
-   * type, value,
-   */
   constructor(
     private formBuilder: FormBuilder,
     private preduzeceService: PreduzeceService
