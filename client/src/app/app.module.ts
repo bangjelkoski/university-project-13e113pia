@@ -51,6 +51,9 @@ import { TemperatureComponent as TemperatureModalComponent } from './poljoprivre
 import { SadnikComponent } from './poljoprivrednik/rasadnik/sadnik/sadnik.component';
 import { SadnikNewComponent } from './poljoprivrednik/rasadnik/sadnik-new/sadnik-new.component';
 import { MagacinComponent as PoljoprivrednikMagacinComponent } from './poljoprivrednik/magacin/magacin.component';
+import { ProdavnicaComponent as PoljoprivrednikProdavnicaComponent } from './poljoprivrednik/prodavnica/prodavnica.component';
+import { ProizvodiComponent as PoljoprivrednikProizvodiComponent } from './poljoprivrednik/prodavnica/proizvodi/proizvodi.component';
+import { ProizvodComponent as PoljoprivrednikProizvodComponent } from './poljoprivrednik/prodavnica/proizvod/proizvod.component';
 
 @NgModule({
   declarations: [
@@ -85,6 +88,9 @@ import { MagacinComponent as PoljoprivrednikMagacinComponent } from './poljopriv
     SadnikComponent,
     SadnikNewComponent,
     PoljoprivrednikMagacinComponent,
+    PoljoprivrednikProdavnicaComponent,
+    PoljoprivrednikProizvodiComponent,
+    PoljoprivrednikProizvodComponent,
   ],
   imports: [
     BrowserModule,

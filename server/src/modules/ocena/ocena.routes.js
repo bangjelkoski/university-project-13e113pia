@@ -11,4 +11,11 @@ router.get(
   controller.ocene
 );
 
+router.post(
+  '/:proizvodId',
+  validator.params(validation.oceniParams),
+  validator.body(validation.oceni),
+  controller.oceni
+);
+
 export default router;

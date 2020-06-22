@@ -1,0 +1,230 @@
+<form *ngIf="proizvodi.length > 0" [formGroup]="narudzbina">
+  <div class="bg-gray-50 pt-12 sm:pt-16">
+    <div class="w-full mx-auto xl:w-2/3">
+      <div class="flex flex-col mt-12">
+        <h3 class="text-xl font-bold">{{ preduzece.name }}</h3>
+        <div
+          class="mt-4 -my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
+        >
+          <div
+            class="align-middle inline-block min-w-full shadow overflow-hidden sm:rounded-lg border-b border-gray-200"
+          >
+            <table class="min-w-full">
+              <thead>
+                <tr>
+                  <th
+                    class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Име
+                  </th>
+                  <th
+                    class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Цена и количина
+                  </th>
+                  <th
+                    class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Тип
+                  </th>
+                  <th
+                    class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Вредност
+                  </th>
+                  <th
+                    class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Наручи
+                  </th>
+                  <th
+                    class="px-6 py-3 border-b border-gray-200 bg-gray-50"
+                  ></th>
+                </tr>
+              </thead>
+              <tbody class="bg-white">
+                <tr *ngFor="let proizvod of proizvodi">
+                  <td
+                    class="px-6 py-4 whitespace-no-wrap border-b border-gray-200"
+                  >
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 h-10 w-10">
+                        <img
+                          class="h-10 w-10 rounded-full"
+                          [src]="proizvod.image"
+                          [alt]="proizvod.name"
+                        />
+                      </div>
+                      <div class="ml-4">
+                        <div
+                          class="text-sm leading-5 font-medium text-gray-900"
+                        >
+                          {{ proizvod.name }}
+                        </div>
+                        <div class="text-sm leading-5 text-gray-500">
+                          {{ proizvod.manufacturer }}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td
+                    class="px-6 py-4 whitespace-no-wrap border-b border-gray-200"
+                  >
+                    <div class="text-sm leading-5 text-gray-900">
+                      {{ proizvod.price }}
+                      <span class="opacity-50" style="font-size: 0.55rem;">
+                        РСД
+                      </span>
+                    </div>
+                    <div class="text-sm leading-5 text-gray-500">
+                      Количина: {{ proizvod.quantity }}
+                    </div>
+                  </td>
+                  <td
+                    class="px-6 py-4 whitespace-no-wrap border-b border-gray-200"
+                  >
+                    <span
+                      class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"
+                    >
+                      {{ proizvod.type }}
+                    </span>
+                  </td>
+                  <td
+                    class="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm leading-5 text-gray-500"
+                  >
+                    {{ proizvod.valueToString }}
+                  </td>
+                  <td
+                    class="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm leading-5 text-gray-500"
+                  >
+                    <div
+                      class="flex flex-row border h-8 w-24 rounded-lg border-gray-400 relative"
+                    >
+                      <button
+                        (click)="onDecreaseQuantity(proizvod)"
+                        class="font-semibold border-r bg-blue-500 hover:bg-blue-600 text-white border-gray-400 h-full w-20 flex rounded-l focus:outline-none cursor-pointer"
+                      >
+                        <span class="m-auto">-</span>
+                      </button>
+                      <div
+                        class="bg-white w-24 text-gray-800 text-xs md:text-base flex items-center justify-center cursor-default"
+                      >
+                        <span>{{ kolicine[proizvod.id].value }}</span>
+                      </div>
+
+                      <button
+                        (click)="onIncreaseQuantity(proizvod)"
+                        class="font-semibold border-l bg-blue-500 hover:bg-blue-600 text-white border-gray-400 h-full w-20 flex rounded-r focus:outline-none cursor-pointer"
+                      >
+                        <span class="m-auto">+</span>
+                      </button>
+                    </div>
+                  </td>
+                  <td
+                    class="px-6 py-4 whitespace-no-wrap text-right border-b border-gray-200 text-sm leading-5 font-medium"
+                  >
+                    <button
+                      type="button"
+                      (click)="onDetails(proizvod)"
+                      class="text-blue-600 hover:text-blue-900 focus:outline-none focus:underline mr-2"
+                    >
+                      Детаљи
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="flex lg:justify-end mt-4">
+          <button
+            (click)="onNarudzbinaModalOpen()"
+            class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-base leading-6 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:shadow-outline transition duration-150 ease-in-out"
+          >
+            Наручи
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    *ngIf="isNarudzbinaModalOpen"
+    class="fixed bottom-0 inset-x-0 px-4 pb-4 sm:inset-0 sm:flex sm:items-center sm:justify-center"
+  >
+    <div *ngIf="isNarudzbinaModalOpen" class="fixed inset-0 transition-opacity">
+      <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+    </div>
+
+    <div
+      *ngIf="isNarudzbinaModalOpen"
+      class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full"
+    >
+      <div class="bg-white py-2">
+        <div class="sm:flex sm:items-start">
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+              Наручи производе
+            </h3>
+
+            <div class="mt-4">
+              <label
+                for="rasadnik"
+                class="block text-sm font-medium leading-5 text-gray-700"
+              >
+                Изабери расадник
+              </label>
+              <div class="mt-1 rounded-md shadow-sm">
+                <select
+                  id="rasadnik"
+                  formControlName="rasadnik"
+                  required
+                  class="appearance-none bg-white block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+                >
+                  <option value="">&mdash;</option>
+                  <option
+                    *ngFor="let rasadnik of rasadnici"
+                    [value]="rasadnik.id"
+                    >{{ rasadnik.name }}
+                  </option>
+                </select>
+              </div>
+              <div
+                class="text-xs text-red-500 mt-1"
+                *ngIf="rasadnik.invalid && (rasadnik.dirty || rasadnik.touched)"
+              >
+                <span *ngIf="rasadnik.errors.required">
+                  Мораш да попуниш ово поље.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="bg-gray-200 mt-2 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse"
+      >
+        <span class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
+          <button
+            (click)="onNarudzbina()"
+            [disabled]="!narudzbina.valid"
+            type="button"
+            class="inline-flex justify-center w-full rounded-md border border-transparent px-4 py-2 bg-blue-600 text-base leading-6 font-medium text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:border-red-700 focus:shadow-outline-red transition ease-in-out duration-150 sm:text-sm sm:leading-5"
+          >
+            Наручи
+          </button>
+        </span>
+        <span class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
+          <button
+            (click)="onNarudzbinaModalClose()"
+            type="button"
+            class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-base leading-6 font-medium text-gray-700 shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline transition ease-in-out duration-150 sm:text-sm sm:leading-5"
+          >
+            Затвори
+          </button>
+        </span>
+      </div>
+    </div>
+  </div>
+</form>

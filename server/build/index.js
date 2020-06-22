@@ -12,6 +12,7 @@ var debug = _interopDefault(require('debug'));
 var bodyParser = _interopDefault(require('body-parser'));
 var helmet = _interopDefault(require('helmet'));
 var expressValidation = require('express-validation');
+var cron = _interopDefault(require('node-cron'));
 var HTTPStatus = _interopDefault(require('http-status'));
 var expressJoiValidation = require('express-joi-validation');
 var Joi = _interopDefault(require('@hapi/joi'));
@@ -21,14 +22,7 @@ var bcrypt = _interopDefault(require('bcrypt'));
 var hcaptcha = require('hcaptcha');
 var Chance = _interopDefault(require('chance'));
 var listEndpoints = _interopDefault(require('express-list-endpoints'));
-
-class ApiError$1 {
-  static throw(error, message) {
-    console.log(error);
-    throw new Error(message);
-  }
-
-}
+var nodemailer = _interopDefault(require('nodemailer'));
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
   try {
@@ -115,6 +109,14 @@ function _objectSpread2(target) {
   return target;
 }
 
+class ApiError$1 {
+  static throw(error, message) {
+    console.log(error);
+    throw new Error(message);
+  }
+
+}
+
 var validator = expressJoiValidation.createValidator();
 
 var login = Joi.object({
@@ -155,7 +157,11 @@ var config = {
   DB_PORT: process.env.DB_PORT,
   DB_NAME: process.env.DB_NAME,
   DB_USER: process.env.DB_USER,
-  DB_PASSWORD: process.env.DB_PASSWORD
+  DB_PASSWORD: process.env.DB_PASSWORD,
+  SMTP_HOST: process.env.SMTP_HOST,
+  SMTP_PORT: process.env.SMTP_PORT,
+  SMTP_USER: process.env.SMTP_USER,
+  SMTP_PASSWORD: process.env.SMTP_PASSWORD
 };
 
 var ROLES = {
@@ -654,7 +660,7 @@ function init$a(sequelize) {
       allowNull: false
     },
     temperature: {
-      type: Sequelize.DataTypes.INTEGER,
+      type: Sequelize.DataTypes.DECIMAL,
       defaultValue: 18
     },
     waterLevel: {
@@ -743,6 +749,9 @@ Proizvod.hasMany(Komentar, {
 Preduzece.hasMany(Kurir, {
   as: 'Kuriri'
 });
+Preduzece.hasMany(Proizvod, {
+  as: 'Proizvodi'
+});
 Rasadnik.hasOne(Magacin);
 Rasadnik.belongsTo(Poljoprivrednik);
 Rasadnik.hasMany(Sadnik, {
@@ -769,6 +778,9 @@ Narudzbina.hasMany(NaruceniProizvod, {
 });
 Proizvod.belongsTo(Preduzece);
 NaruceniProizvod.belongsTo(Narudzbina);
+NaruceniProizvod.belongsTo(Proizvod, {
+  onDelete: 'SET NULL'
+});
 var db = {
   sequelize,
   Sequelize: Sequelize__default,
@@ -1150,6 +1162,10 @@ var odbij = Joi.object({
 var azurirajParams = Joi.object({
   id: Joi.number().required()
 });
+var narucioProizvod = Joi.object({
+  id: Joi.number().required(),
+  proizvodId: Joi.number().required()
+});
 var azuriraj = Joi.object({
   username: Joi.string().required(),
   password: Joi.optional(),
@@ -1347,6 +1363,87 @@ var poljoprivrednici = /*#__PURE__*/function () {
     return _ref9.apply(this, arguments);
   };
 }();
+var narucioProizvod$1 = /*#__PURE__*/function () {
+  var _ref10 = _asyncToGenerator(function* (id, proizvodId) {
+    try {
+      var poljoprivrednik = yield db.Poljoprivrednik.findOne({
+        where: {
+          KorisnikId: id
+        }
+      });
+
+      if (!poljoprivrednik) {
+        return false;
+      }
+
+      var rasadnici = yield db.Rasadnik.findAll({
+        where: {
+          PoljoprivrednikId: poljoprivrednik.id
+        }
+      });
+
+      if (!rasadnici.length) {
+        return false;
+      }
+
+      var rasadniciId = rasadnici.map((_ref11) => {
+        var {
+          id
+        } = _ref11;
+        return id;
+      });
+      var magacini = yield db.Magacin.findAll({
+        where: {
+          RasadnikId: {
+            [db.Sequelize.Op.in]: rasadniciId
+          }
+        }
+      });
+
+      if (!magacini.length) {
+        return false;
+      }
+
+      var magaciniId = magacini.map((_ref12) => {
+        var {
+          id
+        } = _ref12;
+        return id;
+      });
+      var narudzbine = yield db.Narudzbina.findAll({
+        where: {
+          MagacinId: {
+            [db.Sequelize.Op.in]: magaciniId
+          }
+        },
+        include: [{
+          model: db.NaruceniProizvod,
+          as: 'NaruceniProizvodi'
+        }]
+      });
+
+      if (!narudzbine.length) {
+        return false;
+      }
+
+      var naruceniProizvodi = narudzbine.reduce((prev, narudzbina) => {
+        return [...prev, ...narudzbina.NaruceniProizvodi];
+      }, []);
+      return naruceniProizvodi.some((_ref13) => {
+        var {
+          ProizvodId
+        } = _ref13;
+        return ProizvodId === proizvodId;
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка');
+    }
+  });
+
+  return function narucioProizvod(_x8, _x9) {
+    return _ref10.apply(this, arguments);
+  };
+}();
 
 var korisnik$2 = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (req, res) {
@@ -1501,8 +1598,29 @@ var obrisi$2 = /*#__PURE__*/function () {
     return _ref8.apply(this, arguments);
   };
 }();
+var narucioProizvod$2 = /*#__PURE__*/function () {
+  var _ref9 = _asyncToGenerator(function* (req, res, next) {
+    var {
+      id,
+      proizvodId
+    } = req.params;
+
+    try {
+      var _narucioProizvod = yield narucioProizvod$1(id, proizvodId);
+
+      res.json(_narucioProizvod);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function narucioProizvod(_x20, _x21, _x22) {
+    return _ref9.apply(this, arguments);
+  };
+}();
 
 var router$1 = express.Router();
+router$1.get('/:id/narucio-proizvod/:proizvodId', validator.params(narucioProizvod), narucioProizvod$2);
 router$1.get('/na-cekanju', korisniciNaCekanju$1);
 router$1.get('/poljoprivrednici', poljoprivrednici$1);
 router$1.get('/preduzeca', preduzeca$1);
@@ -1520,6 +1638,10 @@ var odobri$3 = Joi.object({
   id: Joi.number().required(),
   preduzeceId: Joi.number().required()
 });
+var kreiraj = Joi.object({
+  rasadnikId: Joi.number().required(),
+  proizvodi: Joi.required()
+});
 var narudzbina = Joi.object({
   id: Joi.number().required(),
   preduzeceId: Joi.number().required()
@@ -1528,197 +1650,7 @@ var narudzbine = Joi.object({
   preduzeceId: Joi.number().required()
 });
 
-var narudzbina$1 = /*#__PURE__*/function () {
-  var _ref = _asyncToGenerator(function* (id, PreduzeceId) {
-    try {
-      return yield db.Narudzbina.findOne({
-        where: {
-          id,
-          PreduzeceId
-        },
-        include: [{
-          model: db.Kurir
-        }, {
-          model: db.NaruceniProizvod,
-          as: 'NaruceniProizvod'
-        }]
-      });
-    } catch (error) {
-      return ApiError$1.throw(error, 'Наруђбина није пронађена');
-    }
-  });
-
-  return function narudzbina(_x, _x2) {
-    return _ref.apply(this, arguments);
-  };
-}();
-var narudzbine$1 = /*#__PURE__*/function () {
-  var _ref2 = _asyncToGenerator(function* (PreduzeceId) {
-    try {
-      return yield db.Narudzbina.findAll({
-        where: {
-          PreduzeceId
-        },
-        include: [{
-          model: db.Kurir
-        }, {
-          model: db.NaruceniProizvod,
-          as: 'NaruceniProizvodi'
-        }]
-      });
-    } catch (error) {
-      return ApiError$1.throw(error, 'Наруђбина није пронађена');
-    }
-  });
-
-  return function narudzbine(_x3) {
-    return _ref2.apply(this, arguments);
-  };
-}();
-var odobri$4 = /*#__PURE__*/function () {
-  var _ref3 = _asyncToGenerator(function* (id, preduzeceId) {
-    try {
-      yield db.Narudzbina.odobri(id, preduzeceId);
-    } catch (error) {
-      return ApiError$1.throw(error, 'Настала ја грешка');
-    }
-  });
-
-  return function odobri(_x4, _x5) {
-    return _ref3.apply(this, arguments);
-  };
-}();
-var odbij$4 = /*#__PURE__*/function () {
-  var _ref4 = _asyncToGenerator(function* (id, preduzeceId) {
-    try {
-      yield db.Narudzbina.odbij(id, preduzeceId);
-    } catch (error) {
-      return ApiError$1.throw(error, 'Настала ја грешка');
-    }
-  });
-
-  return function odbij(_x6, _x7) {
-    return _ref4.apply(this, arguments);
-  };
-}();
-
-var narudzbina$2 = /*#__PURE__*/function () {
-  var _ref = _asyncToGenerator(function* (req, res) {
-    var {
-      id,
-      preduzeceId
-    } = req.params;
-
-    try {
-      var _narudzbina = yield narudzbina$1(id, preduzeceId);
-
-      res.json(_narudzbina);
-    } catch (error) {
-      return res.status(400).send(error.message);
-    }
-  });
-
-  return function narudzbina(_x, _x2) {
-    return _ref.apply(this, arguments);
-  };
-}();
-var narudzbine$2 = /*#__PURE__*/function () {
-  var _ref2 = _asyncToGenerator(function* (req, res) {
-    var {
-      preduzeceId
-    } = req.params;
-
-    try {
-      var _narudzbine = yield narudzbine$1(preduzeceId);
-
-      res.json(_narudzbine);
-    } catch (error) {
-      return res.status(400).send(error.message);
-    }
-  });
-
-  return function narudzbine(_x3, _x4) {
-    return _ref2.apply(this, arguments);
-  };
-}();
-var odbij$5 = /*#__PURE__*/function () {
-  var _ref3 = _asyncToGenerator(function* (req, res, next) {
-    var {
-      id,
-      preduzeceId
-    } = req.params;
-
-    try {
-      yield odbij$4(id, preduzeceId);
-      res.json({
-        message: 'Успешно одбијенa наруђбина.'
-      });
-    } catch (error) {
-      return res.status(400).send(error.message);
-    }
-  });
-
-  return function odbij(_x5, _x6, _x7) {
-    return _ref3.apply(this, arguments);
-  };
-}();
-var odobri$5 = /*#__PURE__*/function () {
-  var _ref4 = _asyncToGenerator(function* (req, res, next) {
-    var {
-      id,
-      preduzeceId
-    } = req.params;
-
-    try {
-      yield odobri$4(id, preduzeceId);
-      res.json({
-        message: 'Успешно одобрена наруђбина.'
-      });
-    } catch (error) {
-      return res.status(400).send(error.message);
-    }
-  });
-
-  return function odobri(_x8, _x9, _x10) {
-    return _ref4.apply(this, arguments);
-  };
-}();
-
-var router$2 = express.Router();
-router$2.get('/:preduzeceId', validator.params(narudzbine), narudzbine$2);
-router$2.post('/:preduzeceId/:id/odbij', validator.params(odbij$3), odbij$5);
-router$2.post('/:preduzeceId/:id/odobri', validator.params(odobri$3), odobri$5);
-router$2.get('/:preduzeceId/:id', validator.params(narudzbina), narudzbina$2);
-
-var proizvod = Joi.object({
-  id: Joi.number().required(),
-  preduzeceId: Joi.number().required()
-});
-var kreirajParams = Joi.object({
-  preduzeceId: Joi.number().required()
-});
-var kreiraj = Joi.object({
-  name: Joi.string().required(),
-  manufacturer: Joi.string().required(),
-  description: Joi.string().required(),
-  image: Joi.string().required(),
-  price: Joi.number().required(),
-  type: Joi.string().required(),
-  quantity: Joi.number().required(),
-  value: Joi.number().required()
-});
-var proizvodi = Joi.object({
-  preduzeceId: Joi.number().required()
-});
-var obrisi$3 = Joi.object({
-  id: Joi.number().required(),
-  preduzeceId: Joi.number().required()
-});
-var obrisiNarucen = Joi.object({
-  id: Joi.number().required()
-});
-
-var proizvod$1 = /*#__PURE__*/function () {
+var proizvod = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (id) {
     try {
       return yield db.Proizvod.findOne({
@@ -1742,7 +1674,7 @@ var proizvod$1 = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
-var proizvodi$1 = /*#__PURE__*/function () {
+var proizvodi = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(function* (PreduzeceId) {
     try {
       return yield db.Proizvod.findAll({
@@ -1794,7 +1726,7 @@ var kreiraj$1 = /*#__PURE__*/function () {
     return _ref4.apply(this, arguments);
   };
 }();
-var obrisi$4 = /*#__PURE__*/function () {
+var obrisi$3 = /*#__PURE__*/function () {
   var _ref5 = _asyncToGenerator(function* (id) {
     try {
       var _proizvod = yield db.Proizvod.findOne({
@@ -1813,7 +1745,7 @@ var obrisi$4 = /*#__PURE__*/function () {
     return _ref5.apply(this, arguments);
   };
 }();
-var obrisiNarucen$1 = /*#__PURE__*/function () {
+var obrisiNarucen = /*#__PURE__*/function () {
   var _ref6 = _asyncToGenerator(function* (id) {
     try {
       var _proizvod2 = yield db.NaruceniProizvod.findOne({
@@ -1833,6 +1765,302 @@ var obrisiNarucen$1 = /*#__PURE__*/function () {
   };
 }();
 
+var narudzbina$1 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (id, PreduzeceId) {
+    try {
+      return yield db.Narudzbina.findOne({
+        where: {
+          id,
+          PreduzeceId
+        },
+        include: [{
+          model: db.Kurir
+        }, {
+          model: db.NaruceniProizvod,
+          as: 'NaruceniProizvod'
+        }]
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Наруђбина није пронађена');
+    }
+  });
+
+  return function narudzbina(_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
+var narudzbine$1 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (PreduzeceId) {
+    try {
+      return yield db.Narudzbina.findAll({
+        where: {
+          PreduzeceId
+        },
+        include: [{
+          model: db.Kurir
+        }, {
+          model: db.NaruceniProizvod,
+          as: 'NaruceniProizvodi'
+        }]
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Наруђбина није пронађена');
+    }
+  });
+
+  return function narudzbine(_x3) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var kreiraj$2 = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(function* (RasadnikId, proizvodi) {
+    try {
+      var PreduzeceId = proizvodi[0].PreduzeceId;
+      var magacin = yield db.Magacin.findOne({
+        where: {
+          RasadnikId
+        }
+      });
+      var total = proizvodi.reduce((previous, _ref4) => {
+        var {
+          quantity,
+          price
+        } = _ref4;
+        return previous + quantity * price;
+      }, 0);
+
+      var _narudzbina = yield db.Narudzbina.create({
+        total,
+        MagacinId: magacin.id,
+        PreduzeceId
+      });
+
+      yield Promise.all(proizvodi.map( /*#__PURE__*/function () {
+        var _ref6 = _asyncToGenerator(function* (_ref5) {
+          var {
+            id,
+            name,
+            quantity,
+            description,
+            manufacturer,
+            image,
+            value,
+            price,
+            type
+          } = _ref5;
+          return yield db.NaruceniProizvod.create({
+            name,
+            description,
+            type,
+            manufacturer,
+            image,
+            quantity,
+            price,
+            value,
+            ProizvodId: id,
+            NarudzbinaId: _narudzbina.id
+          });
+        });
+
+        return function (_x6) {
+          return _ref6.apply(this, arguments);
+        };
+      }())); // Za svaki proizvod updejtuj stanje u databazi
+
+      yield Promise.all(proizvodi.map( /*#__PURE__*/function () {
+        var _ref7 = _asyncToGenerator(function* (proizvod) {
+          var proizvodResult = yield db.Proizvod.findOne({
+            where: {
+              id: proizvod.id
+            }
+          });
+          yield proizvodResult.update({
+            quantity: proizvodResult.quantity - proizvod.quantity
+          });
+        });
+
+        return function (_x7) {
+          return _ref7.apply(this, arguments);
+        };
+      }())); // Vrati proizvode
+
+      return yield db.Proizvod.findAll({
+        where: {
+          PreduzeceId
+        }
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка');
+    }
+  });
+
+  return function kreiraj(_x4, _x5) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+var odobri$4 = /*#__PURE__*/function () {
+  var _ref8 = _asyncToGenerator(function* (id, preduzeceId) {
+    try {
+      yield db.Narudzbina.odobri(id, preduzeceId);
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка');
+    }
+  });
+
+  return function odobri(_x8, _x9) {
+    return _ref8.apply(this, arguments);
+  };
+}();
+var odbij$4 = /*#__PURE__*/function () {
+  var _ref9 = _asyncToGenerator(function* (id, preduzeceId) {
+    try {
+      yield db.Narudzbina.odbij(id, preduzeceId);
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка');
+    }
+  });
+
+  return function odbij(_x10, _x11) {
+    return _ref9.apply(this, arguments);
+  };
+}();
+
+var narudzbina$2 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (req, res) {
+    var {
+      id,
+      preduzeceId
+    } = req.params;
+
+    try {
+      var _narudzbina = yield narudzbina$1(id, preduzeceId);
+
+      res.json(_narudzbina);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function narudzbina(_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
+var narudzbine$2 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (req, res) {
+    var {
+      preduzeceId
+    } = req.params;
+
+    try {
+      var _narudzbine = yield narudzbine$1(preduzeceId);
+
+      res.json(_narudzbine);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function narudzbine(_x3, _x4) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var kreiraj$3 = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(function* (req, res, next) {
+    var {
+      rasadnikId,
+      proizvodi
+    } = req.body;
+
+    try {
+      var updatedProizvodi = yield kreiraj$2(rasadnikId, proizvodi);
+      res.json(updatedProizvodi);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function kreiraj(_x5, _x6, _x7) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+var odbij$5 = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(function* (req, res, next) {
+    var {
+      id,
+      preduzeceId
+    } = req.params;
+
+    try {
+      yield odbij$4(id, preduzeceId);
+      res.json({
+        message: 'Успешно одбијенa наруђбина.'
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function odbij(_x8, _x9, _x10) {
+    return _ref4.apply(this, arguments);
+  };
+}();
+var odobri$5 = /*#__PURE__*/function () {
+  var _ref5 = _asyncToGenerator(function* (req, res, next) {
+    var {
+      id,
+      preduzeceId
+    } = req.params;
+
+    try {
+      yield odobri$4(id, preduzeceId);
+      res.json({
+        message: 'Успешно одобрена наруђбина.'
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function odobri(_x11, _x12, _x13) {
+    return _ref5.apply(this, arguments);
+  };
+}();
+
+var router$2 = express.Router();
+router$2.post('', validator.body(kreiraj), kreiraj$3);
+router$2.get('/:preduzeceId', validator.params(narudzbine), narudzbine$2);
+router$2.post('/:preduzeceId/:id/odbij', validator.params(odbij$3), odbij$5);
+router$2.post('/:preduzeceId/:id/odobri', validator.params(odobri$3), odobri$5);
+router$2.get('/:preduzeceId/:id', validator.params(narudzbina), narudzbina$2);
+
+var proizvod$1 = Joi.object({
+  id: Joi.number().required(),
+  preduzeceId: Joi.number().required()
+});
+var kreirajParams = Joi.object({
+  preduzeceId: Joi.number().required()
+});
+var kreiraj$4 = Joi.object({
+  name: Joi.string().required(),
+  manufacturer: Joi.string().required(),
+  description: Joi.string().required(),
+  image: Joi.string().required(),
+  price: Joi.number().required(),
+  type: Joi.string().required(),
+  quantity: Joi.number().required(),
+  value: Joi.number().required()
+});
+var proizvodi$1 = Joi.object({
+  preduzeceId: Joi.number().required()
+});
+var obrisi$4 = Joi.object({
+  id: Joi.number().required(),
+  preduzeceId: Joi.number().required()
+});
+var obrisiNarucen$1 = Joi.object({
+  id: Joi.number().required()
+});
+
 var proizvod$2 = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (req, res) {
     var {
@@ -1840,7 +2068,7 @@ var proizvod$2 = /*#__PURE__*/function () {
     } = req.params;
 
     try {
-      var _proizvod = yield proizvod$1(id);
+      var _proizvod = yield proizvod(id);
 
       res.json(_proizvod);
     } catch (error) {
@@ -1859,7 +2087,7 @@ var proizvodi$2 = /*#__PURE__*/function () {
     } = req.params;
 
     try {
-      var _proizvodi = yield proizvodi$1(preduzeceId);
+      var _proizvodi = yield proizvodi(preduzeceId);
 
       res.json(_proizvodi);
     } catch (error) {
@@ -1878,7 +2106,7 @@ var obrisi$5 = /*#__PURE__*/function () {
     } = req.params;
 
     try {
-      yield obrisi$4(id);
+      yield obrisi$3(id);
       res.json({
         message: 'Успешно обрисан производ.'
       });
@@ -1898,7 +2126,7 @@ var obrisiNarucen$2 = /*#__PURE__*/function () {
     } = req.params;
 
     try {
-      yield obrisiNarucen$1(id);
+      yield obrisiNarucen(id);
       res.json({
         message: 'Успешно обрисан производ.'
       });
@@ -1911,7 +2139,7 @@ var obrisiNarucen$2 = /*#__PURE__*/function () {
     return _ref4.apply(this, arguments);
   };
 }();
-var kreiraj$2 = /*#__PURE__*/function () {
+var kreiraj$5 = /*#__PURE__*/function () {
   var _ref5 = _asyncToGenerator(function* (req, res, next) {
     var {
       preduzeceId
@@ -1953,11 +2181,11 @@ var kreiraj$2 = /*#__PURE__*/function () {
 }();
 
 var router$3 = express.Router();
-router$3.delete('/narucen/:id', validator.params(obrisiNarucen), obrisiNarucen$2);
-router$3.get('/:preduzeceId', validator.params(proizvodi), proizvodi$2);
-router$3.post('/:preduzeceId', validator.params(kreirajParams), validator.body(kreiraj), kreiraj$2);
-router$3.get('/:preduzeceId/:id', validator.params(proizvod), proizvod$2);
-router$3.delete('/:preduzeceId/:id', validator.params(obrisi$3), obrisi$5);
+router$3.delete('/narucen/:id', validator.params(obrisiNarucen$1), obrisiNarucen$2);
+router$3.get('/:preduzeceId', validator.params(proizvodi$1), proizvodi$2);
+router$3.post('/:preduzeceId', validator.params(kreirajParams), validator.body(kreiraj$4), kreiraj$5);
+router$3.get('/:preduzeceId/:id', validator.params(proizvod$1), proizvod$2);
+router$3.delete('/:preduzeceId/:id', validator.params(obrisi$4), obrisi$5);
 
 var kuriri = Joi.object({
   preduzeceId: Joi.number().required()
@@ -2094,6 +2322,13 @@ router$4.get('/:preduzeceId', validator.params(kuriri), kuriri$2);
 var ocene = Joi.object({
   proizvodId: Joi.number().required()
 });
+var oceniParams = Joi.object({
+  proizvodId: Joi.number().required()
+});
+var oceni = Joi.object({
+  ocena: Joi.number().required(),
+  korisnikId: Joi.number().required()
+});
 
 var ocene$1 = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (ProizvodId) {
@@ -2113,6 +2348,31 @@ var ocene$1 = /*#__PURE__*/function () {
 
   return function ocene(_x) {
     return _ref.apply(this, arguments);
+  };
+}();
+var oceni$1 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (ProizvodId, KorisnikId, ocena) {
+    try {
+      var novaOcena = yield db.Ocena.create({
+        ProizvodId,
+        KorisnikId,
+        ocena
+      });
+      return yield db.Ocena.findOne({
+        where: {
+          id: novaOcena.id
+        },
+        include: [{
+          model: db.Korisnik
+        }]
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала је грешка');
+    }
+  });
+
+  return function oceni(_x2, _x3, _x4) {
+    return _ref2.apply(this, arguments);
   };
 }();
 
@@ -2135,12 +2395,42 @@ var ocene$2 = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
+var oceni$2 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (req, res) {
+    var {
+      proizvodId
+    } = req.params;
+    var {
+      ocena,
+      korisnikId
+    } = req.body;
+
+    try {
+      var novaOcena = yield oceni$1(proizvodId, korisnikId, ocena);
+      res.json(novaOcena);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function oceni(_x3, _x4) {
+    return _ref2.apply(this, arguments);
+  };
+}();
 
 var router$5 = express.Router();
 router$5.get('/:proizvodId', validator.params(ocene), ocene$2);
+router$5.post('/:proizvodId', validator.params(oceniParams), validator.body(oceni), oceni$2);
 
 var komentari = Joi.object({
   proizvodId: Joi.number().required()
+});
+var komentirajParams = Joi.object({
+  proizvodId: Joi.number().required()
+});
+var komentiraj = Joi.object({
+  komentar: Joi.string().required(),
+  korisnikId: Joi.number().required()
 });
 
 var komentari$1 = /*#__PURE__*/function () {
@@ -2163,6 +2453,31 @@ var komentari$1 = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
+var komentiraj$1 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (ProizvodId, KorisnikId, komentar) {
+    try {
+      var noviKomentar = yield db.Komentar.create({
+        ProizvodId,
+        KorisnikId,
+        komentar
+      });
+      return yield db.Komentar.findOne({
+        where: {
+          id: noviKomentar.id
+        },
+        include: [{
+          model: db.Korisnik
+        }]
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала је грешка');
+    }
+  });
+
+  return function komentiraj(_x2, _x3, _x4) {
+    return _ref2.apply(this, arguments);
+  };
+}();
 
 var komentari$2 = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (req, res) {
@@ -2183,9 +2498,32 @@ var komentari$2 = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
+var komentiraj$2 = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (req, res) {
+    var {
+      proizvodId
+    } = req.params;
+    var {
+      komentar,
+      korisnikId
+    } = req.body;
+
+    try {
+      var noviKomentar = yield komentiraj$1(proizvodId, korisnikId, komentar);
+      res.json(noviKomentar);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function komentiraj(_x3, _x4) {
+    return _ref2.apply(this, arguments);
+  };
+}();
 
 var router$6 = express.Router();
 router$6.get('/:proizvodId', validator.params(komentari), komentari$2);
+router$6.post('/:proizvodId', validator.params(komentirajParams), validator.body(komentiraj), komentiraj$2);
 
 var rasadnik = Joi.object({
   id: Joi.number().required(),
@@ -2194,7 +2532,7 @@ var rasadnik = Joi.object({
 var kreirajParams$1 = Joi.object({
   poljoprivrednikId: Joi.number().required()
 });
-var kreiraj$3 = Joi.object({
+var kreiraj$6 = Joi.object({
   name: Joi.string().required(),
   location: Joi.string().required(),
   width: Joi.number().required(),
@@ -2385,7 +2723,7 @@ var setWaterLevel$2 = /*#__PURE__*/function () {
     return _ref4.apply(this, arguments);
   };
 }();
-var kreiraj$4 = /*#__PURE__*/function () {
+var kreiraj$7 = /*#__PURE__*/function () {
   var _ref5 = _asyncToGenerator(function* (req, res, next) {
     var {
       poljoprivrednikId
@@ -2422,7 +2760,7 @@ var router$7 = express.Router();
 router$7.post('/:id/temperature', validator.params(setTemperatureParams), validator.body(setTemperature), setTemperature$2);
 router$7.post('/:id/water-level', validator.params(setWaterLevelParams), validator.body(setWaterLevel), setWaterLevel$2);
 router$7.get('/:poljoprivrednikId', validator.params(rasadnici), rasadnici$2);
-router$7.post('/:poljoprivrednikId', validator.params(kreirajParams$1), validator.body(kreiraj$3), kreiraj$4);
+router$7.post('/:poljoprivrednikId', validator.params(kreirajParams$1), validator.body(kreiraj$6), kreiraj$7);
 router$7.get('/:poljoprivrednikId/:id', validator.params(rasadnik), rasadnik$2);
 
 var preparat = Joi.object({
@@ -2648,24 +2986,63 @@ var magacin$2 = /*#__PURE__*/function () {
 var router$9 = express.Router();
 router$9.get('/:poljoprivrednikId/:rasadnikId', validator.params(magacin), magacin$2);
 
+var preduzeca$2 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* () {
+    try {
+      return yield db.Preduzece.findAll({
+        include: [{
+          model: db.Proizvod,
+          as: 'Proizvodi'
+        }]
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала је грешка');
+    }
+  });
+
+  return function preduzeca() {
+    return _ref.apply(this, arguments);
+  };
+}();
+
+var preduzeca$3 = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (req, res) {
+    try {
+      var _preduzeca = yield preduzeca$2();
+
+      res.json(_preduzeca);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function preduzeca(_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
+
 var router$a = express.Router();
-router$a.get('/', (req, res) => {
+router$a.get('', preduzeca$3);
+
+var router$b = express.Router();
+router$b.get('/', (req, res) => {
   res.json({
     statusCode: HTTPStatus.OK,
     message: 'Welcome to 13e113pia project API'
   });
 });
-router$a.use('/auth/', router);
-router$a.use('/korisnici/', router$1);
-router$a.use('/proizvodi/', router$3);
-router$a.use('/narudzbine/', router$2);
-router$a.use('/kuriri/', router$4);
-router$a.use('/komentari/', router$6);
-router$a.use('/ocene/', router$5);
-router$a.use('/rasadnici/', router$7);
-router$a.use('/magacini/', router$9);
-router$a.use('/sadnici/', router$8);
-router$a.all('*', /*#__PURE__*/function () {
+router$b.use('/auth/', router);
+router$b.use('/korisnici/', router$1);
+router$b.use('/proizvodi/', router$3);
+router$b.use('/narudzbine/', router$2);
+router$b.use('/kuriri/', router$4);
+router$b.use('/komentari/', router$6);
+router$b.use('/ocene/', router$5);
+router$b.use('/rasadnici/', router$7);
+router$b.use('/magacini/', router$9);
+router$b.use('/sadnici/', router$8);
+router$b.use('/preduzeca/', router$a);
+router$b.all('*', /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (req, res) {
     res.status(HTTPStatus.NOT_FOUND).json('Страница није пронађена');
   });
@@ -2674,74 +3051,184 @@ router$a.all('*', /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }());
-console.log(listEndpoints(router$a));
+console.log(listEndpoints(router$b));
+
+/** Smanjujemo temperaturu i vodu u rasadniku, i po potrebi saljemo email poljoprivredniku da proveri stanje */
+
+var rasadniciCron = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* () {
+    console.log('START: Расадници cron ');
+    var rasadnici = yield db.Rasadnik.findAll();
+
+    var updateRasadnik = /*#__PURE__*/function () {
+      var _ref2 = _asyncToGenerator(function* (rasadnik) {
+        var novaTemperatura = rasadnik.temperature - 0.5;
+        var noviNivoVode = rasadnik.waterLevel - 1;
+        yield rasadnik.update({
+          temperature: novaTemperatura,
+          waterLevel: noviNivoVode
+        });
+        var {
+          SMTP_HOST,
+          SMTP_PASSWORD,
+          SMTP_PORT,
+          SMTP_USER
+        } = config;
+        var shouldBeNotified = (novaTemperatura < 12 || noviNivoVode < 72) && SMTP_USER && SMTP_PASSWORD;
+
+        if (shouldBeNotified) {
+          var poljoprivrednik = yield db.Poljoprivrednik.findOne({
+            where: {
+              id: rasadnik.PoljoprivrednikId
+            }
+          });
+          var korisnik = yield db.Korisnik.findOne({
+            where: {
+              id: poljoprivrednik.KorisnikId
+            }
+          });
+          var transport = nodemailer.createTransport({
+            host: SMTP_HOST,
+            port: SMTP_PORT,
+            auth: {
+              user: SMTP_USER,
+              pass: SMTP_PASSWORD
+            }
+          });
+          var message = {
+            from: 'pia@example.com',
+            to: korisnik.email,
+            subject: "\u0420\u0430\u0441\u0430\u0434\u043D\u0438\u043A ".concat(rasadnik.name, " \u0437\u0430\u0445\u0442\u0435\u0432\u0430 \u043E\u0434\u0440\u0436\u0430\u0432\u0430\u045A\u0435\u201C"),
+            text: 'Улогујте се на систем и додајте воду!'
+          };
+          yield transport.sendMail(message);
+        }
+      });
+
+      return function updateRasadnik(_x) {
+        return _ref2.apply(this, arguments);
+      };
+    }();
+
+    yield Promise.all(rasadnici.map( /*#__PURE__*/function () {
+      var _ref3 = _asyncToGenerator(function* (rasadnik) {
+        return yield updateRasadnik(rasadnik);
+      });
+
+      return function (_x2) {
+        return _ref3.apply(this, arguments);
+      };
+    }()));
+    console.log('END: Расадници cron ');
+  });
+
+  return function rasadniciCron() {
+    return _ref.apply(this, arguments);
+  };
+}();
+/** Brisemo sadnike 24 sata nakon vadenja iz rasadnika */
+
+var sadniciCron = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(function* () {
+    console.log('START: Садници cron ');
+    var sadnici = yield db.Sadnik.findAll();
+    var now = new Date().getTime();
+    yield Promise.all(sadnici.map( /*#__PURE__*/function () {
+      var _ref5 = _asyncToGenerator(function* (sadnik) {
+        var izvadiNa = new Date(sadnik.izvadiNa).getTime();
+
+        if (izvadiNa <= now) {
+          yield sadnik.destroy();
+        }
+      });
+
+      return function (_x3) {
+        return _ref5.apply(this, arguments);
+      };
+    }()));
+    console.log('END: Садници cron ');
+  });
+
+  return function sadniciCron() {
+    return _ref4.apply(this, arguments);
+  };
+}();
 
 var app = express__default();
 var log = debug('app');
-/**
- * App Middleware
- */
 
-app.use(cors());
-app.use(methodOverride());
-app.use(bodyParser.urlencoded({
-  extended: false
-}));
-app.use(bodyParser.json());
-app.use(compression());
-app.use(helmet());
-/**
- * Database Setup
- */
+var init$c = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* () {
+    /**
+     * App Middleware
+     */
+    app.use(cors());
+    app.use(methodOverride());
+    app.use(bodyParser.urlencoded({
+      extended: false
+    }));
+    app.use(bodyParser.json());
+    app.use(compression());
+    app.use(helmet());
+    /**
+     * Database Setup
+     */
 
-db.sequelize.authenticate().then(() => {
-  log('Connected to the database');
-}).catch(err => {
-  log('Unable to connect to the database: ', err);
-});
-/**
- * Database migrations
- *
- database.sequelize.sync({ force: true });
- */
+    yield db.sequelize.authenticate();
+    /**
+     * Database migrations
+     *
+     database.sequelize.sync({ force: true });
+    */
 
-/**
- * API Routes
- */
+    cron.schedule('* * * * *', /*#__PURE__*/_asyncToGenerator(function* () {
+      return yield rasadniciCron();
+    }));
+    cron.schedule('* * * * *', /*#__PURE__*/_asyncToGenerator(function* () {
+      return yield sadniciCron();
+    }));
+    /**
+     * API Routes
+     */
 
-app.use(router$a);
-/**
- * Validation Errors
- */
+    app.use(router$b);
+    /**
+     * Validation Errors
+     */
 
-app.use((err, req, res, next) => {
-  if (err instanceof expressValidation.ValidationError) {
-    return res.status(err.status).json(err);
-  }
+    app.use((err, req, res, next) => {
+      if (err instanceof expressValidation.ValidationError) {
+        return res.status(err.status).json(err);
+      }
 
-  return next(err);
-});
-/**
- * API Errors
- */
+      return next(err);
+    });
+    /**
+     * API Errors
+     */
 
-app.use((err, req, res, next) => {
-  if (err instanceof ApiError$1) {
-    return res.status(err.status).json(err.toJson());
-  }
+    app.use((err, req, res, next) => {
+      if (err instanceof ApiError$1) {
+        return res.status(err.status).json(err.toJson());
+      }
 
-  return next(err);
-});
-/**
- * Unhandled Errors
- */
+      return next(err);
+    });
+    /**
+     * Unhandled Errors
+     */
 
-process.on('unhandledRejection', error => {
-  // eslint-disable-next-line no-console
-  console.error('Uncaught Error', error);
-});
+    process.on('unhandledRejection', error => {
+      // eslint-disable-next-line no-console
+      console.error('Uncaught Error', error);
+    });
+  });
 
-/* eslint-disable no-console */
+  return function init() {
+    return _ref.apply(this, arguments);
+  };
+}();
+
 var {
   PORT
 } = config;
@@ -2767,11 +3254,13 @@ var onError = error => {
   }
 };
 
-var server = http.createServer(app);
-server.listen(PORT, () => {
-  console.log('==========**********==========');
-  console.log('======= SERVER RUNNING =======');
-  console.log("========= PORT ".concat(PORT, " =========="));
-  console.log('==========**********==========');
-});
-server.on('error', onError);
+_asyncToGenerator(function* () {
+  var server = http.createServer(yield init$c());
+  server.listen(PORT, () => {
+    console.log('==========**********==========');
+    console.log('======= SERVER RUNNING =======');
+    console.log("========= PORT ".concat(PORT, " =========="));
+    console.log('==========**********==========');
+  });
+  server.on('error', onError);
+})();

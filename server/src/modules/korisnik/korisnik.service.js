@@ -128,3 +128,67 @@ export const poljoprivrednici = async (id) => {
     return ApiError.throw(error, 'Настала ја грешка');
   }
 };
+
+export const narucioProizvod = async (id, proizvodId) => {
+  try {
+    const poljoprivrednik = await db.Poljoprivrednik.findOne({
+      where: { KorisnikId: id },
+    });
+
+    if (!poljoprivrednik) {
+      return false;
+    }
+
+    const rasadnici = await db.Rasadnik.findAll({
+      where: { PoljoprivrednikId: poljoprivrednik.id },
+    });
+
+    if (!rasadnici.length) {
+      return false;
+    }
+
+    const rasadniciId = rasadnici.map(({ id }) => id);
+
+    const magacini = await db.Magacin.findAll({
+      where: {
+        RasadnikId: {
+          [db.Sequelize.Op.in]: rasadniciId,
+        },
+      },
+    });
+
+    if (!magacini.length) {
+      return false;
+    }
+
+    const magaciniId = magacini.map(({ id }) => id);
+
+    const narudzbine = await db.Narudzbina.findAll({
+      where: {
+        MagacinId: {
+          [db.Sequelize.Op.in]: magaciniId,
+        },
+      },
+      include: [
+        {
+          model: db.NaruceniProizvod,
+          as: 'NaruceniProizvodi',
+        },
+      ],
+    });
+
+    if (!narudzbine.length) {
+      return false;
+    }
+
+    const naruceniProizvodi = narudzbine.reduce((prev, narudzbina) => {
+      return [...prev, ...narudzbina.NaruceniProizvodi];
+    }, []);
+
+    return naruceniProizvodi.some(
+      ({ ProizvodId }) => ProizvodId === proizvodId
+    );
+  } catch (error) {
+    return ApiError.throw(error, 'Настала ја грешка');
+  }
+};

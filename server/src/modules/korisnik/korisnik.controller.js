@@ -104,3 +104,18 @@ export const obrisi = async (req, res, next) => {
     return res.status(400).send(error.message);
   }
 };
+
+export const narucioProizvod = async (req, res, next) => {
+  const { id, proizvodId } = req.params;
+
+  try {
+    const narucioProizvod = await korisnikService.narucioProizvod(
+      id,
+      proizvodId
+    );
+
+    res.json(narucioProizvod);
+  } catch (error) {
+    return res.status(400).send(error.message);
+  }
+};

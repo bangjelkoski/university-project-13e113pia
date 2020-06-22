@@ -1,0 +1,20 @@
+<div class="bg-gray-50 pt-12 sm:pt-16">
+  <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto text-center">
+      <h2
+        class="text-3xl leading-9 font-extrabold text-gray-900 sm:text-4xl sm:leading-10"
+      >
+        Онлајн продавница!
+      </h2>
+    </div>
+  </div>
+
+  <div *ngIf="preduzeca.length > 0">
+    <app-preduzece-list-proizvodi
+      *ngFor="let preduzece of preduzeca"
+      [preduzece]="preduzece"
+      [rasadnici]="rasadnici"
+      (novaNarudzbina)="onNovaNarudzbina($event, preduzece)"
+    ></app-preduzece-list-proizvodi>
+  </div>
+</div>

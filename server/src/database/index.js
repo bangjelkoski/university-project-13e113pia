@@ -63,6 +63,10 @@ Preduzece.hasMany(Kurir, {
   as: 'Kuriri',
 });
 
+Preduzece.hasMany(Proizvod, {
+  as: 'Proizvodi',
+});
+
 Rasadnik.hasOne(Magacin);
 Rasadnik.belongsTo(Poljoprivrednik);
 Rasadnik.hasMany(Sadnik, {
@@ -96,6 +100,9 @@ Narudzbina.hasMany(NaruceniProizvod, {
 
 Proizvod.belongsTo(Preduzece);
 NaruceniProizvod.belongsTo(Narudzbina);
+NaruceniProizvod.belongsTo(Proizvod, {
+  onDelete: 'SET NULL',
+});
 
 const db = {
   sequelize,

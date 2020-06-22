@@ -11,4 +11,11 @@ router.get(
   controller.komentari
 );
 
+router.post(
+  '/:proizvodId',
+  validator.params(validation.komentirajParams),
+  validator.body(validation.komentiraj),
+  controller.komentiraj
+);
+
 export default router;

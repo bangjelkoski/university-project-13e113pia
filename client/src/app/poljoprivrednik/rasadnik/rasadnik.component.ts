@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PoljoprivrednikService } from 'src/app/services/poljoprivrednik/poljoprivrednik.service';
 import { TipProizvoda } from 'src/types';
+import { ViewService } from 'src/app/services/view/view.service';
 
 @Component({
   selector: 'app-poljoprivrendik-rasadnik',
@@ -21,9 +22,12 @@ export class RasadnikComponent implements OnInit {
   isTemperatureModalOpen = false;
 
   constructor(
+    public viewService: ViewService,
     private route: ActivatedRoute,
     private poljoprivrednikService: PoljoprivrednikService
-  ) {}
+  ) {
+    this.viewService.setTitle('Расадник');
+  }
 
   async ngOnInit() {
     const rasadnikId = this.route.snapshot.paramMap.get('id');

@@ -8,6 +8,11 @@ export const azurirajParams = Joi.object({
   id: Joi.number().required(),
 });
 
+export const narucioProizvod = Joi.object({
+  id: Joi.number().required(),
+  proizvodId: Joi.number().required(),
+});
+
 export const azuriraj = Joi.object({
   username: Joi.string().required(),
   password: Joi.optional(),

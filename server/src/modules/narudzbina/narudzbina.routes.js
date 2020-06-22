@@ -5,6 +5,8 @@ import * as controller from './narudzbina.controller';
 
 const router = Router();
 
+router.post('', validator.body(validation.kreiraj), controller.kreiraj);
+
 router.get(
   '/:preduzeceId',
   validator.params(validation.narudzbine),

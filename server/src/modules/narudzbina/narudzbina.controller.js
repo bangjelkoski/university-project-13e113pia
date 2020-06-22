@@ -24,6 +24,21 @@ export const narudzbine = async (req, res) => {
   }
 };
 
+export const kreiraj = async (req, res, next) => {
+  const { rasadnikId, proizvodi } = req.body;
+
+  try {
+    const updatedProizvodi = await narudzbinaService.kreiraj(
+      rasadnikId,
+      proizvodi
+    );
+
+    res.json(updatedProizvodi);
+  } catch (error) {
+    return res.status(400).send(error.message);
+  }
+};
+
 export const odbij = async (req, res, next) => {
   const { id, preduzeceId } = req.params;
 

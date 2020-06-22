@@ -21,8 +21,62 @@ export class PoljoprivrednikService {
     this.poljoprivrednik = this.korisnik.Poljoprivrednik;
   }
 
+  async getProizvod(proizvodId, preduzeceId) {
+    return await this.httpService.get(`proizvodi/${preduzeceId}/${proizvodId}`);
+  }
+
+  async getKomentari(proizvodId) {
+    return await this.httpService.get(`komentari/${proizvodId}`);
+  }
+
+  async getOcene(proizvodId) {
+    return await this.httpService.get(`ocene/${proizvodId}`);
+  }
+
+  async komentiraj({ proizvodId, komentar }) {
+    const noviKomentar = await this.httpService.post(
+      `komentari/${proizvodId}`,
+      { komentar, korisnikId: this.korisnik.id }
+    );
+
+    this.toast.success('Успешнo коментарисано');
+
+    return noviKomentar;
+  }
+
+  async oceni({ proizvodId, ocena }) {
+    const novaOcena = await this.httpService.post(`ocene/${proizvodId}`, {
+      ocena,
+      korisnikId: this.korisnik.id,
+    });
+
+    this.toast.success('Успешнo оцењено');
+
+    return novaOcena;
+  }
+
   async getRasadnici() {
     return await this.httpService.get(`rasadnici/${this.poljoprivrednik.id}`);
+  }
+
+  async getPreduzeca() {
+    return await this.httpService.get(`preduzeca`);
+  }
+
+  async kupioProizvod(id, proizvodId) {
+    return await this.httpService.get(
+      `/korisnici/${id}/narucio-proizvod/${proizvodId}`
+    );
+  }
+
+  async narudzbina({ rasadnikId, proizvodi }) {
+    const updatedProizvodi = await this.httpService.post(`narudzbine`, {
+      rasadnikId,
+      proizvodi,
+    });
+    this.toast.success('Успешна наруђбина');
+
+    return updatedProizvodi;
   }
 
   async setRasadnikTemperature(id, temperature) {

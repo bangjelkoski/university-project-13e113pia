@@ -5,6 +5,12 @@ import * as controller from './korisnik.controller';
 
 const router = Router();
 
+router.get(
+  '/:id/narucio-proizvod/:proizvodId',
+  validator.params(validation.narucioProizvod),
+  controller.narucioProizvod
+);
+
 router.get('/na-cekanju', controller.korisniciNaCekanju);
 router.get('/poljoprivrednici', controller.poljoprivrednici);
 router.get('/preduzeca', controller.preduzeca);
