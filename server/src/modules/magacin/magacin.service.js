@@ -16,6 +16,9 @@ export const magacin = async (PoljoprivrednikId, RasadnikId) => {
             },
           ],
         },
+        {
+          model: db.Rasadnik,
+        },
       ],
     });
   } catch (error) {

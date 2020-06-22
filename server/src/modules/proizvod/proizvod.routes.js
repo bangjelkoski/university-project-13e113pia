@@ -5,6 +5,12 @@ import * as controller from './proizvod.controller';
 
 const router = Router();
 
+router.delete(
+  '/narucen/:id',
+  validator.params(validation.obrisiNarucen),
+  controller.obrisiNarucen
+);
+
 router.get(
   '/:preduzeceId',
   validator.params(validation.proizvodi),

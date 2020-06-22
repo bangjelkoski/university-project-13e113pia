@@ -50,6 +50,7 @@ import { WaterComponent as WaterModalComponent } from './poljoprivrednik/rasadni
 import { TemperatureComponent as TemperatureModalComponent } from './poljoprivrednik/rasadnik/temperature/temperature.component';
 import { SadnikComponent } from './poljoprivrednik/rasadnik/sadnik/sadnik.component';
 import { SadnikNewComponent } from './poljoprivrednik/rasadnik/sadnik-new/sadnik-new.component';
+import { MagacinComponent as PoljoprivrednikMagacinComponent } from './poljoprivrednik/magacin/magacin.component';
 
 @NgModule({
   declarations: [
@@ -83,6 +84,7 @@ import { SadnikNewComponent } from './poljoprivrednik/rasadnik/sadnik-new/sadnik
     TemperatureModalComponent,
     SadnikComponent,
     SadnikNewComponent,
+    PoljoprivrednikMagacinComponent,
   ],
   imports: [
     BrowserModule,

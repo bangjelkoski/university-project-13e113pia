@@ -15,6 +15,8 @@ export class RasadnikComponent implements OnInit {
   preparati = [];
   sadnici = [];
 
+  brSlobodnihSadnika;
+
   isWaterModalOpen = false;
   isTemperatureModalOpen = false;
 
@@ -28,6 +30,8 @@ export class RasadnikComponent implements OnInit {
     await this.getMagacin();
 
     this.rasadnik = await this.poljoprivrednikService.getRasadnik(rasadnikId);
+    this.brSlobodnihSadnika =
+      this.rasadnik.width * this.rasadnik.length - this.rasadnik.Sadnici.length;
   }
 
   async getMagacin() {
@@ -73,6 +77,9 @@ export class RasadnikComponent implements OnInit {
       ...this.rasadnik,
       Sadnici: [...this.rasadnik.Sadnici, sadnik],
     };
+
+    this.brSlobodnihSadnika =
+      this.rasadnik.width * this.rasadnik.length - this.rasadnik.Sadnici.length;
 
     // Updating quantities
     await this.getMagacin();

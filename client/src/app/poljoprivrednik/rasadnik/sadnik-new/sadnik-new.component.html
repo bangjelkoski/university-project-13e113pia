@@ -1,5 +1,11 @@
 <div class="bg-white shadow sm:rounded-lg">
-  <div class="px-4 py-5 sm:p-6">
+  <div class="px-4 py-5 sm:p-6" *ngIf="brSlobodnihSadnika <= 0">
+    <h2 class="text-xs title-font text-red-500 tracking-widest"></h2>
+    <h3 class="mt-2 text-xl leading-6 font-medium text-red-500">
+      Расадник је препун!
+    </h3>
+  </div>
+  <div class="px-4 py-5 sm:p-6" *ngIf="brSlobodnihSadnika > 0">
     <h2 class="text-xs title-font text-gray-500 tracking-widest"></h2>
     <h3 class="mt-2 text-xl leading-6 font-medium text-gray-900">
       Додај нови садник

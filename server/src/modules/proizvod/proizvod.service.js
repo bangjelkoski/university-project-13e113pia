@@ -70,3 +70,15 @@ export const obrisi = async (id) => {
     return ApiError.throw(error, 'Настала ја грешка');
   }
 };
+
+export const obrisiNarucen = async (id) => {
+  try {
+    const proizvod = await db.NaruceniProizvod.findOne({
+      where: { id },
+    });
+
+    await proizvod.destroy();
+  } catch (error) {
+    return ApiError.throw(error, 'Настала ја грешка');
+  }
+};

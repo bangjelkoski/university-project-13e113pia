@@ -25,6 +25,7 @@ import { PoljoprivrednikGuardService } from './services/guards/poljoprivrednik/p
 import { PoljoprivrednikComponent } from './poljoprivrednik/poljoprivrednik.component';
 import { DashboardComponent as PoljoprivrednikDashboardComponent } from './poljoprivrednik/dashboard/dashboard.component';
 import { RasadnikComponent as PoljoprivrednikRasadnikComponent } from './poljoprivrednik/rasadnik/rasadnik.component';
+import { MagacinComponent as PoljoprivrednikMagacinComponent } from './poljoprivrednik/magacin/magacin.component';
 
 const routes: Routes = [
   {
@@ -67,6 +68,10 @@ const routes: Routes = [
       {
         path: 'rasadnik/:id',
         component: PoljoprivrednikRasadnikComponent,
+      },
+      {
+        path: 'rasadnik/:id/magacin',
+        component: PoljoprivrednikMagacinComponent,
       },
     ],
   },

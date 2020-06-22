@@ -38,6 +38,20 @@ export const obrisi = async (req, res, next) => {
   }
 };
 
+export const obrisiNarucen = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    await proizvodService.obrisiNarucen(id);
+
+    res.json({
+      message: 'Успешно обрисан производ.',
+    });
+  } catch (error) {
+    return res.status(400).send(error.message);
+  }
+};
+
 export const kreiraj = async (req, res, next) => {
   const { preduzeceId } = req.params;
   const {

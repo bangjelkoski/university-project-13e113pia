@@ -1714,6 +1714,9 @@ var obrisi$3 = Joi.object({
   id: Joi.number().required(),
   preduzeceId: Joi.number().required()
 });
+var obrisiNarucen = Joi.object({
+  id: Joi.number().required()
+});
 
 var proizvod$1 = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (id) {
@@ -1810,6 +1813,25 @@ var obrisi$4 = /*#__PURE__*/function () {
     return _ref5.apply(this, arguments);
   };
 }();
+var obrisiNarucen$1 = /*#__PURE__*/function () {
+  var _ref6 = _asyncToGenerator(function* (id) {
+    try {
+      var _proizvod2 = yield db.NaruceniProizvod.findOne({
+        where: {
+          id
+        }
+      });
+
+      yield _proizvod2.destroy();
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка');
+    }
+  });
+
+  return function obrisiNarucen(_x5) {
+    return _ref6.apply(this, arguments);
+  };
+}();
 
 var proizvod$2 = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (req, res) {
@@ -1869,8 +1891,28 @@ var obrisi$5 = /*#__PURE__*/function () {
     return _ref3.apply(this, arguments);
   };
 }();
-var kreiraj$2 = /*#__PURE__*/function () {
+var obrisiNarucen$2 = /*#__PURE__*/function () {
   var _ref4 = _asyncToGenerator(function* (req, res, next) {
+    var {
+      id
+    } = req.params;
+
+    try {
+      yield obrisiNarucen$1(id);
+      res.json({
+        message: 'Успешно обрисан производ.'
+      });
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
+  });
+
+  return function obrisiNarucen(_x8, _x9, _x10) {
+    return _ref4.apply(this, arguments);
+  };
+}();
+var kreiraj$2 = /*#__PURE__*/function () {
+  var _ref5 = _asyncToGenerator(function* (req, res, next) {
     var {
       preduzeceId
     } = req.params;
@@ -1905,12 +1947,13 @@ var kreiraj$2 = /*#__PURE__*/function () {
     }
   });
 
-  return function kreiraj(_x8, _x9, _x10) {
-    return _ref4.apply(this, arguments);
+  return function kreiraj(_x11, _x12, _x13) {
+    return _ref5.apply(this, arguments);
   };
 }();
 
 var router$3 = express.Router();
+router$3.delete('/narucen/:id', validator.params(obrisiNarucen), obrisiNarucen$2);
 router$3.get('/:preduzeceId', validator.params(proizvodi), proizvodi$2);
 router$3.post('/:preduzeceId', validator.params(kreirajParams), validator.body(kreiraj), kreiraj$2);
 router$3.get('/:preduzeceId/:id', validator.params(proizvod), proizvod$2);
@@ -2567,6 +2610,8 @@ var magacin$1 = /*#__PURE__*/function () {
             model: db.NaruceniProizvod,
             as: 'NaruceniProizvodi'
           }]
+        }, {
+          model: db.Rasadnik
         }]
       });
     } catch (error) {

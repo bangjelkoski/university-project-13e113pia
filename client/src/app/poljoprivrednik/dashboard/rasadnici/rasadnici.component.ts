@@ -14,10 +14,10 @@ export class RasadniciComponent implements OnInit {
   ngOnInit(): void {}
 
   onMagacin(rasadnik) {
-    this.router.navigate([`poljoprivrednik/rasadnik/magacin/${rasadnik.id}`]);
+    this.router.navigate([`/poljoprivrednik/rasadnik/${rasadnik.id}/magacin`]);
   }
 
   onDetails(rasadnik) {
-    this.router.navigate([`poljoprivrednik/rasadnik/${rasadnik.id}`]);
+    this.router.navigate([`/poljoprivrednik/rasadnik/${rasadnik.id}`]);
   }
 }

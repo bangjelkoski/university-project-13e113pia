@@ -14,6 +14,7 @@ import { PoljoprivrednikService } from 'src/app/services/poljoprivrednik/poljopr
 })
 export class SadnikNewComponent {
   @Input() rasadnik;
+  @Input() brSlobodnihSadnika;
   @Input() sadnici = [];
   @Output() created = new EventEmitter();
 

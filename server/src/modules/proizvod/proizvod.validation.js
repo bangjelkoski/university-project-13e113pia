@@ -28,3 +28,7 @@ export const obrisi = Joi.object({
   id: Joi.number().required(),
   preduzeceId: Joi.number().required(),
 });
+
+export const obrisiNarucen = Joi.object({
+  id: Joi.number().required(),
+});

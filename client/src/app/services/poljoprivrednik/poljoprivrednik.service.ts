@@ -65,4 +65,9 @@ export class PoljoprivrednikService {
   async izvadiSadnik(sadnikId) {
     return await this.httpService.post(`sadnici/${sadnikId}/izvadi`);
   }
+
+  async deleteProizvod(proizvodId) {
+    await this.httpService.delete(`proizvodi/narucen/${proizvodId}`);
+    this.toast.success('Успешнo обрисан производ.');
+  }
 }

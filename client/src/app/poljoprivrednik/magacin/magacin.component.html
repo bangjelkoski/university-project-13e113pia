@@ -1,0 +1,129 @@
+<div class="bg-gray-50 pt-12 sm:pt-16" *ngIf="magacin">
+  <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto text-center">
+      <h2
+        class="text-3xl leading-9 font-extrabold text-gray-900 sm:text-4xl sm:leading-10"
+      >
+        Производи доступни за {{ magacin.Rasadnik.name }}
+      </h2>
+    </div>
+  </div>
+
+  <div class="w-full mx-auto xl:w-2/3">
+    <div class="flex flex-col mt-12">
+      <div
+        class="mt-4 -my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
+      >
+        <div
+          class="align-middle inline-block min-w-full shadow overflow-hidden sm:rounded-lg border-b border-gray-200"
+        >
+          <table class="min-w-full">
+            <thead>
+              <tr>
+                <th
+                  class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Име
+                </th>
+                <th
+                  class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Цена и количина
+                </th>
+                <th
+                  class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Тип
+                </th>
+                <th
+                  class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Вредност
+                </th>
+                <th
+                  class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Статус
+                </th>
+                <th class="px-6 py-3 border-b border-gray-200 bg-gray-50"></th>
+              </tr>
+            </thead>
+            <tbody class="bg-white">
+              <tr *ngFor="let proizvod of proizvodi">
+                <td
+                  class="px-6 py-4 whitespace-no-wrap border-b border-gray-200"
+                >
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10">
+                      <img
+                        class="h-10 w-10 rounded-full"
+                        [src]="proizvod.image"
+                        [alt]="proizvod.name"
+                      />
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm leading-5 font-medium text-gray-900">
+                        {{ proizvod.name }}
+                      </div>
+                      <div class="text-sm leading-5 text-gray-500">
+                        {{ proizvod.manufacturer }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td
+                  class="px-6 py-4 whitespace-no-wrap border-b border-gray-200"
+                >
+                  <div class="text-sm leading-5 text-gray-900">
+                    {{ proizvod.price }}
+                    <span class="opacity-50" style="font-size: 0.55rem;">
+                      РСД
+                    </span>
+                  </div>
+                  <div class="text-sm leading-5 text-gray-500">
+                    Количина: {{ proizvod.quantity }}
+                  </div>
+                </td>
+                <td
+                  class="px-6 py-4 whitespace-no-wrap border-b border-gray-200"
+                >
+                  <span
+                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"
+                  >
+                    {{ proizvod.type }}
+                  </span>
+                </td>
+                <td
+                  class="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm leading-5 text-gray-500"
+                >
+                  {{ proizvod.valueToString }}
+                </td>
+                <td
+                  class="px-6 py-4 whitespace-no-wrap border-b border-gray-200"
+                >
+                  <span
+                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-teal-100 text-teal-800"
+                  >
+                    {{ proizvod.status }}
+                  </span>
+                </td>
+                <td
+                  class="px-6 py-4 whitespace-no-wrap text-right border-b border-gray-200 text-sm leading-5 font-medium"
+                >
+                  <button
+                    type="button"
+                    [disabled]="proizvod.status !== OrderStatus.naCekanju"
+                    (click)="onDelete(proizvod)"
+                    class="text-red-600 hover:text-red-900 focus:outline-none focus:underline"
+                  >
+                    Обриши
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
