@@ -24,14 +24,13 @@ const onError = (error) => {
   }
 };
 
-(async () => {
-  const server = http.createServer(await app());
+const server = http.createServer(app);
 
-  server.listen(PORT, () => {
-    console.log('==========**********==========');
-    console.log('======= SERVER RUNNING =======');
-    console.log(`========= PORT ${PORT} ==========`);
-    console.log('==========**********==========');
-  });
-  server.on('error', onError);
-})();
+server.listen(PORT, () => {
+  console.log('==========**********==========');
+  console.log('======= SERVER RUNNING =======');
+  console.log(`========= PORT ${PORT} ==========`);
+  console.log('==========**********==========');
+});
+
+server.on('error', onError);

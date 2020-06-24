@@ -54,6 +54,7 @@ import { MagacinComponent as PoljoprivrednikMagacinComponent } from './poljopriv
 import { ProdavnicaComponent as PoljoprivrednikProdavnicaComponent } from './poljoprivrednik/prodavnica/prodavnica.component';
 import { ProizvodiComponent as PoljoprivrednikProizvodiComponent } from './poljoprivrednik/prodavnica/proizvodi/proizvodi.component';
 import { ProizvodComponent as PoljoprivrednikProizvodComponent } from './poljoprivrednik/prodavnica/proizvod/proizvod.component';
+import { NewComponent as PoljoprivrednikRasadnikNewComponent } from './poljoprivrednik/rasadnik/new/new.component';
 
 @NgModule({
   declarations: [
@@ -91,6 +92,7 @@ import { ProizvodComponent as PoljoprivrednikProizvodComponent } from './poljopr
     PoljoprivrednikProdavnicaComponent,
     PoljoprivrednikProizvodiComponent,
     PoljoprivrednikProizvodComponent,
+    PoljoprivrednikRasadnikNewComponent,
   ],
   imports: [
     BrowserModule,

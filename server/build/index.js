@@ -660,7 +660,7 @@ function init$a(sequelize) {
       allowNull: false
     },
     temperature: {
-      type: Sequelize.DataTypes.DECIMAL,
+      type: Sequelize.DataTypes.DECIMAL(10, 2),
       defaultValue: 18
     },
     waterLevel: {
@@ -2596,16 +2596,47 @@ var rasadnici$1 = /*#__PURE__*/function () {
     return _ref2.apply(this, arguments);
   };
 }();
+var kreiraj$7 = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(function* (_ref3) {
+    var {
+      PoljoprivrednikId,
+      name,
+      location,
+      width,
+      length
+    } = _ref3;
+
+    try {
+      var _rasadnik = yield db.Rasadnik.create({
+        PoljoprivrednikId,
+        name,
+        location,
+        width,
+        length
+      });
+
+      yield db.Magacin.create({
+        RasadnikId: _rasadnik.id
+      });
+    } catch (error) {
+      return ApiError$1.throw(error, 'Настала ја грешка');
+    }
+  });
+
+  return function kreiraj(_x3) {
+    return _ref4.apply(this, arguments);
+  };
+}();
 var setTemperature$1 = /*#__PURE__*/function () {
   var _ref5 = _asyncToGenerator(function* (id, temperature) {
     try {
-      var _rasadnik = yield db.Rasadnik.findOne({
+      var _rasadnik2 = yield db.Rasadnik.findOne({
         where: {
           id
         }
       });
 
-      yield _rasadnik.update({
+      yield _rasadnik2.update({
         temperature
       });
     } catch (error) {
@@ -2620,13 +2651,13 @@ var setTemperature$1 = /*#__PURE__*/function () {
 var setWaterLevel$1 = /*#__PURE__*/function () {
   var _ref6 = _asyncToGenerator(function* (id, waterLevel) {
     try {
-      var _rasadnik2 = yield db.Rasadnik.findOne({
+      var _rasadnik3 = yield db.Rasadnik.findOne({
         where: {
           id
         }
       });
 
-      yield _rasadnik2.update({
+      yield _rasadnik3.update({
         waterLevel
       });
     } catch (error) {
@@ -2723,7 +2754,7 @@ var setWaterLevel$2 = /*#__PURE__*/function () {
     return _ref4.apply(this, arguments);
   };
 }();
-var kreiraj$7 = /*#__PURE__*/function () {
+var kreiraj$8 = /*#__PURE__*/function () {
   var _ref5 = _asyncToGenerator(function* (req, res, next) {
     var {
       poljoprivrednikId
@@ -2736,7 +2767,7 @@ var kreiraj$7 = /*#__PURE__*/function () {
     } = req.body;
 
     try {
-      yield proizvodService.kreiraj({
+      yield kreiraj$7({
         PoljoprivrednikId: poljoprivrednikId,
         name,
         location,
@@ -2760,7 +2791,7 @@ var router$7 = express.Router();
 router$7.post('/:id/temperature', validator.params(setTemperatureParams), validator.body(setTemperature), setTemperature$2);
 router$7.post('/:id/water-level', validator.params(setWaterLevelParams), validator.body(setWaterLevel), setWaterLevel$2);
 router$7.get('/:poljoprivrednikId', validator.params(rasadnici), rasadnici$2);
-router$7.post('/:poljoprivrednikId', validator.params(kreirajParams$1), validator.body(kreiraj$6), kreiraj$7);
+router$7.post('/:poljoprivrednikId', validator.params(kreirajParams$1), validator.body(kreiraj$6), kreiraj$8);
 router$7.get('/:poljoprivrednikId/:id', validator.params(rasadnik), rasadnik$2);
 
 var preparat = Joi.object({
@@ -3156,79 +3187,72 @@ var sadniciCron = /*#__PURE__*/function () {
 
 var app = express__default();
 var log = debug('app');
+/**
+ * App Middleware
+ */
 
-var init$c = /*#__PURE__*/function () {
-  var _ref = _asyncToGenerator(function* () {
-    /**
-     * App Middleware
-     */
-    app.use(cors());
-    app.use(methodOverride());
-    app.use(bodyParser.urlencoded({
-      extended: false
-    }));
-    app.use(bodyParser.json());
-    app.use(compression());
-    app.use(helmet());
-    /**
-     * Database Setup
-     */
+app.use(cors());
+app.use(methodOverride());
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
+app.use(bodyParser.json());
+app.use(compression());
+app.use(helmet());
+/**
+ * Database Setup
+ */
 
-    yield db.sequelize.authenticate();
-    /**
-     * Database migrations
-     *
-     database.sequelize.sync({ force: true });
-    */
+db.sequelize.authenticate();
+/**
+   * Database migrations
+   *
+   await database.sequelize.sync({ force: true });
+   */
 
-    cron.schedule('* * * * *', /*#__PURE__*/_asyncToGenerator(function* () {
-      return yield rasadniciCron();
-    }));
-    cron.schedule('* * * * *', /*#__PURE__*/_asyncToGenerator(function* () {
-      return yield sadniciCron();
-    }));
-    /**
-     * API Routes
-     */
+cron.schedule('0 * * * *', /*#__PURE__*/_asyncToGenerator(function* () {
+  return yield rasadniciCron();
+}));
+cron.schedule('0 0 * * *', /*#__PURE__*/_asyncToGenerator(function* () {
+  return yield sadniciCron();
+}));
+/**
+ * API Routes
+ */
 
-    app.use(router$b);
-    /**
-     * Validation Errors
-     */
+app.use(router$b);
+/**
+ * Validation Errors
+ */
 
-    app.use((err, req, res, next) => {
-      if (err instanceof expressValidation.ValidationError) {
-        return res.status(err.status).json(err);
-      }
+app.use((err, req, res, next) => {
+  if (err instanceof expressValidation.ValidationError) {
+    return res.status(err.status).json(err);
+  }
 
-      return next(err);
-    });
-    /**
-     * API Errors
-     */
+  return next(err);
+});
+/**
+ * API Errors
+ */
 
-    app.use((err, req, res, next) => {
-      if (err instanceof ApiError$1) {
-        return res.status(err.status).json(err.toJson());
-      }
+app.use((err, req, res, next) => {
+  if (err instanceof ApiError$1) {
+    return res.status(err.status).json(err.toJson());
+  }
 
-      return next(err);
-    });
-    /**
-     * Unhandled Errors
-     */
+  return next(err);
+});
+/**
+ * Unhandled Errors
+ */
 
-    process.on('unhandledRejection', error => {
-      // eslint-disable-next-line no-console
-      console.error('Uncaught Error', error);
-    });
-  });
+process.on('unhandledRejection', error => {
+  // eslint-disable-next-line no-console
+  console.error('Uncaught Error', error);
+});
 
-  return function init() {
-    return _ref.apply(this, arguments);
-  };
-}();
-
+/* eslint-disable no-console */
 var {
   PORT
 } = config;
@@ -3254,13 +3278,11 @@ var onError = error => {
   }
 };
 
-_asyncToGenerator(function* () {
-  var server = http.createServer(yield init$c());
-  server.listen(PORT, () => {
-    console.log('==========**********==========');
-    console.log('======= SERVER RUNNING =======');
-    console.log("========= PORT ".concat(PORT, " =========="));
-    console.log('==========**********==========');
-  });
-  server.on('error', onError);
-})();
+var server = http.createServer(app);
+server.listen(PORT, () => {
+  console.log('==========**********==========');
+  console.log('======= SERVER RUNNING =======');
+  console.log("========= PORT ".concat(PORT, " =========="));
+  console.log('==========**********==========');
+});
+server.on('error', onError);

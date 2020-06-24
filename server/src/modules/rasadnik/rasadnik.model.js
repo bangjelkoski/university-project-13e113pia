@@ -21,7 +21,7 @@ export default function init(sequelize) {
         allowNull: false,
       },
       temperature: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.DECIMAL(10, 2),
         defaultValue: 18,
       },
       waterLevel: {

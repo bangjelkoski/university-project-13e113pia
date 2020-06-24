@@ -2,6 +2,54 @@
 
 > Project for PIA [Programming Internet Applications] => a MEAN stack app
 
+## Getting Started
+
+**Database**
+
+```bash
+$ mysql -u username -p database_name < pia.sql
+```
+
+**Client**
+
+```bash
+$ cd client
+$ yarn
+$ ng serve
+```
+
+**Server**
+
+```bash
+$ cd server
+$ yarn
+$ cp .env.example .env
+```
+
+Popunjava se .env fajl sa podacima. Kao SMTP demo provajder se moze koristiti mailtrap.io
+
+Nakon toga, u folderu `server`:
+
+```bash
+$ yarn run dev
+```
+
+** Demo Korisnici **
+
+```javascript
+/** Administrator **/
+username: admin
+password: Pia123!@#
+
+/** Poljoprivrednik **/
+username: poljoprivrednik
+password: Pia123!@#
+
+/** Preduzece **/
+username: preduzece
+password: Pia123!@#
+```
+
 ---
 
 ## Support

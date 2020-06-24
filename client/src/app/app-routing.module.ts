@@ -28,6 +28,7 @@ import { RasadnikComponent as PoljoprivrednikRasadnikComponent } from './poljopr
 import { MagacinComponent as PoljoprivrednikMagacinComponent } from './poljoprivrednik/magacin/magacin.component';
 import { ProdavnicaComponent as PoljoprivrednikProdavnicaComponent } from './poljoprivrednik/prodavnica/prodavnica.component';
 import { ProizvodComponent as PoljoprivrednikProizvodComponent } from './poljoprivrednik/prodavnica/proizvod/proizvod.component';
+import { NewComponent as PoljoprivrednikRasadnikNewComponent } from './poljoprivrednik/rasadnik/new/new.component';
 
 const routes: Routes = [
   {
@@ -66,6 +67,10 @@ const routes: Routes = [
       {
         path: '',
         component: PoljoprivrednikDashboardComponent,
+      },
+      {
+        path: 'rasadnik/new',
+        component: PoljoprivrednikRasadnikNewComponent,
       },
       {
         path: 'rasadnik/:id',

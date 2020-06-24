@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PoljoprivrednikService } from 'src/app/services/poljoprivrednik/poljoprivrednik.service';
 import { ViewService } from 'src/app/services/view/view.service';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-prodavnica',
@@ -11,11 +12,18 @@ export class ProdavnicaComponent implements OnInit {
   rasadnici = [];
   preduzeca = [];
 
+  searchForm: FormGroup;
+  search: FormControl;
+
   constructor(
     private poljoprivrednikService: PoljoprivrednikService,
     public viewService: ViewService
   ) {
     this.viewService.setTitle('Продавница');
+    this.search = new FormControl('');
+    this.searchForm = new FormGroup({
+      search: this.search,
+    });
   }
 
   async ngOnInit() {

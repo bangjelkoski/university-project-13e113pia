@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PoljoprivrednikService } from 'src/app/services/poljoprivrednik/poljoprivrednik.service';
-import { TipProizvoda } from 'src/types';
+import { TipProizvoda, OrderStatus } from 'src/types';
 import { ViewService } from 'src/app/services/view/view.service';
 
 @Component({
@@ -43,7 +43,9 @@ export class RasadnikComponent implements OnInit {
     const magacin = await this.poljoprivrednikService.getMagacin(rasadnikId);
 
     this.magacin = magacin;
-    this.narudzbine = magacin.Narudzbine;
+    this.narudzbine = magacin.Narudzbine.filter((narudzbina) => {
+      return narudzbina.status !== OrderStatus.naCekanju;
+    });
     this.preparati = this.narudzbine.reduce((prev, narudzbina) => {
       return [
         ...prev,

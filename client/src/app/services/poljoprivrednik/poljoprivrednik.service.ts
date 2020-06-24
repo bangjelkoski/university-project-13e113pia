@@ -44,6 +44,21 @@ export class PoljoprivrednikService {
     return noviKomentar;
   }
 
+  async kreirajRasadnika({ name, location, length, width }) {
+    try {
+      await this.httpService.post(`rasadnici/${this.poljoprivrednik.id}`, {
+        name,
+        location,
+        length,
+        width,
+      });
+      this.toast.success('Успешнo креиран расадник.');
+      this.router.navigate(['/poljoprivrednik']);
+    } catch (error) {
+      return this.toast.error(error.message);
+    }
+  }
+
   async oceni({ proizvodId, ocena }) {
     const novaOcena = await this.httpService.post(`ocene/${proizvodId}`, {
       ocena,

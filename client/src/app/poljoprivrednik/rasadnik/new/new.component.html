@@ -1,0 +1,143 @@
+<div class="bg-gray-50 pt-12 sm:pt-16">
+  <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto text-center">
+      <h2
+        class="text-3xl leading-9 font-extrabold text-gray-900 sm:text-4xl sm:leading-10"
+      >
+        Креирај нови расадник
+      </h2>
+    </div>
+  </div>
+
+  <div class="mt-8">
+    <div class="w-full mx-auto lg:w-2/3">
+      <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+        <div class="flex -mx-4">
+          <div class="px-4 w-full lg:w/1-2">
+            <label
+              for="name"
+              class="block text-sm font-medium leading-5 text-gray-700"
+            >
+              Име расадника
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <input
+                id="name"
+                type="text"
+                placeholder="Расадник М43"
+                required
+                formControlName="name"
+                class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+              />
+            </div>
+            <div
+              class="text-xs text-red-500 mt-1"
+              *ngIf="name.invalid && (name.dirty || name.touched)"
+            >
+              <span *ngIf="name.errors.required">
+                Мораш да попуниш ово поље.
+              </span>
+            </div>
+          </div>
+          <div class="px-4 w-full lg:w/1-2">
+            <label
+              for="location"
+              class="block text-sm font-medium leading-5 text-gray-700"
+            >
+              Локација
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <input
+                id="location"
+                type="text"
+                placeholder="Угриновачка бр. 15"
+                required
+                formControlName="location"
+                class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+              />
+            </div>
+            <div
+              class="text-xs text-red-500 mt-1"
+              *ngIf="location.invalid && (location.dirty || location.touched)"
+            >
+              <span *ngIf="location.errors.required">
+                Мораш да попуниш ово поље.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex -mx-4">
+          <div class="mt-6 px-4 w-full lg:w/1-2">
+            <label
+              for="width"
+              class="block text-sm font-medium leading-5 text-gray-700"
+            >
+              Ширина расадника
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <input
+                id="width"
+                type="number"
+                placeholder=""
+                min="1"
+                step="1"
+                required
+                formControlName="width"
+                class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+              />
+            </div>
+            <div
+              class="text-xs text-red-500 mt-1"
+              *ngIf="width.invalid && (width.dirty || width.touched)"
+            >
+              <span *ngIf="width.errors.required">
+                Мораш да попуниш ово поље.
+              </span>
+            </div>
+          </div>
+          <div class="mt-6 px-4 w-full lg:w/1-2">
+            <label
+              for="length"
+              class="block text-sm font-medium leading-5 text-gray-700"
+            >
+              Дужина расадника
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <input
+                id="length"
+                type="number"
+                placeholder=""
+                min="1"
+                step="1"
+                required
+                formControlName="length"
+                class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+              />
+            </div>
+            <div
+              class="text-xs text-red-500 mt-1"
+              *ngIf="length.invalid && (length.dirty || length.touched)"
+            >
+              <span *ngIf="length.errors.required">
+                Мораш да попуниш ово поље.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <span class="inline-block rounded-md shadow-sm">
+            <button
+              type="submit"
+              [disabled]="!createForm.valid"
+              class="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:border-blue-700 focus:shadow-outline-blue active:bg-blue-700 transition duration-150 ease-in-out"
+            >
+              Креирај расадник
+            </button>
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

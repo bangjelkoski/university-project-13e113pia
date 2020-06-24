@@ -7,12 +7,27 @@
         Онлајн продавница!
       </h2>
     </div>
+
+    <form [formGroup]="searchForm">
+      <div class="w-full md:w-1/2 lg:w-1/4">
+        <div class="mt-1 rounded-md shadow-sm">
+          <input
+            id="search"
+            type="text"
+            placeholder="Претрага производа"
+            formControlName="search"
+            class="appearance-none block w-full px-3 py-2 border border-gray-400 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+          />
+        </div>
+      </div>
+    </form>
   </div>
 
   <div *ngIf="preduzeca.length > 0">
     <app-preduzece-list-proizvodi
       *ngFor="let preduzece of preduzeca"
       [preduzece]="preduzece"
+      [search]="search.value"
       [rasadnici]="rasadnici"
       (novaNarudzbina)="onNovaNarudzbina($event, preduzece)"
     ></app-preduzece-list-proizvodi>

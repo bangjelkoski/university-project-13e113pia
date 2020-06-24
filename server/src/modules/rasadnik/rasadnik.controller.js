@@ -59,7 +59,7 @@ export const kreiraj = async (req, res, next) => {
   const { name, location, width, length } = req.body;
 
   try {
-    await proizvodService.kreiraj({
+    await rasadnikService.kreiraj({
       PoljoprivrednikId: poljoprivrednikId,
       name,
       location,

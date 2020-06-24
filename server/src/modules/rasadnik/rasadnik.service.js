@@ -41,13 +41,15 @@ export const kreiraj = async ({
   length,
 }) => {
   try {
-    await db.Rasadnik.create({
+    const rasadnik = await db.Rasadnik.create({
       PoljoprivrednikId,
       name,
       location,
       width,
       length,
     });
+
+    await db.Magacin.create({ RasadnikId: rasadnik.id });
   } catch (error) {
     return ApiError.throw(error, 'Настала ја грешка');
   }

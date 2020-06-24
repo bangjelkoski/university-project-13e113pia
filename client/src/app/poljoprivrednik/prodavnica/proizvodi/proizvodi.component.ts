@@ -29,6 +29,7 @@ export class ProizvodiComponent implements OnInit {
 
   @Input() rasadnici = [];
   @Input() preduzece;
+  @Input() search;
 
   @Output() novaNarudzbina = new EventEmitter();
 
@@ -52,7 +53,13 @@ export class ProizvodiComponent implements OnInit {
   }
 
   getProizvodi() {
-    const proizvodi = this.preduzece.Proizvodi.map((proizvod) => {
+    const filtered = this.search
+      ? this.preduzece.Proizvodi.filter(({ name }) =>
+          name.toLowerCase().includes(this.search.toLowerCase())
+        )
+      : this.preduzece.Proizvodi;
+
+    const proizvodi = filtered.map((proizvod) => {
       const valueInHours = Math.floor(proizvod.value / (1000 * 60));
       const valueToString =
         proizvod.type == TipProizvoda.preparat

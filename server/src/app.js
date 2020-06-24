@@ -15,65 +15,63 @@ import { rasadniciCron, sadniciCron } from './handlers/cron';
 const app = express();
 const log = debug('app');
 
-const init = async () => {
-  /**
-   * App Middleware
-   */
-  app.use(cors());
-  app.use(methodOverride());
-  app.use(bodyParser.urlencoded({ extended: false }));
-  app.use(bodyParser.json());
-  app.use(compression());
-  app.use(helmet());
+/**
+ * App Middleware
+ */
+app.use(cors());
+app.use(methodOverride());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(compression());
+app.use(helmet());
 
-  /**
-   * Database Setup
-   */
-  await database.sequelize.authenticate();
+/**
+ * Database Setup
+ */
+database.sequelize.authenticate();
 
-  /**
+/**
    * Database migrations
    *
-   database.sequelize.sync({ force: true });
-  */
-
-  cron.schedule('* * * * *', async () => await rasadniciCron());
-  cron.schedule('* * * * *', async () => await sadniciCron());
-
-  /**
-   * API Routes
+   await database.sequelize.sync({ force: true });
    */
-  app.use(routes);
 
-  /**
-   * Validation Errors
-   */
-  app.use((err, req, res, next) => {
-    if (err instanceof ValidationError) {
-      return res.status(err.status).json(err);
-    }
+cron.schedule('0 * * * *', async () => await rasadniciCron());
+cron.schedule('0 0 * * *', async () => await sadniciCron());
 
-    return next(err);
-  });
+/**
+ * API Routes
+ */
+app.use(routes);
 
-  /**
-   * API Errors
-   */
-  app.use((err, req, res, next) => {
-    if (err instanceof ApiError) {
-      return res.status(err.status).json(err.toJson());
-    }
+/**
+ * Validation Errors
+ */
+app.use((err, req, res, next) => {
+  if (err instanceof ValidationError) {
+    return res.status(err.status).json(err);
+  }
 
-    return next(err);
-  });
+  return next(err);
+});
 
-  /**
-   * Unhandled Errors
-   */
-  process.on('unhandledRejection', (error) => {
-    // eslint-disable-next-line no-console
-    console.error('Uncaught Error', error);
-  });
-};
+/**
+ * API Errors
+ */
+app.use((err, req, res, next) => {
+  if (err instanceof ApiError) {
+    return res.status(err.status).json(err.toJson());
+  }
 
-export default init;
+  return next(err);
+});
+
+/**
+ * Unhandled Errors
+ */
+process.on('unhandledRejection', (error) => {
+  // eslint-disable-next-line no-console
+  console.error('Uncaught Error', error);
+});
+
+export default app;
